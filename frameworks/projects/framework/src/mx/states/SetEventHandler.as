@@ -7,6 +7,8 @@
 //  NOTICE: Adobe permits you to use, modify, and distribute this file
 //  in accordance with the terms of the license agreement accompanying it.
 //
+//  AdobePatentID="B770"
+//
 ////////////////////////////////////////////////////////////////////////////////
 
 package mx.states
@@ -16,6 +18,8 @@ import flash.events.EventDispatcher;
 import flash.utils.Dictionary;
 import mx.core.ComponentDescriptor;
 import mx.core.UIComponent;
+import mx.states.OverrideBase;
+import mx.core.IStateClient2;
 
 /**
  *  The event handler function to execute in response to the event that is
@@ -29,6 +33,11 @@ import mx.core.UIComponent;
  *  When you use the <code>handler</code> handler attribute, you can specify a 
  *  method that takes multiple parameters, not just the Event object;
  *  also, you can specify the handler code in-line in the MXML tag.</p>
+ *  
+ *  @langversion 3.0
+ *  @playerversion Flash 9
+ *  @playerversion AIR 1.1
+ *  @productversion Flex 3
  */
 [Event(name="handler", type="Object")]
 
@@ -60,10 +69,15 @@ import mx.core.UIComponent;
  *  @see mx.states.State
  *  @see mx.states.SetProperty
  *  @see mx.states.SetStyle
+ *  
+ *  @langversion 3.0
+ *  @playerversion Flash 9
+ *  @playerversion AIR 1.1
+ *  @productversion Flex 3
  */
-public class SetEventHandler extends EventDispatcher implements IOverride
+public class SetEventHandler extends OverrideBase
 {
-	include "../core/Version.as";
+    include "../core/Version.as";
 
     //--------------------------------------------------------------------------
     //
@@ -73,40 +87,45 @@ public class SetEventHandler extends EventDispatcher implements IOverride
 
     /**
      *  Constructor.
-	 *
-	 *  @param target The object that dispatches the event to be handled.
-	 *  By default, Flex uses the immediate parent of the State object.
-	 *
-	 *  @param event The event type for which to set the handler.
+     *
+     *  @param target The object that dispatches the event to be handled.
+     *  By default, Flex uses the immediate parent of the State object.
+     *
+     *  @param event The event type for which to set the handler.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
-	public function SetEventHandler(
-			target:EventDispatcher = null,
-			name:String = null)
-	{
-		super();
+    public function SetEventHandler(
+            target:EventDispatcher = null,
+            name:String = null)
+    {
+        super();
 
-		this.target = target;
-		this.name = name;
-	}
+        this.target = target;
+        this.name = name;
+    }
 
-	//--------------------------------------------------------------------------
-	//
-	//  Variables
-	//
-	//--------------------------------------------------------------------------
+    //--------------------------------------------------------------------------
+    //
+    //  Variables
+    //
+    //--------------------------------------------------------------------------
 
-	/**
-	 *  @private
-	 *  Storage for the old event handler value.
-	 */
-	private var oldHandlerFunction:Function;
+    /**
+     *  @private
+     *  Storage for the old event handler value.
+     */
+    private var oldHandlerFunction:Function;
 
-	/**
-	 *  @private
-	 *	Dictionary of installed event handlers.
-	 */
-	private static var installedHandlers:Dictionary;
-	
+    /**
+     *  @private
+     *  Dictionary of installed event handlers.
+     */
+    private static var installedHandlers:Dictionary;
+    
     //--------------------------------------------------------------------------
     //
     //  Properties
@@ -114,66 +133,104 @@ public class SetEventHandler extends EventDispatcher implements IOverride
     //--------------------------------------------------------------------------
 
     //----------------------------------
-	//  name
+    //  name
     //----------------------------------
 
-	[Inspectable(category="General")]
+    [Inspectable(category="General")]
 
-	/**
+    /**
      *  The name of the event whose handler is being set.
-	 *  You must set this property, either in 
-	 *  the SetEventHandler constructor or by setting
-	 *  the property value directly.
-	 */
-	public var name:String;
+     *  You must set this property, either in 
+     *  the SetEventHandler constructor or by setting
+     *  the property value directly.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
+     */
+    public var name:String;
 
-	/**
-	 *  The handler function for the event.
-	 *  This property is intended for developers who use ActionScript to
-	 *  create and access view states.
-	 *  In MXML, you can use the equivalent <code>handler</code>
-	 *  event attribute; do not use both in a single MXML tag.
-	 *  
-	 *  @default null
-	 */
-	public var handlerFunction:Function;
+    /**
+     *  The handler function for the event.
+     *  This property is intended for developers who use ActionScript to
+     *  create and access view states.
+     *  In MXML, you can use the equivalent <code>handler</code>
+     *  event attribute; do not use both in a single MXML tag.
+     *  
+     *  @default null
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
+     */
+    public var handlerFunction:Function;
+    
+    /**
+     *  The handler function to remove prior to applying our override.
+     *  
+     *  @default null
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 4.5
+     */
+    public var originalHandlerFunction:Function;
 
     //----------------------------------
-	//  target
+    //  target
     //----------------------------------
 
-	[Inspectable(category="General")]
+    [Inspectable(category="General")]
 
     /**
      *  The component that dispatches the event.
-	 *  If the property value is <code>null</code>, Flex uses the
+     *  If the property value is <code>null</code>, Flex uses the
      *  immediate parent of the <code>&lt;mx:states&gt;</code> tag.
      *
-	 *  @default null
+     *  @default null
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
-	public var target:EventDispatcher;
+    public var target:Object;
 
+    /**
+     *  The cached target for which we applied our override.
+     *  We keep track of the applied target while applied since
+     *  our target may be swapped out in the owning document and 
+     *  we want to make sure we roll back the correct (original) 
+     *  element. 
+     *
+     *  @private
+     */
+    private var appliedTarget:Object;
+    
     //--------------------------------------------------------------------------
     //
     //  Overridden methods: EventDispatcher
     //
     //--------------------------------------------------------------------------
 
-	/**
-	 *  @private
-	 */
-	override public function addEventListener(
-									type:String, listener:Function,
-									useCapture:Boolean = false,
-									priority:int = 0,
-									useWeakReference:Boolean = false):void
-	{
-		if (type == "handler")
-			handlerFunction = listener;
+    /**
+     *  @private
+     */
+    override public function addEventListener(
+                                    type:String, listener:Function,
+                                    useCapture:Boolean = false,
+                                    priority:int = 0,
+                                    useWeakReference:Boolean = false):void
+    {
+        if (type == "handler")
+            handlerFunction = listener;
 
-		super.addEventListener(type, listener, useCapture,
-							   priority, useWeakReference);
-	}
+        super.addEventListener(type, listener, useCapture,
+                               priority, useWeakReference);
+    }
 
     //--------------------------------------------------------------------------
     //
@@ -182,90 +239,142 @@ public class SetEventHandler extends EventDispatcher implements IOverride
     //--------------------------------------------------------------------------
 
     /**
-     *  IOverride interface method; this class implements it as an empty method.
-	 * 
-	 *  @copy IOverride#initialize()
+     *  @inheritDoc
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
-    public function initialize():void
+    override public function apply(parent:UIComponent):void
     {
+        parentContext = parent;
+        var obj:* = getOverrideContext(target, parent);
+        if (obj != null)
+        {
+            appliedTarget = obj;
+            var uiObj:UIComponent = obj as UIComponent;
+    
+            if (!installedHandlers)
+                installedHandlers = new Dictionary(true);
+                
+            // Remember the current handler so it can be restored
+            if (installedHandlers[obj] && installedHandlers[obj][name])
+            {
+                oldHandlerFunction = installedHandlers[obj][name];
+                obj.removeEventListener(name, oldHandlerFunction);
+            }
+            else if (originalHandlerFunction != null)
+            {
+                oldHandlerFunction = originalHandlerFunction;
+                obj.removeEventListener(name, oldHandlerFunction);   
+            }
+            else if (uiObj && uiObj.descriptor)
+            {
+                var descriptor:ComponentDescriptor = uiObj.descriptor;
+    
+                if (descriptor.events && descriptor.events[name])
+                {
+                    oldHandlerFunction = uiObj.document[descriptor.events[name]];
+                    obj.removeEventListener(name, oldHandlerFunction);
+                }
+            }
+    
+            // Set new handler as weak reference
+            if (handlerFunction != null)
+            {
+                obj.addEventListener(name, handlerFunction, false, 0, true);
+                
+                // Add this handler to our installedHandlers list so it can
+                // be removed if needed by a state based on this state. We 
+                // only do so for legacy MXML documents that support hierarchical
+                // states. 
+                if (!(parent.document is IStateClient2))
+                {   
+                    if (installedHandlers[obj] == undefined)
+                        installedHandlers[obj] = {};
+                    
+                    installedHandlers[obj][name] = handlerFunction;
+                }
+                
+                // Disable bindings for the base event handler if appropriate. If the binding
+                // fires while our override is applied, the correct value will automatically
+                // be applied when the binding is later enabled.
+                enableBindings(obj, parent, name, false);
+            }
+        }
+        else if (!applied)
+        {
+            // Our target context is unavailable so we attempt to register
+            // a listener on our parent document to detect when/if it becomes
+            // valid.
+            addContextListener(target);
+        }
+        
+        // Save state in case our value or target is changed while applied. This
+        // can occur when our value property is databound or when a target is 
+        // deferred instantiated.
+        applied = true;
     }
 
     /**
      *  @inheritDoc
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
-	public function apply(parent:UIComponent):void
-	{
-		var obj:EventDispatcher = target ? target : parent;
-		var uiObj:UIComponent = obj as UIComponent;
-
-		if (!installedHandlers)
-			installedHandlers = new Dictionary(true);
-			
-		// Remember the current handler so it can be restored
-		if (installedHandlers[obj] && installedHandlers[obj][name])
-		{
-			oldHandlerFunction = installedHandlers[obj][name];
-			obj.removeEventListener(name, oldHandlerFunction);
-		}
-		else if (uiObj && uiObj.descriptor)
-		{
-			var descriptor:ComponentDescriptor = uiObj.descriptor;
-
-			if (descriptor.events && descriptor.events[name])
-			{
-				oldHandlerFunction = uiObj.document[descriptor.events[name]];
-				obj.removeEventListener(name, oldHandlerFunction);
-			}
-		}
-
-		// Set new handler as weak reference
-		if (handlerFunction != null)
-		{
-			obj.addEventListener(name, handlerFunction, false, 0, true);
-			
-			// Add this handler to our installedHandlers list so it can
-			// be removed if needed by a state based on this state.
-			if (installedHandlers[obj] == undefined)
-				installedHandlers[obj] = {};
-			
-			installedHandlers[obj][name] = handlerFunction;
-		}
-	}
-
-	/**
-     *  @inheritDoc
-	 */
-	public function remove(parent:UIComponent):void
-	{
-		var obj:EventDispatcher = target ? target : parent;
-
-		if (handlerFunction != null)
-			obj.removeEventListener(name, handlerFunction);
-
-		// Restore the old value
-		if (oldHandlerFunction != null)
-			obj.addEventListener(name, oldHandlerFunction, false, 0, true);
-		
-		if (installedHandlers[obj])
-		{
-			var deleteObj:Boolean = true;
-			
-			// Remove this handler
-			delete installedHandlers[obj][name];
-
-			// If no other handlers are installed for this object, delete
-			// this object from the installedHandlers dictionary
-			for (var i:String in installedHandlers[obj])
-			{
-				// Found one - don't delete this object
-				deleteObj = false;
-				break;
-			}
-
-			if (deleteObj)
-				delete installedHandlers[obj];
-		}
-	}
+    override public function remove(parent:UIComponent):void
+    {        
+        var obj:* = getOverrideContext(appliedTarget, parent);
+        if (obj != null && appliedTarget)
+        {
+	        if (handlerFunction != null)
+	            obj.removeEventListener(name, handlerFunction);
+	
+	        // Restore the old value
+	        if (oldHandlerFunction != null)
+	            obj.addEventListener(name, oldHandlerFunction, false, 0, true);
+	        
+	        if (installedHandlers[obj])
+	        {
+	            var deleteObj:Boolean = true;
+	            
+	            // Remove this handler
+	            delete installedHandlers[obj][name];
+	
+	            // If no other handlers are installed for this object, delete
+	            // this object from the installedHandlers dictionary
+	            for (var i:String in installedHandlers[obj])
+	            {
+	                // Found one - don't delete this object
+	                deleteObj = false;
+	                break;
+	            }
+	
+	            if (deleteObj)
+	                delete installedHandlers[obj];
+	        }
+            
+            // Re-enable bindings for the base event handler if appropriate. If the binding
+            // fired while our override was applied, the current value will automatically
+            // be applied once enabled.
+            enableBindings(obj, parent, name);
+        }
+        else
+        {
+            // It seems our override is no longer active, but we were never
+            // able to successfully apply ourselves, so remove our context
+            // listener if applicable.
+            removeContextListener();
+        }
+        
+        // Clear our flags and override context.
+        applied = false;
+        parentContext = null;
+        appliedTarget = null;
+    }
 }
 
 }

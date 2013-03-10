@@ -53,10 +53,55 @@ use namespace mx_internal;
     textDecoration
 */
 
+include "../styles/metadata/ContainerBackgroundStyles.as"
 include "../styles/metadata/BorderStyles.as"
 include "../styles/metadata/LeadingStyle.as"
 include "../styles/metadata/PaddingStyles.as"
 include "../styles/metadata/TextStyles.as"
+
+/**
+ *  Radius of component corners.
+ *  
+ *  @default 2
+ *  
+ *  @langversion 3.0
+ *  @playerversion Flash 9
+ *  @playerversion AIR 1.1
+ *  @productversion Flex 3
+ */
+[Style(name="cornerRadius", type="Number", format="Length", inherit="no", theme="halo, spark, mobile")]
+
+/**
+ *  Number of pixels between the container's bottom border and its content area.
+ *  The default value is -1, so the bottom border of the last header
+ *  overlaps the Accordion container's bottom border.
+ *  
+ *  @langversion 3.0
+ *  @playerversion Flash 9
+ *  @playerversion AIR 1.1
+ *  @productversion Flex 3
+ */
+[Style(name="paddingBottom", type="Number", format="Length", inherit="no")]
+
+/**
+ *  Number of pixels between the container's top border and its content area.
+ *  The default value is -1, so the top border of the first header
+ *  overlaps the Accordion container's top border.
+ *  
+ *  @langversion 3.0
+ *  @playerversion Flash 9
+ *  @playerversion AIR 1.1
+ *  @productversion Flex 3
+ */
+[Style(name="paddingTop", type="Number", format="Length", inherit="no")]
+
+/**
+ * Because this component does not define a skin for the mobile theme, Adobe
+ * recommends that you not use it in a mobile application. Alternatively, you
+ * can define your own mobile skin for the component. For more information,
+ * see <a href="http://help.adobe.com/en_US/flex/mobileapps/WS19f279b149e7481c698e85712b3011fe73-8000.html">Basics of mobile skinning</a>.
+ */
+[DiscouragedForProfile("mobileDevice")]
 
 /**
  *  The ToolTip control lets you provide helpful information to your users.
@@ -68,6 +113,11 @@ include "../styles/metadata/TextStyles.as"
  *
  *  @see mx.managers.ToolTipManager
  *  @see mx.styles.CSSStyleDeclaration
+ *  
+ *  @langversion 3.0
+ *  @playerversion Flash 9
+ *  @playerversion AIR 1.1
+ *  @productversion Flex 3
  */
 public class ToolTip extends UIComponent implements IToolTip, IFontContextComponent
 {
@@ -83,6 +133,11 @@ public class ToolTip extends UIComponent implements IToolTip, IFontContextCompon
     
     /**
      *  Maximum width in pixels for new ToolTip controls.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public static var maxWidth:Number = 300;
 
@@ -94,6 +149,11 @@ public class ToolTip extends UIComponent implements IToolTip, IFontContextCompon
 
     /**
      *  Constructor.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function ToolTip()
     {
@@ -113,6 +173,11 @@ public class ToolTip extends UIComponent implements IToolTip, IFontContextCompon
     
     /**
      *  The internal object that draws the border.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     mx_internal var border:IFlexDisplayObject;
     
@@ -176,6 +241,11 @@ public class ToolTip extends UIComponent implements IToolTip, IFontContextCompon
      *  The text displayed by the ToolTip.
      *
      *  @default null
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get text():String
     {
@@ -201,6 +271,11 @@ public class ToolTip extends UIComponent implements IToolTip, IFontContextCompon
 
     /**
      *  The internal UITextField that renders the text of this ToolTip.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     protected var textField:IUITextField;
 
@@ -218,14 +293,7 @@ public class ToolTip extends UIComponent implements IToolTip, IFontContextCompon
         super.createChildren();
 
         // Create the border/background.
-        if (!border)
-        {
-            var borderClass:Class = getStyle("borderSkin");
-            border = new borderClass();
-            if (border is ISimpleStyleClient)
-                ISimpleStyleClient(border).styleName = this;
-            addChild(DisplayObject(border));
-        }
+        createBorder();
 
         // Create the TextField that displays the tooltip text.
         createTextField(-1);
@@ -337,9 +405,20 @@ public class ToolTip extends UIComponent implements IToolTip, IFontContextCompon
         // won't call updateDisplayList() because the size hasn't changed.
         // But the TextField has to be repositioned, so we need to
         // invalidate the layout as well as the size.
-        if (styleProp == "borderStyle" ||
-            styleProp == "styleName" ||
+        if (styleProp == "styleName" ||
+            styleProp == "borderSkin" ||
             styleProp == null)
+        {
+            //if the border skin has changed then rebuild it.
+            if(border)
+            {
+                removeChild(DisplayObject(border));
+                border = null;
+            }
+            
+            createBorder();         
+        }
+        else if (styleProp == "borderStyle")
         {
             invalidateDisplayList();
         }
@@ -398,6 +477,30 @@ public class ToolTip extends UIComponent implements IToolTip, IFontContextCompon
     mx_internal function getTextField():IUITextField
     {
         return textField;
+    }
+    
+    /**
+     *  @private
+     */
+    private function createBorder():void
+    {        
+        if (!border)
+        {
+            var borderClass:Class = getStyle("borderSkin");
+            
+            if (borderClass != null)
+            {
+                border = new borderClass();
+                
+                if (border is ISimpleStyleClient)
+                    ISimpleStyleClient(border).styleName = this;
+                
+                // Add the border behind all the children.
+                addChildAt(DisplayObject(border), 0);
+                
+                invalidateDisplayList();
+            }
+        }
     }
 }
 

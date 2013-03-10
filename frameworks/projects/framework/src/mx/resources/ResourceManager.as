@@ -16,8 +16,8 @@ import flash.events.Event;
 import flash.events.EventDispatcher;
 import flash.events.IEventDispatcher;
 import flash.events.TimerEvent;
-import flash.system.ApplicationDomain;
 import flash.system.SecurityDomain;
+import flash.utils.getDefinitionByName;
 import flash.utils.Timer;
 import mx.core.IFlexModuleFactory;
 import mx.core.mx_internal;
@@ -40,6 +40,11 @@ import mx.utils.StringUtil;
  *  
  *  @see mx.resources.IResourceManager
  *  @see mx.resources.IResourceBundle
+ *  
+ *  @langversion 3.0
+ *  @playerversion Flash 9
+ *  @playerversion AIR 1.1
+ *  @productversion Flex 3
  */
 public class ResourceManager
 {
@@ -74,11 +79,28 @@ public class ResourceManager
      *  This object manages all localized resources for a Flex application.
      *  
      *  @return An object implementing IResourceManager.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public static function getInstance():IResourceManager
     {
         if (!instance)
         {
+            CONFIG::performanceInstrumentation
+            {
+                var perfUtil:mx.utils.PerfUtil = mx.utils.PerfUtil.getInstance();
+                perfUtil.markTime("ResourceManager.getInstance().start");
+            }
+            
+			if (!Singleton.getClass("mx.resources::IResourceManager"))
+				// install ResourceManagerImpl if not registered already
+				Singleton.registerClass("mx.resources::IResourceManager",
+					Class(getDefinitionByName("mx.resources::ResourceManagerImpl")));
+
+
             try
 			{
 				instance = IResourceManager(
@@ -94,23 +116,14 @@ public class ResourceManager
 				// its own ResourceManagerImpl.
 				instance = new ResourceManagerImpl();
 			}
+
+            CONFIG::performanceInstrumentation
+            {
+                perfUtil.markTime("ResourceManager.getInstance().end");
+            }
         }
         
         return instance;
-    }
-    
-    //--------------------------------------------------------------------------
-    //
-    //  Constructor
-    //
-    //--------------------------------------------------------------------------
-
-    /**
-     *  Constructor.
-     */
-    public function ResourceManager()
-    {
-        super();
     }
     
 }

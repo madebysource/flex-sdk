@@ -14,15 +14,22 @@ package mx.core
 	
 import flash.display.DisplayObject;
 import flash.utils.Dictionary;
+import flash.events.EventDispatcher;
 import flash.events.IEventDispatcher;
 	
+import mx.events.DynamicEvent;
 import mx.managers.ISystemManager;
 	
 /**
  *  A SWFBridgeGroup represents all of the sandbox bridges that an 
  *  application needs to communicate with its parent and children.
+ *  
+ *  @langversion 3.0
+ *  @playerversion Flash 9
+ *  @playerversion AIR 1.1
+ *  @productversion Flex 3
  */
-public class SWFBridgeGroup implements ISWFBridgeGroup
+public class SWFBridgeGroup extends EventDispatcher implements ISWFBridgeGroup
 {
 	include "../core/Version.as";
 
@@ -37,6 +44,11 @@ public class SWFBridgeGroup implements ISWFBridgeGroup
      * 
      *  @param owner The DisplayObject that owns this group.
      *  This should be the SystemManager of an application.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
 	public function SWFBridgeGroup(owner:ISystemManager)
 	{
@@ -88,6 +100,11 @@ public class SWFBridgeGroup implements ISWFBridgeGroup
      *  if the parent is in a different sandbox.
      *  May be <code>null</code> if the parent is in the same sandbox
      *  or this is the top-level root application.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
 	public function get parentBridge():IEventDispatcher
 	{
@@ -110,6 +127,11 @@ public class SWFBridgeGroup implements ISWFBridgeGroup
 	
 	/**
 	 *  @inheritDoc
+	 *  
+	 *  @langversion 3.0
+	 *  @playerversion Flash 9
+	 *  @playerversion AIR 1.1
+	 *  @productversion Flex 3
 	 */
 	public function addChildBridge(bridge:IEventDispatcher, bridgeProvider:ISWFBridgeProvider):void
 	{
@@ -117,10 +139,20 @@ public class SWFBridgeGroup implements ISWFBridgeGroup
 			_childBridges = new Dictionary();
 
 		_childBridges[bridge] = bridgeProvider;
+
+		var event:DynamicEvent = new DynamicEvent("addChildBridge");
+		event.bridge = bridge;
+		event.bridgeProvider = bridgeProvider;
+		dispatchEvent(event);
 	}
 
 	/**
 	 *  @inheritDoc
+	 *  
+	 *  @langversion 3.0
+	 *  @playerversion Flash 9
+	 *  @playerversion AIR 1.1
+	 *  @productversion Flex 3
 	 */
 	public function removeChildBridge(bridge:IEventDispatcher):void
 	{
@@ -132,10 +164,19 @@ public class SWFBridgeGroup implements ISWFBridgeGroup
 			if (iter == bridge)
 				delete _childBridges[iter];
 		}
+
+		var event:DynamicEvent = new DynamicEvent("removeChildBridge");
+		event.bridge = bridge;
+		dispatchEvent(event);
 	}
 
 	/**
 	 *  @inheritDoc
+	 *  
+	 *  @langversion 3.0
+	 *  @playerversion Flash 9
+	 *  @playerversion AIR 1.1
+	 *  @productversion Flex 3
 	 */
 	public function getChildBridgeProvider(bridge:IEventDispatcher):ISWFBridgeProvider
 	{
@@ -147,6 +188,11 @@ public class SWFBridgeGroup implements ISWFBridgeGroup
 	
 	/**
 	 *  @inheritDoc
+	 *  
+	 *  @langversion 3.0
+	 *  @playerversion Flash 9
+	 *  @playerversion AIR 1.1
+	 *  @productversion Flex 3
 	 */
 	public function getChildBridges():Array
 	{
@@ -162,6 +208,11 @@ public class SWFBridgeGroup implements ISWFBridgeGroup
 
 	/**
 	 *  @inheritDoc
+	 *  
+	 *  @langversion 3.0
+	 *  @playerversion Flash 9
+	 *  @playerversion AIR 1.1
+	 *  @productversion Flex 3
 	 */
 	public function containsBridge(bridge:IEventDispatcher):Boolean
 	{

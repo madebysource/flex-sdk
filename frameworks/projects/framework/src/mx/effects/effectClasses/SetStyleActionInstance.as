@@ -12,8 +12,12 @@
 package mx.effects.effectClasses
 {
 
-import mx.styles.StyleManager;
 import mx.core.mx_internal;
+import mx.styles.StyleManager;
+import mx.core.IFlexModuleFactory;
+import mx.core.IFlexModule;
+
+use namespace mx_internal;
 
 /**
  *  The SetStyleActionInstance class implements the instance class
@@ -22,6 +26,11 @@ import mx.core.mx_internal;
  *  effect; you do not create one yourself.
  *
  *  @see mx.effects.SetStyleAction
+ *  
+ *  @langversion 3.0
+ *  @playerversion Flash 9
+ *  @playerversion AIR 1.1
+ *  @productversion Flex 3
  */  
 public class SetStyleActionInstance extends ActionEffectInstance
 {
@@ -37,6 +46,11 @@ public class SetStyleActionInstance extends ActionEffectInstance
 	 *  Constructor.
 	 *
 	 *  @param target The Object to animate with this effect.
+	 *  
+	 *  @langversion 3.0
+	 *  @playerversion Flash 9
+	 *  @playerversion AIR 1.1
+	 *  @productversion Flex 3
 	 */
 	public function SetStyleActionInstance(target:Object)
 	{
@@ -55,6 +69,11 @@ public class SetStyleActionInstance extends ActionEffectInstance
 
 	/** 
 	 *  The name of the style property being changed.
+	 *  
+	 *  @langversion 3.0
+	 *  @playerversion Flash 9
+	 *  @playerversion AIR 1.1
+	 *  @productversion Flex 3
 	 */
 	public var name:String;
 	
@@ -70,10 +89,15 @@ public class SetStyleActionInstance extends ActionEffectInstance
 	
 	/** 
 	 *  The new value for the property.
+	 *  
+	 *  @langversion 3.0
+	 *  @playerversion Flash 9
+	 *  @playerversion AIR 1.1
+	 *  @productversion Flex 3
 	 */
 	public function get value():*
 	{
-		if (mx_internal::playReversed)
+		if (playReversed)
 			return getStartValue();
 		else
 			return _value;
@@ -121,7 +145,13 @@ public class SetStyleActionInstance extends ActionEffectInstance
 				// for inheriting color styles and misses non-inheriting styles like
 				// backgroundColor.
 				if (name.toLowerCase().indexOf("color") != -1)
-					target.setStyle(name, StyleManager.getColorName(value));
+                {
+                    var moduleFactory:IFlexModuleFactory = null;
+                    if (target is IFlexModule)
+                        moduleFactory = target.moduleFactory;
+                    target.setStyle(name, 
+                        StyleManager.getStyleManager(moduleFactory).getColorName(value));                    
+                }
 				else
 					target.setStyle(name, Number(value));
 			}

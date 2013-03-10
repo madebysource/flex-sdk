@@ -1,8 +1,8 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" 
-	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 
 <!--
-Copyright 2006 Adobe Systems Incorporated
+Copyright 2006-2009 Adobe Systems Incorporated
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"),
 to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense,
@@ -17,11 +17,10 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OU
 OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 -->
-<html>
 <head>
 	<title>Flex-AJAX Bridge Example</title>
-	<style>
-	
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<style type="text/css" media="screen">
 	body {
 		margin: 0px;
 		overflow: hidden;
@@ -38,7 +37,7 @@ OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 		padding: 20px;
 	}
 
-	#flashoutput {
+	#flashcontent {
 		margin-top: 20px; 
 		width: auto;
 	}
@@ -46,73 +45,70 @@ OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 	textarea {
 		font-size: 1em;
 	}
-	
 	</style>
-	<script src="fabridge/javascript/FABridge.js" ></script>
-	<script src="FABridgeSample.js" ></script>
+	<script type="text/javascript" src="fabridge/javascript/FABridge.js" ></script>
+	<script type="text/javascript" src="FABridgeSample.js" ></script>
+	<script type="text/javascript" src="fabridge/swfobject/swfobject.js"></script>
+	<script type="text/javascript">
+		var flashvars = {};
+		flashvars.bridgeName = "example";
+		var params = {};
+		var attributes = {};
+		attributes.id = "flexApp";
+		attributes.name = "flexApp";
+		swfobject.embedSWF("app.swf", "flashcontent", "400", "400", "9.0.124", "", flashvars, params, attributes);
+	</script>
 </head>
-<body scroll="no">
+<body>
 	<div id="container">
 		<div id="controls">
 			<textarea id="expr" cols="60" rows="20">type in javascript code here.  use the radio buttons below to view sample FABridge code</textarea>
 			<br />
-			<input type="button" onClick="testEval();return false;" value="execute" />
+			<input type="button" onclick="testEval();return false;" value="execute" />
 			<div style="margin-left: 20px">
 				<p>Sample Code:<br />
-					<input id="get_slider" onClick="updateCode('get_slider')" name="code" type="radio">
+					<input id="get_slider" onclick="updateCode('get_slider')" name="code" type="radio" />
 					<label for="get_slider">get slider value</label>
 					
-					<input id="set_check" onClick="updateCode('set_check')" name="code" type="radio">
+					<input id="set_check" onclick="updateCode('set_check')" name="code" type="radio" />
 					<label for="set_check">set checkbox value</label>
 					<br />
 					
-					<input id="invoke_as" onClick="updateCode('invoke_as')" name="code" type="radio">
+					<input id="invoke_as" onclick="updateCode('invoke_as')" name="code" type="radio" />
 					<label for="invoke_as">invoke actionscript function</label>
 					
-					<input id="button_event_handler" onClick="updateCode('button_event_handler')" name="code" type="radio">
+					<input id="button_event_handler" onclick="updateCode('button_event_handler')" name="code" type="radio" />
 					<label for="button_event_handler">call javascript from AS button</label>
 					
 					<br />
-					<input id="slider_event_handler" onClick="updateCode('slider_event_handler')" name="code" type="radio">
+					<input id="slider_event_handler" onclick="updateCode('slider_event_handler')" name="code" type="radio" />
 					<label for="slider_event_handler">listen for slider changes</label>
 					
-					<input id="create_datagrid" onClick="updateCode('create_datagrid')" name="code" type="radio">
+					<input id="create_datagrid" onclick="updateCode('create_datagrid')" name="code" type="radio" />
 					<label for="create_datagrid">create and populate a datagrid</label>
 				</p>
 				<p>Charts:<br />
-					<input id="make_chart" onClick="updateCode('make_chart')" name="code" type="radio">
+					<input id="make_chart" onclick="updateCode('make_chart')" name="code" type="radio" />
 					<label for="make_chart">create a chart</label>
 					
-					<input id="make_data" onClick="updateCode('make_data')" name="code" type="radio">
+					<input id="make_data" onclick="updateCode('make_data')" name="code" type="radio" />
 					<label for="make_data">generate data</label>
-					<br>
-					<input id="make_interpolate" onClick="updateCode('make_interpolate')" name="code" type="radio">
+					<br />
+					<input id="make_interpolate" onclick="updateCode('make_interpolate')" name="code" type="radio" />
 					<label for="make_interpolate">interpolate changes</label>
 
-					<input id="make_zoom" onClick="updateCode('make_zoom')" name="code" type="radio">
+					<input id="make_zoom" onclick="updateCode('make_zoom')" name="code" type="radio" />
 					<label for="make_zoom">zoom changes</label>
 				</p>
 			</div>
 			Trace Output:<br />
 			<textarea id="output" cols="60" rows="10"></textarea><br />
 		</div>
-		<div id="flashoutput">
-			<noscript>
-				<object id="flexApp" classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000" codebase="http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=8,5,0,0" height="400" width="400">
-				<param name="flashvars" value="bridgeName=example"/>
-				<param name="src" value="app.swf"/>
-				<embed name="flexApp" pluginspage="http://www.macromedia.com/go/getflashplayer" src="app.swf" height="400" width="400" flashvars="bridgeName=example"/>
-				</object>
-			</noscript>
-			<script language="javascript" charset="utf-8">
-				document.write('<object id="flexApp" classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000" codebase="http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=8,5,0,0" height="400" width="400">');
-				document.write('<param name="flashvars" value="bridgeName=example"/>');
-				document.write('<param name="src" value="app.swf"/>');
-				document.write('<embed name="flexApp" pluginspage="http://www.macromedia.com/go/getflashplayer" src="app.swf" height="400" width="400" flashvars="bridgeName=example"/>');
-				document.write('</object>');
-			</script>
-			<br>
-			<br>
+        <div id="flashcontent">
+            <p>Your browser must have JavaScript enabled and the Adobe Flash Player installed.</p>
+            <a href="http://www.adobe.com/go/getflashplayer">
+                <img src="http://www.adobe.com/images/shared/download_buttons/get_flash_player.gif" alt="Get Adobe Flash player" />
+            </a>
 		</div>
 	</div>
 </body>

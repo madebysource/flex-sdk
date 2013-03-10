@@ -11,6 +11,7 @@
 
 package flex.ant.types;
 
+import flex.ant.FlexTask;
 import flex.ant.config.ConfigString;
 import flex.ant.config.NestedAttributeElement;
 import flex.ant.config.OptionSpec;
@@ -24,7 +25,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 /**
- *
+ * Supports the nested &lt;metadata&gt; tag.
  */
 public final class Metadata implements OptionSource, DynamicElement
 {
@@ -40,15 +41,22 @@ public final class Metadata implements OptionSource, DynamicElement
     private final ConfigString description;
     private final ConfigString title;
 
-    private final ArrayList nestedAttribs;
-
+    private final ArrayList<NestedAttributeElement> nestedAttribs;
+    private final FlexTask task;
+    
     public Metadata ()
+    {
+        this(null);
+    }
+
+    public Metadata (FlexTask task)
     {
         date = new ConfigString(new OptionSpec("metadata", "date"));
         description = new ConfigString(new OptionSpec("metadata", "description"));
         title = new ConfigString(new OptionSpec("metadata", "title"));
 
-        nestedAttribs = new ArrayList();
+        nestedAttribs = new ArrayList<NestedAttributeElement>();
+        this.task = task;
     }
 
     /*=======================================================================*
@@ -117,14 +125,14 @@ public final class Metadata implements OptionSource, DynamicElement
 
     private NestedAttributeElement createElem(String attrib, OptionSpec spec)
     {
-        NestedAttributeElement e = new NestedAttributeElement(attrib, spec);
+        NestedAttributeElement e = new NestedAttributeElement(attrib, spec, task);
         nestedAttribs.add(e);
         return e;
     }
 
     private NestedAttributeElement createElem(String[] attribs, OptionSpec spec)
     {
-        NestedAttributeElement e = new NestedAttributeElement(attribs, spec);
+        NestedAttributeElement e = new NestedAttributeElement(attribs, spec, task);
         nestedAttribs.add(e);
         return e;
     }
@@ -139,7 +147,7 @@ public final class Metadata implements OptionSource, DynamicElement
         description.addToCommandline(cmdl);
         title.addToCommandline(cmdl);
 
-        Iterator it = nestedAttribs.iterator();
+        Iterator<NestedAttributeElement> it = nestedAttribs.iterator();
 
         while (it.hasNext())
             ((OptionSource) it.next()).addToCommandline(cmdl);

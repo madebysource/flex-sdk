@@ -22,7 +22,10 @@ import flash.events.Event;
  *  @see mx.core.Window
  *  @see mx.core.WindowedApplication
  * 
+ *  
+ *  @langversion 3.0
  *  @playerversion AIR 1.1
+ *  @productversion Flex 3
  */
 public class AIREvent extends Event
 {
@@ -57,6 +60,10 @@ public class AIREvent extends Event
      *  </table>
      *
      *  @eventType applicationActivate
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public static const APPLICATION_ACTIVATE:String = "applicationActivate";
 
@@ -83,6 +90,10 @@ public class AIREvent extends Event
      *  </table>
      *
      *  @eventType applicationDeactivate
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public static const APPLICATION_DEACTIVATE:String = "applicationDeactivate";
 
@@ -109,6 +120,10 @@ public class AIREvent extends Event
      *  </table>
      *
      *  @eventType windowActivate
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public static const WINDOW_ACTIVATE:String = "windowActivate";
 
@@ -135,6 +150,10 @@ public class AIREvent extends Event
      *  </table>
      *
      *  @eventType windowDeactivate
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public static const WINDOW_DEACTIVATE:String = "windowDeactivate";
     
@@ -161,6 +180,10 @@ public class AIREvent extends Event
      *  </table>
      *
      *  @eventType windowComplete
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public static const WINDOW_COMPLETE:String = "windowComplete";
 
@@ -180,6 +203,10 @@ public class AIREvent extends Event
      *
      *  @param cancelable Specifies whether the behavior
      *  associated with the event can be prevented.
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function AIREvent(type:String, bubbles:Boolean = false,
                              cancelable:Boolean = false)

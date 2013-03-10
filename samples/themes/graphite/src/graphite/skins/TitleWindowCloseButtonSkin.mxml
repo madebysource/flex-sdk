@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+
+	ADOBE SYSTEMS INCORPORATED
+	Copyright 2009 Adobe Systems Incorporated
+	All Rights Reserved.
+	
+	NOTICE: Adobe permits you to use, modify, and distribute this file
+	in accordance with the terms of the license agreement accompanying it.
+
+-->
+
+<!--- The default skin class for the close button of the Spark TitleWindow component.  
+
+	 @langversion 3.0
+	 @playerversion Flash 10
+	 @playerversion AIR 1.5
+	 @productversion Flex 4
+-->
+<s:Skin xmlns:fx="http://ns.adobe.com/mxml/2009" xmlns:s="library://ns.adobe.com/flex/spark"
+	xmlns:fb="http://ns.adobe.com/flashbuilder/2009">
+	
+	<!-- host component -->
+	<fx:Metadata>
+		<![CDATA[ 
+		/** 
+		* @copy spark.skins.spark.ApplicationSkin#hostComponent
+		*/
+		[HostComponent("spark.components.Button")]
+		]]>
+	</fx:Metadata> 
+	
+	<s:states>
+		<s:State name="up" />
+		<s:State name="over"/>
+		<s:State name="down" />
+		<s:State name="disabled" />
+	</s:states>
+	
+
+	<!--background fill-->
+	<s:Rect left="0" right="0" top="0" bottom="0" radiusX="3">
+		<s:stroke>
+			<s:LinearGradientStroke rotation="90">
+				<s:GradientEntry	color="0x7B7C7B"
+									color.over="0xBFBFBF"
+									color.down="0x7B7C7B"
+									color.disabled="0x666666"
+									alpha=".90"
+									/>
+				<s:GradientEntry 	color="0x7B7C7B"
+								  	color.over="0xBFBFBF"
+								  	color.down="0xBFBFBF"
+								  	color.disabled="0x666666"
+								 
+								  	alpha=".95" />  
+			</s:LinearGradientStroke>
+		</s:stroke>
+		<s:fill>
+			<s:LinearGradient rotation="270">
+				<s:GradientEntry color="0x282828"
+								 color.over="0x282828"
+								 color.down="0x333333"
+								 color.disabled="0x6A6B6A" />
+				<s:GradientEntry color="0x6A6B6A"
+								 color.over="0x6A6B6A"
+								 color.down="0x333333"
+								 color.disabled="0x6A6B6A" />
+			</s:LinearGradient>
+		</s:fill>
+	</s:Rect>
+	
+	<!--close button-->
+	<s:Group left="3" top="3">
+		<s:Line x="4.5" xTo="4" y="4.5" yTo="4">
+			<s:stroke>
+				<s:SolidColorStroke color="0xCCCCCC" 
+									color.over="0xE6E6E6"
+									color.down="0x666666"
+									color.disabled="0x666666"
+									miterLimit="10" 
+									scaleMode="normal" 
+									weight="2"/>
+			</s:stroke>
+		</s:Line>
+		<s:Line x="0.5" xTo="4" y="4.5" yFrom="4">
+			<s:stroke>
+				<s:SolidColorStroke color="0xCCCCCC" 
+									color.over="0xE6E6E6"
+									color.down="0x666666"
+									color.disabled="0x666666" 
+									miterLimit="10" 
+									scaleMode="normal" 
+									weight="2"/>
+			</s:stroke>
+		</s:Line>
+		<s:Line x="0.5" xFrom="4" y="0.5" yFrom="4">
+			<s:stroke>
+				<s:SolidColorStroke color="0xCCCCCC" 
+									color.over="0xE6E6E6"
+									color.down="0x666666"
+									color.disabled="0x666666" 
+									miterLimit="10" 
+									scaleMode="normal" 
+									weight="2"/>
+			</s:stroke>
+		</s:Line>
+		<s:Line x="4.5" xFrom="4" y="0.5" yTo="4">
+			<s:stroke>
+				<s:SolidColorStroke color="0xCCCCCC" 
+									color.over="0xE6E6E6"
+									color.down="0x666666"
+									color.disabled="0x666666" 
+									miterLimit="10" 
+									scaleMode="normal" 
+									weight="2"/>
+			</s:stroke>
+		</s:Line>
+	</s:Group>
+</s:Skin>

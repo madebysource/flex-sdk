@@ -17,6 +17,8 @@ import flash.geom.Point;
 import mx.core.IChildList;
 import mx.core.mx_internal;
 
+use namespace mx_internal;
+
 [ExcludeClass]
 
 /**
@@ -45,6 +47,10 @@ public class WindowedSystemRawChildrenList implements IChildList
 
 	/**
 	 *  Constructor.
+	 *  
+	 *  @langversion 3.0
+	 *  @playerversion AIR 1.1
+	 *  @productversion Flex 3
 	 */
 	public function WindowedSystemRawChildrenList(owner:WindowedSystemManager)
 	{
@@ -72,90 +78,134 @@ public class WindowedSystemRawChildrenList implements IChildList
 
 	/**
 	 *  @copy mx.core.IChildList#numChildren
+	 *  
+	 *  @langversion 3.0
+	 *  @playerversion AIR 1.1
+	 *  @productversion Flex 3
 	 */
 	public function get numChildren():int
 	{
-		return owner.mx_internal::$numChildren;
+		return owner.$numChildren;
 	}
 
 	/**
 	 *  @copy mx.core.IChildList#getChildAt
+	 *  
+	 *  @langversion 3.0
+	 *  @playerversion AIR 1.1
+	 *  @productversion Flex 3
 	 */
   	public function getChildAt(index:int):DisplayObject
   	{
-		return owner.mx_internal::rawChildren_getChildAt(index);
+		return owner.rawChildren_getChildAt(index);
   	}
 
 	/**
 	 *  @copy mx.core.IChildList#addChild
+	 *  
+	 *  @langversion 3.0
+	 *  @playerversion AIR 1.1
+	 *  @productversion Flex 3
 	 */
 	public function addChild(child:DisplayObject):DisplayObject
   	{
-		return owner.mx_internal::rawChildren_addChild(child);
+		return owner.rawChildren_addChild(child);
   	}
 	
 	/**
 	 *  @copy mx.core.IChildList#addChildAt
+	 *  
+	 *  @langversion 3.0
+	 *  @playerversion AIR 1.1
+	 *  @productversion Flex 3
 	 */
 	public function addChildAt(child:DisplayObject, index:int):DisplayObject
   	{
-		return owner.mx_internal::rawChildren_addChildAt(child,index);
+		return owner.rawChildren_addChildAt(child,index);
   	}
 	
 	/**
 	 *  @copy mx.core.IChildList#removeChild
+	 *  
+	 *  @langversion 3.0
+	 *  @playerversion AIR 1.1
+	 *  @productversion Flex 3
 	 */
 	public function removeChild(child:DisplayObject):DisplayObject
   	{
-		return owner.mx_internal::rawChildren_removeChild(child);
+		return owner.rawChildren_removeChild(child);
   	}
 	
 	/**
 	 *  @copy mx.core.IChildList#removeChildAt
+	 *  
+	 *  @langversion 3.0
+	 *  @playerversion AIR 1.1
+	 *  @productversion Flex 3
 	 */
 	public function removeChildAt(index:int):DisplayObject
   	{
-		return owner.mx_internal::rawChildren_removeChildAt(index);
+		return owner.rawChildren_removeChildAt(index);
   	}
 	
 	/**
 	 *  @copy mx.core.IChildList#getChildByName
+	 *  
+	 *  @langversion 3.0
+	 *  @playerversion AIR 1.1
+	 *  @productversion Flex 3
 	 */
   	public function getChildByName(name:String):DisplayObject
   	{
-		return owner.mx_internal::rawChildren_getChildByName(name);
+		return owner.rawChildren_getChildByName(name);
 	}
 	
 	/**
 	 *  @copy mx.core.IChildList#getChildIndex
+	 *  
+	 *  @langversion 3.0
+	 *  @playerversion AIR 1.1
+	 *  @productversion Flex 3
 	 */
   	public function getChildIndex(child:DisplayObject):int
   	{
-		return owner.mx_internal::rawChildren_getChildIndex(child);
+		return owner.rawChildren_getChildIndex(child);
   	}
 	
 	/**
 	 *  @copy mx.core.IChildList#setChildIndex
+	 *  
+	 *  @langversion 3.0
+	 *  @playerversion AIR 1.1
+	 *  @productversion Flex 3
 	 */
 	public function setChildIndex(child:DisplayObject, newIndex:int):void
   	{
-		owner.mx_internal::rawChildren_setChildIndex(child, newIndex);
+		owner.rawChildren_setChildIndex(child, newIndex);
   	}
 	
 	/**
 	 *  @copy mx.core.IChildList#getObjectsUnderPoint
+	 *  
+	 *  @langversion 3.0
+	 *  @playerversion AIR 1.1
+	 *  @productversion Flex 3
 	 */
 	public function getObjectsUnderPoint(point:Point):Array
 	{
-		return owner.mx_internal::rawChildren_getObjectsUnderPoint(point);
+		return owner.rawChildren_getObjectsUnderPoint(point);
 	}
 	
 	/**
 	 *  @copy mx.core.IChildList#contains
+	 *  
+	 *  @langversion 3.0
+	 *  @playerversion AIR 1.1
+	 *  @productversion Flex 3
 	 */
 	public function contains(child:DisplayObject):Boolean
 	{
-		return owner.mx_internal::rawChildren_contains(child);
+		return owner.rawChildren_contains(child);
 	}
 }
 

@@ -1,0 +1,43 @@
+/*
+////////////////////////////////////////////////////////////////////////////////
+//
+//  ADOBE SYSTEMS INCORPORATED
+//  Copyright 2009 Adobe Systems Incorporated
+//  All Rights Reserved.
+//
+//  NOTICE: Adobe permits you to use, modify, and distribute this file
+//  in accordance with the terms of the license agreement accompanying it.
+//
+////////////////////////////////////////////////////////////////////////////////
+*/
+
+@namespace s "library://ns.adobe.com/flex/spark";
+@namespace mx "library://ns.adobe.com/flex/mx";
+
+global
+{
+	chrome-color: #93AE93;
+	color: #333333;
+	content-background-color: #afcfaf;
+	symbol-color: #000000;
+	roll-over-color: #ffffab;
+	selection-color: #EAEA9D;
+	focus-color: #B2D2B2;
+	accent-color: #B2D2B2;
+}
+
+s|Application,s|Panel,mx|Panel,mx|TitleWindow,mx|TabNavigator,mx|SwatchPanel
+{
+	background-color: #93AE93;
+}
+
+s|RichEditableText
+{
+	focusedTextSelectionColor: #EAEA9D;
+	unfocusedTextSelectionColor: #EAEA9D;
+}
+
+mx|DataGrid
+{
+	alternating-item-colors: #afcfaf, #afcfaf;
+}

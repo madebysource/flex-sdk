@@ -23,7 +23,7 @@ import org.apache.tools.ant.DynamicConfigurator;
 import org.apache.tools.ant.types.Commandline;
 
 /**
- *
+ * Supports the nested &lt;runtime-shared-library-path&gt; tag.
  */
 public final class RuntimeSharedLibraryPath implements OptionSource, DynamicConfigurator
 {

@@ -25,25 +25,34 @@ import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.DynamicAttribute;
 import org.apache.tools.ant.Task;
 
+/**
+ * Implements the &lt;html-wrapper&gt; Ant task.  For example:
+ * <pre>
+ * &lt;html-wrapper title="foo"
+ *             height="100"
+ *             width="100"
+ *             bgcolor="red"
+ *             application="bar"
+ *             swf="bar"
+ *             version-major="9"
+ *             version-minor="0"
+ *             version-revision="0"
+ *             history="true"
+ *             template="client-side-detection"
+ *             output="client-side-detection-with-history"/&gt;
+ * </pre>
+ */
 public final class HtmlWrapperTask extends Task implements DynamicAttribute
 {
-    private static final int CLIENT_SIDE_DETECTION = 0;
-    private static final int EXPRESS_INSTALLATION = 1;
-    private static final int NO_PLAYER_DETECTION = 2;
-
-    private static final String[] templates = new String[] {"client-side-detection",
-                                                            "express-installation",
-                                                            "no-player-detection"};
-
-    private static final String TEMPLATE_DIR = "/templates/html-templates/";
-    private static final String WITH_HISTORY = "-with-history/";
+    private static final String TEMPLATE_DIR = "/templates/swfobject/";
     private static final String INDEX_TEMPLATE_HTML = "index.template.html";
-    private static final String AC_OETAGS_JS = "AC_OETags.js";
+    private static final String SWFOBJECT_JS = "swfobject.js";
     private static final String HISTORY_CSS = "history/history.css";
     private static final String HISTORY_JS = "history/history.js";
     private static final String HISTORY_FRAME_HTML = "history/historyFrame.html";
     private static final String PLAYERPRODUCTINSTALL_SWF = "playerProductInstall.swf";
-
+    private static final String HTML_COMMENT_DELIMITER = "--";
+    
     private String application;
     private String bgcolor = "white";
     private String fileName = "index.html";
@@ -51,13 +60,20 @@ public final class HtmlWrapperTask extends Task implements DynamicAttribute
     private String output;
     private String swf;
     private String title = "Flex Application";
-    private String versionMajor = "9";
-    private String versionMinor = "0";
-    private String versionRevision = "0";
     private String width = "400";
     private boolean history = false;
-    private int template;
-
+    private boolean expressInstall = false;
+    private boolean versionDetection = true;
+    
+    // The various settings of version, browser history and express install
+    // determine how the generated template behaves - maps to the 6 template 
+    // flavors that existed for Flex 3 and earlier.
+    private String versionMajor = "10";
+    private String versionMinor = "0";
+    private String versionRevision = "0";
+    private String useBrowserHistory;  
+    private String expressInstallSwf = "";
+    
     public HtmlWrapperTask()
     {
         setTaskName("html-wrapper");
@@ -143,65 +159,52 @@ public final class HtmlWrapperTask extends Task implements DynamicAttribute
 
     private InputStream getInputStream()
     {
-        InputStream inputStream = null;
-
-        switch (template)
+        InputStream inputStream;
+        String[] resources;
+        
+        if (history)
         {
-            case CLIENT_SIDE_DETECTION:
-            {
-                if (history)
-                {
-                    inputStream = getClass().getResourceAsStream(TEMPLATE_DIR + templates[0] +
-                                                                 WITH_HISTORY + INDEX_TEMPLATE_HTML);
-                    outputResources(TEMPLATE_DIR + templates[0] + WITH_HISTORY, 
-                                    new String[] {AC_OETAGS_JS, HISTORY_FRAME_HTML, HISTORY_JS, HISTORY_CSS});
-                }
-                else
-                {
-                    inputStream = getClass().getResourceAsStream(TEMPLATE_DIR + templates[0] + "/" +
-                                                                 INDEX_TEMPLATE_HTML);
-                    outputResources(TEMPLATE_DIR + templates[0] + "/", new String[] {AC_OETAGS_JS});
-                }
-                break;
-            }
-            case EXPRESS_INSTALLATION:
-            default:
-            {
-                if (history)
-                {
-                    inputStream = getClass().getResourceAsStream(TEMPLATE_DIR + templates[1] +
-                                                                 WITH_HISTORY + INDEX_TEMPLATE_HTML);
-                    outputResources(TEMPLATE_DIR + templates[1] + WITH_HISTORY, 
-                                    new String[] {AC_OETAGS_JS, HISTORY_FRAME_HTML, HISTORY_JS,
-                                                  HISTORY_CSS, PLAYERPRODUCTINSTALL_SWF});
-                }
-                else
-                {
-                    inputStream = getClass().getResourceAsStream(TEMPLATE_DIR + templates[1] + "/" +
-                                                                 INDEX_TEMPLATE_HTML);
-                    outputResources(TEMPLATE_DIR + templates[1] + "/",
-                                    new String[] {AC_OETAGS_JS, PLAYERPRODUCTINSTALL_SWF});
-                }
-                break;
-            }
-            case NO_PLAYER_DETECTION:
-            {
-                if (history)
-                {
-                    inputStream = getClass().getResourceAsStream(TEMPLATE_DIR + templates[2] +
-                                                                 WITH_HISTORY + INDEX_TEMPLATE_HTML);
-                    outputResources(TEMPLATE_DIR + templates[2] + WITH_HISTORY, 
-                                    new String[] {AC_OETAGS_JS, HISTORY_FRAME_HTML, HISTORY_JS, HISTORY_CSS});
-                }
-                else
-                {
-                    inputStream = getClass().getResourceAsStream(TEMPLATE_DIR + templates[2] + "/" +
-                                                                 INDEX_TEMPLATE_HTML);
-                    outputResources(TEMPLATE_DIR + templates[2] + "/", new String[] {AC_OETAGS_JS});
-                }
-                break;
-            }
+        	if(expressInstall)
+        	{
+        		expressInstallSwf = PLAYERPRODUCTINSTALL_SWF;
+        		resources = new String[] {SWFOBJECT_JS, HISTORY_FRAME_HTML, HISTORY_JS, HISTORY_CSS, PLAYERPRODUCTINSTALL_SWF};
+        		versionDetection = true;
+        	}
+        	else 
+        	{
+        		resources = new String[] {SWFOBJECT_JS, HISTORY_FRAME_HTML, HISTORY_JS, HISTORY_CSS};        		
+        	}
+            
+            useBrowserHistory = HTML_COMMENT_DELIMITER;
         }
+        else
+        {
+        	if(expressInstall)
+        	{
+        		expressInstallSwf = PLAYERPRODUCTINSTALL_SWF;
+        		resources = new String[] {SWFOBJECT_JS, PLAYERPRODUCTINSTALL_SWF};
+        		versionDetection = true;
+        	}
+        	else 
+        	{
+        		resources = new String[] {SWFOBJECT_JS};        		
+        	}        	
+            
+            useBrowserHistory = "";
+        }
+        
+        if(!versionDetection)
+        {
+            // no version checking
+            versionMajor = "0";
+            versionMinor = "0";
+            versionRevision = "0";
+            // don't install flash.
+            expressInstallSwf = "";        	
+        }
+        
+        inputStream = getClass().getResourceAsStream(TEMPLATE_DIR + INDEX_TEMPLATE_HTML);
+        outputResources(TEMPLATE_DIR, resources);
 
         return inputStream;
     }
@@ -244,7 +247,7 @@ public final class HtmlWrapperTask extends Task implements DynamicAttribute
                 {
                     path = resources[i];
                 }
-
+                
                 File file = new File(path);
                 file.getParentFile().mkdirs();
 
@@ -301,6 +304,14 @@ public final class HtmlWrapperTask extends Task implements DynamicAttribute
         {
             versionRevision = value;
         }
+        else if (name.equals("express-install"))
+        {
+            expressInstall = Boolean.parseBoolean(value);
+        }
+        else if (name.equals("version-detection"))
+        {
+        	versionDetection = Boolean.parseBoolean(value);
+        }
         else
         {
             throw new BuildException("The <html-wrapper> task doesn't support the \""
@@ -322,7 +333,7 @@ public final class HtmlWrapperTask extends Task implements DynamicAttribute
     {
         this.history = history;
     }
-
+    
     public void setOutput(String output)
     {
         this.output = output;
@@ -335,29 +346,6 @@ public final class HtmlWrapperTask extends Task implements DynamicAttribute
         if (application == null)
         {
             application = this.swf;
-        }
-    }
-
-    public void setTemplate(String template)
-    {
-        if (template.equals(templates[0]))
-        {
-            this.template = CLIENT_SIDE_DETECTION;
-        }
-        else if (template.equals(templates[1]))
-        {
-            this.template = EXPRESS_INSTALLATION;
-        }
-        else if (template.equals(templates[2]))
-        {
-            this.template = NO_PLAYER_DETECTION;
-        }
-        else
-        {
-            throw new BuildException("The 'template' attribute must be one of '" +
-                                     templates[0] + "', '" +
-                                     templates[1] + "', '" +
-                                     templates[2] + "'.", getLocation());
         }
     }
 
@@ -375,6 +363,7 @@ public final class HtmlWrapperTask extends Task implements DynamicAttribute
     {
         String result = input.replaceAll("\\$\\{application\\}", application);
         result = result.replaceAll("\\$\\{bgcolor\\}", bgcolor);
+        result = result.replaceAll("\\$\\{expressInstallSwf\\}", expressInstallSwf);
         result = result.replaceAll("\\$\\{height\\}", height);
         result = result.replaceAll("\\$\\{swf\\}", swf);
         result = result.replaceAll("\\$\\{title\\}", title);
@@ -382,6 +371,7 @@ public final class HtmlWrapperTask extends Task implements DynamicAttribute
         result = result.replaceAll("\\$\\{version_minor\\}", versionMinor);
         result = result.replaceAll("\\$\\{version_revision\\}", versionRevision);
         result = result.replaceAll("\\$\\{width\\}", width);
+        result = result.replaceAll("\\$\\{useBrowserHistory\\}", useBrowserHistory);
         return result;
     }
 }

@@ -20,12 +20,13 @@ package air.update.events
 		 */				
 		public static const UPDATE_STATUS:String = "updateStatus";
 		
-		public function StatusUpdateEvent(type:String, bubbles:Boolean=false, cancelable:Boolean=false, available:Boolean = false, version:String = "", details:Array = null)
+		public function StatusUpdateEvent(type:String, bubbles:Boolean=false, cancelable:Boolean=false, available:Boolean = false, version:String = "", details:Array = null, versionLabel:String = "")
 		{
 			super(type, bubbles, cancelable);
 			this.available = available;
 			this.version = version;
 			this.details = details == null ? [] : details;
+			this.versionLabel = versionLabel;
 		} 
 		
 		/**
@@ -33,7 +34,7 @@ package air.update.events
 	 	 */
 		override public function clone():Event
 		{
-			return new StatusUpdateEvent(type, bubbles, cancelable, available, version, details);
+			return new StatusUpdateEvent(type, bubbles, cancelable, available, version, details, versionLabel);
 		}
 		
 		/**
@@ -41,7 +42,7 @@ package air.update.events
 	 	 */
 		override public function toString():String
 		{
-			return "[StatusUpdateEvent (type=" + type + " available=" + available + " version=" + version + " details=" + details + " )]";	
+			return "[StatusUpdateEvent (type=" + type + " available=" + available + " version=" + version + " details=" + details + " versionLabel=" + versionLabel +" )]";	
 		}
 		
 		/**
@@ -53,7 +54,12 @@ package air.update.events
 		 * Indicates the version of the new update
 		 */
 		public var version:String = "";
-		
+	
+		/**
+		 * Indicates the versionLabel of the new update
+		 */
+		public var versionLabel:String = "";
+
 		/**
 		 * The text describing the new update. It may contain html tags.
 		 */

@@ -19,6 +19,11 @@ import flash.events.MouseEvent;
 /**
  *  The FlexMouseEvent class represents the event object passed to
  *  the event listener for Flex-specific mouse activity.
+ *  
+ *  @langversion 3.0
+ *  @playerversion Flash 9
+ *  @playerversion AIR 1.1
+ *  @productversion Flex 3
  */
 public class FlexMouseEvent extends MouseEvent
 {
@@ -79,9 +84,72 @@ public class FlexMouseEvent extends MouseEvent
 	 *  </table>
 	 *
      *  @eventType mouseDownOutside
+	 *  
+	 *  @langversion 3.0
+	 *  @playerversion Flash 9
+	 *  @playerversion AIR 1.1
+	 *  @productversion Flex 3
 	 */
 	public static const MOUSE_DOWN_OUTSIDE:String = "mouseDownOutside";
 
+    /**
+     *  The <code>FlexMouseEvent.MOUSE_WHEEL_CHANGING</code> constant defines the value of the
+     *  <code>type</code> property of the event object for a <code>mouseWheelChanging</code>
+     *  event.
+     *
+     *	<p>The properties of the event object have the following values:</p>
+     *  <table class="innertable">
+     *     <tr><th>Property</th><th>Value</th></tr>
+     *     <tr><td><code>altKey</code></td>
+     *         <td>Indicates whether the Alt key is down
+     * 	          (<code>true</code>) or not (<code>false</code>).</td></tr>
+     *     <tr><td><code>bubbles</code></td><td>false</td></tr>
+     *     <tr><td><code>buttonDown</code></td>
+     *         <td>Indicates whether the main mouse button is down
+     * 	          (<code>true</code>) or not (<code>false</code>).</td></tr>
+     *     <tr><td><code>cancelable</code></td><td>false</td></tr>
+     *     <tr><td><code>ctrlKey</code></td>
+     *         <td>Indicates whether the Control key is down
+     * 	          (<code>true</code>) or not (<code>false</code>).</td></tr>
+     *     <tr><td><code>currentTarget</code></td>
+     *         <td>The Object that defines the
+     *       event listener that handles the event. For example, if you use
+     *       <code>myButton.addEventListener()</code> to register an event listener,
+     *       myButton is the value of the <code>currentTarget</code>. 
+     *       </td></tr>
+     *     <tr><td><code>delta</code></td>
+     *         <td>Indicates how many lines should be scrolled for each notch the user 
+     *             scrolls the mouse wheel. 
+     *             </td></tr>
+     *     <tr><td><code>localX</code></td>
+     *         <td>The horizontal position at which the event occurred. 
+     *             </td></tr>
+     *     <tr><td><code>localY</code></td>
+     *         <td>The vertical position at which the event occurred. 
+     *             </td></tr>
+     *     <tr><td><code>relatedObject</code></td>
+     *         <td>A reference to a display list object that is related to the event.
+	 *             For this event, the object is the component which is 
+	 *             the target of the mouseWheel event.</td></tr>
+     *     <tr><td><code>shiftKey</code></td>
+     *         <td>Indicates whether the Shift key is down
+     * 	          (<code>true</code>) or not (<code>false</code>).</td></tr>
+     *     <tr><td><code>target</code></td><td>The Object that dispatched the event;
+     *       it is not always the Object listening for the event.
+     *       Use the <code>currentTarget</code> property to always access the
+     *       Object listening for the event.
+     *       </td></tr>
+     *  </table>
+     *
+     *  @eventType mouseWheelChanging
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 10
+     *  @playerversion AIR 2.5
+     *  @productversion Flex 4.5
+     */
+    public static const MOUSE_WHEEL_CHANGING:String = "mouseWheelChanging";
+    
 	/**
 	 *  The <code>FlexMouseEvent.MOUSE_WHEEL_OUTSIDE</code> constant defines the value of the
 	 *  <code>type</code> property of the event object for a <code>mouseWheelOutside</code>
@@ -132,6 +200,11 @@ public class FlexMouseEvent extends MouseEvent
 	 *  </table>
 	 *
      *  @eventType mouseWheelOutside
+	 *  
+	 *  @langversion 3.0
+	 *  @playerversion Flash 9
+	 *  @playerversion AIR 1.1
+	 *  @productversion Flex 3
 	 */
 	public static const MOUSE_WHEEL_OUTSIDE:String = "mouseWheelOutside";
 
@@ -168,6 +241,11 @@ public class FlexMouseEvent extends MouseEvent
 	 * 
 	 *  @param delta How many lines should be scrolled for each notch the 
 	 *  user scrolls the mouse wheel.
+	 *  
+	 *  @langversion 3.0
+	 *  @playerversion Flash 9
+	 *  @playerversion AIR 1.1
+	 *  @productversion Flex 3
 	 */
 	public function FlexMouseEvent(type:String, bubbles:Boolean = false,
 								   cancelable:Boolean = false,

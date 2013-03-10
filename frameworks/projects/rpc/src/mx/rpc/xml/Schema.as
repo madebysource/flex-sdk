@@ -49,6 +49,11 @@ public class Schema
     /**
      * Maps a namespace prefix (as a <code>String</code>) to a
      * <code>Namespace</code> (i.e. this helps to resolve a prefix to a URI).
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get namespaces():Object
     {
@@ -68,6 +73,11 @@ public class Schema
      * scope for the collection of type definitions and element declarations
      * to distinguish them from in-built XML Schema types and other collections
      * of types.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get targetNamespace():Namespace
     {
@@ -82,6 +92,11 @@ public class Schema
     /**
      * Constants for the particular version of XML Schema that was used
      * to define this Schema.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get schemaConstants():SchemaConstants
     {
@@ -95,6 +110,11 @@ public class Schema
     /**
      * Datatype constants for the particular version of XML Schema that was
      * used to define this Schema.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get schemaDatatypes():SchemaDatatypes
     {
@@ -107,6 +127,11 @@ public class Schema
 
     /**
      * The raw XML definition of this Schema.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get xml():XML
     {
@@ -189,9 +214,9 @@ public class Schema
         xml.appendChild(fragment);
     }
 
-    public function getNamedDefinition(name:QName, ...componentTypes:Array):Object
+    public function getNamedDefinition(definitionName:QName, ...componentTypes:Array):Object
     {
-        var uri:String = name.uri;
+        var uri:String = definitionName.uri;
         var schemas:Array = [this]
         
         // Also consider any imports at this level for the given URI
@@ -242,15 +267,15 @@ public class Schema
                 // namespace (it can't be unqualified).
                 if (componentType != schemaConstants.elementTypeQName
                     && componentType != schemaConstants.attributeQName
-                    && currentTargetNamespace.uri != name.uri)
+                    && currentTargetNamespace.uri != definitionName.uri)
                     continue;
 
                 // ...and ensure we have the qualified name of the schema component
                 // as defined in a particular schema...
                 var localComponentType:QName = new QName(constants.xsdURI, componentType.localName);
 
-                // ...then look for <[localComponentType] name="[name.localName]">
-                var definition:XML = schemaXML[localComponentType].(@name == name.localName)[0];
+                // ...then look for <[localComponentType] name="[definitionName.localName]">
+                var definition:XML = schemaXML[localComponentType].(@name == definitionName.localName)[0];
                 if (definition != null)
                 {
                     return {definition:definition, schema:schema};

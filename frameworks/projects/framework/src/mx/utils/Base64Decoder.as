@@ -20,17 +20,27 @@ import mx.resources.ResourceManager;
 
 /**
  * A utility class to decode a Base64 encoded String to a ByteArray.
+ *  
+ *  @langversion 3.0
+ *  @playerversion Flash 9
+ *  @playerversion AIR 1.1
+ *  @productversion Flex 3
  */
 public class Base64Decoder
 {
-	//--------------------------------------------------------------------------
-	//
-	//  Constructor
-	//
-	//--------------------------------------------------------------------------
+    //--------------------------------------------------------------------------
+    //
+    //  Constructor
+    //
+    //--------------------------------------------------------------------------
 
     /**
      * Constructor.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function Base64Decoder()
     {
@@ -38,19 +48,26 @@ public class Base64Decoder
         data = new ByteArray();
     }
 
-	//--------------------------------------------------------------------------
-	//
-	//  Methods
-	//
-	//--------------------------------------------------------------------------
+    //--------------------------------------------------------------------------
+    //
+    //  Methods
+    //
+    //--------------------------------------------------------------------------
 
     /**
      * Decodes a Base64 encoded String and adds the result to an internal
-     * buffer. Subsequent calls to this method add on to the internal
+     * buffer. Strings must be in ASCII format. 
+     * 
+     * <p>Subsequent calls to this method add on to the internal
      * buffer. After all data have been encoded, call <code>toByteArray()</code>
-     * to obtain a decoded <code>flash.utils.ByteArray</code>.
+     * to obtain a decoded <code>flash.utils.ByteArray</code>.</p>
      * 
      * @param encoded The Base64 encoded String to decode.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function decode(encoded:String):void
     {
@@ -92,7 +109,13 @@ public class Base64Decoder
     public function drain():ByteArray
     {
         var result:ByteArray = new ByteArray();
-        copyByteArray(data, result, filled);
+
+        var oldPosition:uint = data.position;    
+        data.position = 0;  // technically, shouldn't need to set this, but carrying over from previous implementation
+        result.writeBytes(data, 0, data.length);        
+        data.position = oldPosition;
+        result.position = 0;
+        
         filled = 0;
         return result;
     }
@@ -104,7 +127,7 @@ public class Base64Decoder
     {
         if (count > 0)
         {
-        	var message:String = resourceManager.getString("utils", "partialBlockDropped", [ count ]);
+            var message:String = resourceManager.getString("utils", "partialBlockDropped", [ count ]);
             throw new Error(message);
         }
         return drain();
@@ -112,6 +135,11 @@ public class Base64Decoder
 
     /**
      * Clears all buffers and resets the decoder to its initial state.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function reset():void
     {
@@ -126,6 +154,11 @@ public class Base64Decoder
      * decoder to its initial state.
      * 
      * @return The decoded <code>flash.utils.ByteArray</code>.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function toByteArray():ByteArray
     {
@@ -134,35 +167,11 @@ public class Base64Decoder
         return result;
     }
 
-	//--------------------------------------------------------------------------
-	//
-	//  Private Methods
-	//
-	//--------------------------------------------------------------------------
-
-    private static function copyByteArray(source:ByteArray, destination:ByteArray, length:uint = 0):void
-    {
-        var oldPosition:int = source.position;
-
-        source.position = 0;
-        destination.position = 0;
-        var i:uint = 0;
-
-        while (source.bytesAvailable > 0 && i < length)
-        {
-            destination.writeByte(source.readByte());
-            i++;
-        }
-
-        source.position = oldPosition;
-        destination.position = 0;
-    }
-
-	//--------------------------------------------------------------------------
-	//
-	//  Private Variables
-	//
-	//--------------------------------------------------------------------------
+    //--------------------------------------------------------------------------
+    //
+    //  Private Variables
+    //
+    //--------------------------------------------------------------------------
 
     private var count:int = 0;
     private var data:ByteArray;
@@ -173,8 +182,8 @@ public class Base64Decoder
      *  @private 
      *  Used for accessing localized Error messages.
      */
-	private var resourceManager:IResourceManager =
-									ResourceManager.getInstance();
+    private var resourceManager:IResourceManager =
+                                    ResourceManager.getInstance();
 
     private static const ESCAPE_CHAR_CODE:Number = 61; // The '=' char
 

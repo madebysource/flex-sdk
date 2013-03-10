@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+
+ADOBE SYSTEMS INCORPORATED
+Copyright 2009 Adobe Systems Incorporated
+All Rights Reserved.
+
+NOTICE: Adobe permits you to use, modify, and distribute this file
+in accordance with the terms of the license agreement accompanying it.
+
+-->
+<s:Skin 
+	xmlns:fx="http://ns.adobe.com/mxml/2009" 
+	xmlns:s="library://ns.adobe.com/flex/spark" 
+	xmlns:mx="library://ns.adobe.com/flex/mx"
+      alpha.disabledStates="0.5">
+
+    <!-- host component -->
+    <fx:Metadata>
+        [HostComponent("spark.components.ToggleButton")]
+    </fx:Metadata>
+    
+   
+    
+    <!-- states -->
+    <s:states>
+        <s:State name="up" />
+        <s:State name="over" stateGroups="overStates" />
+        <s:State name="down" stateGroups="downStates" />
+        <s:State name="disabled" stateGroups="disabledStates" />
+        <s:State name="upAndSelected" stateGroups="selectedStates, selectedUpStates" />
+        <s:State name="overAndSelected" stateGroups="overStates, selectedStates" />
+        <s:State name="downAndSelected" stateGroups="downStates, selectedStates" />
+        <s:State name="disabledAndSelected" stateGroups="selectedUpStates, disabledStates, selectedStates" />
+    </s:states>
+    
+    <!-- skin -->
+	<mx:Image left="0" top="0" right="0" bottom="0" maintainAspectRatio="false"
+		source.up= "@Embed(source='/assets/flex_skins.swf', symbol='VideoPlayerPlayPauseButton_upSkin')"	
+		source.over= "@Embed(source='/assets/flex_skins.swf', symbol='VideoPlayerPlayPauseButton_overSkin')"
+		source.down= "@Embed(source='/assets/flex_skins.swf', symbol='VideoPlayerPlayPauseButton_downSkin')"
+    	source.disabled= "@Embed(source='/assets/flex_skins.swf', symbol='VideoPlayerPlayPauseButton_disabledSkin')"
+    	source.upAndSelected= "@Embed(source='/assets/flex_skins.swf', symbol='VideoPlayerPlayPauseButton_selectedUpSkin')"
+		source.overAndSelected= "@Embed(source='/assets/flex_skins.swf', symbol='VideoPlayerPlayPauseButton_selectedOverSkin')"
+		source.downAndSelected= "@Embed(source='/assets/flex_skins.swf', symbol='VideoPlayerPlayPauseButton_selectedDownSkin')"
+		source.disabledAndSelected="@Embed(source='/assets/flex_skins.swf', symbol='VideoPlayerPlayPauseButton_selectedDisabledSkin')"
+		/>
+   
+
+</s:Skin>

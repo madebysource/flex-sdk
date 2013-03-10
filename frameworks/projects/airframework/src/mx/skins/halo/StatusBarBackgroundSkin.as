@@ -17,48 +17,55 @@ import mx.skins.ProgrammaticSkin;
 /**
  *  The skin for the StatusBar of a WindowedApplication or Window.
  * 
+ *  
+ *  @langversion 3.0
  *  @playerversion AIR 1.1
+ *  @productversion Flex 3
  */
 public class StatusBarBackgroundSkin extends ProgrammaticSkin
 {
     include "../../core/Version.as";    
     
-	//--------------------------------------------------------------------------
-	//
-	//  Constructor
-	//
-	//--------------------------------------------------------------------------
+    //--------------------------------------------------------------------------
+    //
+    //  Constructor
+    //
+    //--------------------------------------------------------------------------
 
-	/**
-	 *  Constructor.
-	 */
-	public function StatusBarBackgroundSkin()
-	{
-		super();
-	}
-	
-	//--------------------------------------------------------------------------
-	//
-	//  Overridden methods: Programmatic Skin
-	//
-	//--------------------------------------------------------------------------
+    /**
+     *  Constructor.
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
+     */
+    public function StatusBarBackgroundSkin()
+    {
+        super();
+    }
+    
+    //--------------------------------------------------------------------------
+    //
+    //  Overridden methods: Programmatic Skin
+    //
+    //--------------------------------------------------------------------------
 
-	/**
-	 *  @private
-	 */
-	override protected function updateDisplayList(unscaledWidth:Number,
-									  			  unscaledHeight:Number):void
-	{
-		super.updateDisplayList(unscaledWidth, unscaledHeight);
-		
-		graphics.clear();
-		drawRoundRect(
-			0, 0, unscaledWidth, unscaledHeight, null,
-			getStyle("statusBarBackgroundColor"), 1.0);
-		graphics.moveTo(0, 0);
-		graphics.lineStyle(1, 0x000000, 0.35);
-		graphics.lineTo(unscaledWidth, 0);
-	}
+    /**
+     *  @private
+     */
+    override protected function updateDisplayList(unscaledWidth:Number,
+                                                  unscaledHeight:Number):void
+    {
+        super.updateDisplayList(unscaledWidth, unscaledHeight);
+        
+        graphics.clear();
+        drawRoundRect(
+            0, 0, unscaledWidth, unscaledHeight, null,
+            getStyle("statusBarBackgroundColor"), 1.0);
+        graphics.moveTo(0, 0);
+        graphics.lineStyle(1, 0x000000, 0.35);
+        graphics.lineTo(unscaledWidth, 0);
+    }
 }
 
 }

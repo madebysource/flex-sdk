@@ -100,6 +100,8 @@ package air.update.core
 		private var unpackager:AIRUnpackager;
 		//
 		private var _configuration:UpdaterConfiguration;
+		//
+		private var lastErrorEvent:ErrorEvent;
 
 		
 		public function UpdaterHSM()
@@ -198,8 +200,8 @@ package air.update.core
 			switch(event.type)
 			{
 				case HSMEvent.ENTER:
-						transition(stateReady);
-						break;
+					transition(stateReady);
+					break;
 			}
 		}
 		
@@ -212,7 +214,7 @@ package air.update.core
 				case HSMEvent.ENTER:
 					//
 					var e:UpdateEvent = new UpdateEvent(UpdateEvent.CHECK_FOR_UPDATE, false, true);
-					dispatchEvent(e); 
+					dispatchEvent(e);
 					if (!e.isDefaultPrevented())
 					{
 						// if the event wasn't cancelled, start downloading
@@ -248,7 +250,7 @@ package air.update.core
 					break;
 				case DownloadErrorEvent.DOWNLOAD_ERROR:
 					//
-					dispatchEvent(new StatusUpdateErrorEvent(StatusUpdateErrorEvent.UPDATE_ERROR, false, false, DownloadErrorEvent(event).text, DownloadErrorEvent(event).errorID, DownloadErrorEvent(event).subErrorID));
+					lastErrorEvent = new StatusUpdateErrorEvent(StatusUpdateErrorEvent.UPDATE_ERROR, false, true, DownloadErrorEvent(event).text, DownloadErrorEvent(event).errorID, DownloadErrorEvent(event).subErrorID);
 					transition(stateErrored);
 					break;
 				case UpdateEvent.DOWNLOAD_COMPLETE:
@@ -266,7 +268,7 @@ package air.update.core
 			switch (event.type)
 			{
 				case HSMEvent.ENTER:
-					if (dispatchEvent(new StatusUpdateEvent(StatusUpdateEvent.UPDATE_STATUS, false, true, true, descriptor.version, descriptor.description)))
+					if (dispatchEvent(new StatusUpdateEvent(StatusUpdateEvent.UPDATE_STATUS, false, true, true, descriptor.version, descriptor.description, descriptor.versionLabel)))
 					{
 						// if the event wasn't cancelled, start downloading
 						transition(stateDownloading);
@@ -295,13 +297,12 @@ package air.update.core
 					break;
 				case UpdateEvent.DOWNLOAD_START:
 					dispatchEvent(event.clone());
-					break;						
+					break;				
 				case ProgressEvent.PROGRESS:
 					dispatchEvent(event.clone());
 					break;
 				case DownloadErrorEvent.DOWNLOAD_ERROR:
-					//
-					dispatchEvent(event.clone());
+					lastErrorEvent = ErrorEvent(event.clone());
 					transition(stateErrored);
 					break;
 				case UpdateEvent.DOWNLOAD_COMPLETE:
@@ -329,7 +330,7 @@ package air.update.core
 				case IOErrorEvent.IO_ERROR:
 					unpackager.cancel();
 					unpackager = null;
-					dispatchEvent(new DownloadErrorEvent(DownloadErrorEvent.DOWNLOAD_ERROR, false, false, "", Constants.ERROR_AIR_UNPACKAGING, ErrorEvent(event).errorID));
+					lastErrorEvent = new DownloadErrorEvent(DownloadErrorEvent.DOWNLOAD_ERROR, false, true, "", Constants.ERROR_AIR_UNPACKAGING, ErrorEvent(event).errorID);
 					transition(stateErrored);
 					break;
 					
@@ -342,25 +343,25 @@ package air.update.core
 					}catch(e:Error)
 					{
 						unpackager = null;
-						dispatchEvent(new DownloadErrorEvent(DownloadErrorEvent.DOWNLOAD_ERROR, false, false, "", Constants.ERROR_VALIDATE, e.errorID));
+						lastErrorEvent = new DownloadErrorEvent(DownloadErrorEvent.DOWNLOAD_ERROR, false, true, e.message, Constants.ERROR_VALIDATE, e.errorID);
 						transition(stateErrored);
 						return;
 					}
 					if (descriptor.id != VersionUtils.getApplicationID())
 					{
-						dispatchEvent(new DownloadErrorEvent(DownloadErrorEvent.DOWNLOAD_ERROR, false, false, "Different applicationID", Constants.ERROR_VALIDATE,Constants.ERROR_DIFFERENT_APPLICATION_ID));
+						lastErrorEvent = new DownloadErrorEvent(DownloadErrorEvent.DOWNLOAD_ERROR, false, true, "Different applicationID", Constants.ERROR_VALIDATE,Constants.ERROR_DIFFERENT_APPLICATION_ID);
 						transition(stateErrored);
 						return;
 					}
 					if (_descriptor.version != descriptor.version)
 					{
-						dispatchEvent(new DownloadErrorEvent(DownloadErrorEvent.DOWNLOAD_ERROR, false, false, "Version mismatch", Constants.ERROR_VALIDATE, Constants.ERROR_VERSION_MISMATCH));
+						lastErrorEvent = new DownloadErrorEvent(DownloadErrorEvent.DOWNLOAD_ERROR, false, true, "Version mismatch", Constants.ERROR_VALIDATE, Constants.ERROR_VERSION_MISMATCH);
 						transition(stateErrored);
 						return;
 					}
 					if (!isNewerVersion(VersionUtils.getApplicationVersion(), descriptor.version))
 					{
-						dispatchEvent(new DownloadErrorEvent(DownloadErrorEvent.DOWNLOAD_ERROR, false, false, "Not a newer version", Constants.ERROR_VALIDATE, Constants.ERROR_NOT_NEW_VERSION));
+						lastErrorEvent = new DownloadErrorEvent(DownloadErrorEvent.DOWNLOAD_ERROR, false, true, "Not a newer version", Constants.ERROR_VALIDATE, Constants.ERROR_NOT_NEW_VERSION);
 						transition(stateErrored);
 						return;
 					}
@@ -397,7 +398,7 @@ package air.update.core
 					}
 					installUpdate();
 					break;
-			}			
+			}
 		}
 		
 		/**
@@ -436,7 +437,7 @@ package air.update.core
 					unpackager.cancel();
 					unpackager = null;				
 				// TODO: make a new event type?
-					dispatchEvent(new StatusFileUpdateErrorEvent(StatusFileUpdateErrorEvent.FILE_UPDATE_ERROR, false, false, "", (ErrorEvent(event).errorID)));
+					lastErrorEvent = new StatusFileUpdateErrorEvent(StatusFileUpdateErrorEvent.FILE_UPDATE_ERROR, false, true, "", (ErrorEvent(event).errorID));
 					transition(stateErrored);
 					break;
 			}			
@@ -448,7 +449,7 @@ package air.update.core
 			switch (event.type)
 			{
 				case HSMEvent.ENTER:
-					if (dispatchEvent(new StatusFileUpdateEvent(StatusFileUpdateEvent.FILE_UPDATE_STATUS, false, true, true, _applicationDescriptor.version, requestedFile.nativePath)))
+					if (dispatchEvent(new StatusFileUpdateEvent(StatusFileUpdateEvent.FILE_UPDATE_STATUS, false, true, true, _applicationDescriptor.version, requestedFile.nativePath, _applicationDescriptor.versionLabel)))
 					{
 						// if the event wasn't cancelled, start downloading
 						transition(stateInstallingFile);
@@ -458,7 +459,7 @@ package air.update.core
 					break;
 				case EVENT_INSTALL:
 					transition(stateInstallingFile);
-					break;					
+					break;			
 			}	
 		}	
 		
@@ -470,8 +471,8 @@ package air.update.core
 				case HSMEvent.ENTER:
 					installFileUpdate();
 					break;
-			}			
-		}			
+			}
+		}
 		
 		protected function stateReady(event:Event):void
 		{
@@ -507,15 +508,22 @@ package air.update.core
 					}
 					transition(stateReady);
 					break;
-			}			
+			}
 		}
 		
 		protected function stateErrored(event:Event):void
 		{
-			logger.finest("stateErrored: " + event.type);
+			logger.finest("stateErrored: " + event.type + " lastErrorEvent: " + lastErrorEvent);
 			switch (event.type)
 			{
 				case HSMEvent.ENTER:
+					var isDialogHidden:Boolean = false;
+					if (lastErrorEvent)
+					{
+						isDialogHidden = dispatchEvent(lastErrorEvent);
+						lastErrorEvent = null;
+					}
+					
 					dispatchEvent(new Event(EVENT_STATE_CLEAR_TRIGGER));
 					// clear everything and transition to ready
 					if (downloader) 
@@ -523,7 +531,12 @@ package air.update.core
 						downloader.cancel();
 						downloader = null;
 					}
-					transition(stateReady);
+
+					if (isDialogHidden)
+					{
+						transition(stateReady);	
+					}
+
 					break;
 			}
 		}
@@ -545,8 +558,11 @@ package air.update.core
 				}
 				if (!isNewerVersion(VersionUtils.getApplicationVersion(), _applicationDescriptor.version))
 				{
-					dispatchEvent(new StatusFileUpdateEvent(StatusFileUpdateEvent.FILE_UPDATE_STATUS, false, false, false, _applicationDescriptor.version, requestedFile.nativePath));
-					transition(stateReady);
+					if(dispatchEvent(new StatusFileUpdateEvent(StatusFileUpdateEvent.FILE_UPDATE_STATUS, false, true, false, _applicationDescriptor.version, requestedFile.nativePath, _applicationDescriptor.versionLabel)))
+					{
+						transition(stateReady);
+					}
+
 					return;
 				}
 				transition(stateAvailableFile);
@@ -554,8 +570,8 @@ package air.update.core
 			catch(e:Error)
 			{
 				logger.fine("Error validating file descriptor: " + e);
-				dispatchEvent(new StatusFileUpdateErrorEvent(StatusFileUpdateErrorEvent.FILE_UPDATE_ERROR, false, false, e.message, e.errorID));
-				transition(stateErrored);				
+				lastErrorEvent = new StatusFileUpdateErrorEvent(StatusFileUpdateErrorEvent.FILE_UPDATE_ERROR, false, true, e.message, e.errorID);
+				transition(stateErrored);
 			}
 		}
 
@@ -567,11 +583,16 @@ package air.update.core
 				var xml:XML = FileUtils.readXMLFromFile(updateFile);
 				_descriptor = new UpdateDescriptor(xml);
 				_descriptor.validate();
+				if(!_descriptor.isCompatibleWithApplicationDescriptor(VersionUtils.applicationHasVersionNumber()))
+					throw new Error("Application namespace and update descriptor namespace are not compatible", Constants.ERROR_INCOMPATIBLE_NAMESPACE);
 				//
 				if (!isNewerVersion(VersionUtils.getApplicationVersion(), _descriptor.version))
 				{
-					dispatchEvent(new StatusUpdateEvent(StatusUpdateEvent.UPDATE_STATUS));
-					transition(stateReady);
+					if (dispatchEvent(new StatusUpdateEvent(StatusUpdateEvent.UPDATE_STATUS, false, true)))
+					{
+						transition(stateReady);
+					}
+
 					return;
 				}
 				// update is available
@@ -582,7 +603,7 @@ package air.update.core
 			}catch(e:Error)
 			{
 				logger.fine("Error loading/validating downloaded descriptor: " + e);
-				dispatchEvent(new StatusUpdateErrorEvent(StatusUpdateErrorEvent.UPDATE_ERROR, false, false, e.message, e.errorID));
+				lastErrorEvent = new StatusUpdateErrorEvent(StatusUpdateErrorEvent.UPDATE_ERROR, false, false, e.message, e.errorID);
 				transition(stateErrored);
 			}
 		}

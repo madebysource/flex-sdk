@@ -82,6 +82,11 @@ use namespace mx_internal;
  *    &lt;/mx:children&gt;
  *  &lt;/mx:<i>tagname</i>&gt;
  *  </pre>
+ *  
+ *  @langversion 3.0
+ *  @playerversion Flash 9
+ *  @playerversion AIR 1.1
+ *  @productversion Flex 3
  */
 public class CompositeEffect extends Effect
 {
@@ -98,6 +103,11 @@ public class CompositeEffect extends Effect
      * 
      *  @param target This argument is ignored for composite effects.
      *  It is included only for consistency with other types of effects.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function CompositeEffect(target:Object = null)
     {
@@ -134,11 +144,53 @@ public class CompositeEffect extends Effect
 
     [Inspectable(category="General", arrayType="mx.effects.Effect")]
     
+    private var _children:Array = [];
+    
     /**
      *  An Array containing the child effects of this CompositeEffect.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
-    public var children:Array = [];
+    public function get children():Array
+    {
+        return _children;
+    }
+    public function set children(value:Array):void
+    {
+        var i:int;
+        // array may contain null/uninitialized children, so only set/unset
+        // parent property for non-null child values
+        if (_children)
+            // Remove this effect as the parent of the old child effects
+            for (i = 0; i < _children.length; ++i)
+                if (_children[i])
+                    Effect(_children[i]).parentCompositeEffect = null;
+        _children = value;
+        if (_children)
+            for (i = 0; i < _children.length; ++i)
+                if (_children[i])
+                    Effect(_children[i]).parentCompositeEffect = this;
+    }
     
+    /**
+     * Returns the duration of this effect as defined by the duration of
+     * all child effects. This takes into account the startDelay and repetition
+     * info for all child effects, along with their durations, and returns the
+     * appropriate result.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
+     */
+    public function get compositeDuration():Number
+    {
+        return duration;
+    }
+
     //--------------------------------------------------------------------------
     //
     //  Overridden methods
@@ -204,7 +256,7 @@ public class CompositeEffect extends Effect
     override protected function filterInstance(propChanges:Array,
                                                targ:Object):Boolean
     {
-        if (mx_internal::filterObject)
+        if (filterObject)
         {
             // If we don't have any targets, then that means
             // we are nested inside of another CompositeEffect.
@@ -217,7 +269,7 @@ public class CompositeEffect extends Effect
             var n:int = targs.length;
             for (var i:int = 0; i < n; i++)
             {
-                if (mx_internal::filterObject.filterInstance(propChanges, effectTargetHost, targs[i]))
+                if (filterObject.filterInstance(propChanges, effectTargetHost, targs[i]))
                     return true;
             }
             
@@ -234,8 +286,7 @@ public class CompositeEffect extends Effect
     {
         super.initInstance(instance);
         
-        var compInst:CompositeEffectInstance =
-            CompositeEffectInstance(instance);
+        var compInst:CompositeEffectInstance = CompositeEffectInstance(instance);
 
         var targets:Object = childTargets;
         if (!(targets is Array))
@@ -249,27 +300,26 @@ public class CompositeEffect extends Effect
                 var childEffect:Effect = children[i];
                 
                 // Pass the propertyChangesArray to each child
-                if (mx_internal::propertyChangesArray != null)
+                if (propertyChangesArray != null)
                 {
-                    childEffect.mx_internal::propertyChangesArray =
-                        mx_internal::propertyChangesArray;
+                    childEffect.propertyChangesArray = propertyChangesArray;
                 }
                 
                 // Pass the filterObject down to the child
                 // if it doesn't have a filterObject.
-                if (childEffect.mx_internal::filterObject == null &&
-                    mx_internal::filterObject)
+                if (childEffect.filterObject == null &&
+                    filterObject)
                 {
-                    childEffect.mx_internal::filterObject =
-                        mx_internal::filterObject;
+                    childEffect.filterObject = filterObject;
                 }
 
-				// TODO This doesn't seem good enough...
-				// possibly redundant, but otherwise we'll be using the
-				// old semantics. Might be a better way (e.g., reuse
-				// the same semantics provider)
+                // TODO (chaase): This doesn't seem good enough...
+                // possibly redundant, but otherwise we'll be using the
+                // old semantics. Might be a better way (e.g., reuse
+                // the same semantics provider). Note that it's been 
+                // working since Flex 3.
                 if (effectTargetHost) // && !childEffect.targetSemantics)
-                	childEffect.effectTargetHost = effectTargetHost;
+                    childEffect.effectTargetHost = effectTargetHost;
                 
                 if (childEffect.targets.length == 0)
                 {
@@ -294,18 +344,18 @@ public class CompositeEffect extends Effect
         var childTargets:Array = getChildrenTargets();
         
         // Generate the PropertyChanges array
-        mx_internal::propertyChangesArray = [];
+        propertyChangesArray = [];
         
         var n:int = childTargets.length;
         for (var i:int = 0; i < n; i++)
         {
-            mx_internal::propertyChangesArray.push(
+            propertyChangesArray.push(
                 new PropertyChanges(childTargets[i]));
         }
         
         // call captureValues
-        mx_internal::propertyChangesArray = 
-            captureValues(mx_internal::propertyChangesArray, true);
+        propertyChangesArray = 
+            captureValues(propertyChangesArray, true);
             
         endValuesCaptured = false;
     }
@@ -314,7 +364,8 @@ public class CompositeEffect extends Effect
      *  @private
      */
     override mx_internal function captureValues(propChanges:Array,
-                                           setStartValues:Boolean):Array
+                                           setStartValues:Boolean,
+                                           targetsToCapture:Array = null):Array
     {
         // Iterate through the list of children
         // and run captureValues() on each of them.
@@ -322,7 +373,8 @@ public class CompositeEffect extends Effect
         for (var i:int = 0; i < n; i++)
         {
             var child:Effect = children[i];
-            propChanges = child.captureValues(propChanges, setStartValues);
+            propChanges = child.captureValues(propChanges, setStartValues,
+                (child.targets && child.targets.length > 0) ? child.targets : targetsToCapture);
         }
         
         return propChanges;
@@ -343,21 +395,62 @@ public class CompositeEffect extends Effect
                                      child.targets :
                                      targets;
             
-            if (child.mx_internal::filterObject == null &&
-                mx_internal::filterObject)
+            if (child.filterObject == null && filterObject)
             {
-                child.mx_internal::filterObject = mx_internal::filterObject;
+                child.filterObject = filterObject;
             }
             
             child.applyStartValues(propChanges, childTargets);
         }
     }
 
+    /**
+     *  @private
+     */
+    override mx_internal function applyEndValues(propChanges:Array,
+                                              targets:Array):void
+    {
+        var n:int = children.length;
+        for (var i:int = 0; i < n; i++)
+        {
+            var child:Effect = children[i];
+            
+            var childTargets:Array = child.targets.length > 0 ?
+                                     child.targets :
+                                     targets;
+            
+            if (child.filterObject == null && filterObject)
+            {
+                child.filterObject = filterObject;
+            }
+            
+            child.applyEndValues(propChanges, childTargets);
+        }
+    }
+
+    /**
+     * @private
+     * Override this property so that we can set it on all child effects
+     */
+    override mx_internal function set transitionInterruption(value:Boolean):void
+    {
+        super.transitionInterruption = value;
+
+        var n:int = children.length;
+        for (var i:int = 0; i < n; i++)
+        {
+            var child:Effect = children[i];            
+            child.transitionInterruption = value;
+        }
+    }
     //--------------------------------------------------------------------------
     //
     //  Methods
     //
     //--------------------------------------------------------------------------
+    
+    // TODO (chaase): Shouldn't there be a removeChild() method 
+    // since there's an addChild() method?
     
     /**
      *  Adds a new child effect to this composite effect.
@@ -368,6 +461,11 @@ public class CompositeEffect extends Effect
      *
      *  @param childEffect Child effect to be added
      *  to the composite effect.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function addChild(childEffect:IEffect):void
     {
@@ -376,6 +474,7 @@ public class CompositeEffect extends Effect
         // Null out the list of affected properties,
         // so that it gets recalculated to include the new child.
         _affectedProperties = null;
+        Effect(childEffect).parentCompositeEffect = this;
     }
     
     /**
@@ -404,8 +503,12 @@ public class CompositeEffect extends Effect
                 m = childTargets.length;
                 for (j = 0; j < m; j++)
                 {
-                    if (childTargets[j] != null) // Don't include null targets
-                        results[childTargets[j].toString()] = childTargets[j];
+                    // Don't include null or duplicate targets
+                    if (childTargets[j] != null && 
+                        resultsArray.indexOf(childTargets[j]) < 0)
+                    {
+                        resultsArray.push(childTargets[j]);
+                    }
                 }
             }   
             else if (child.targets != null)
@@ -413,8 +516,12 @@ public class CompositeEffect extends Effect
                 m = child.targets.length;
                 for (j = 0; j < m; j++)
                 {
-                    if (child.targets[j] != null) // Don't include null targets
-                        results[child.targets[j].toString()] = child.targets[j];
+                    // Don't include null or duplicate targets
+                    if (child.targets[j] != null && 
+                        resultsArray.indexOf(child.targets[j]) < 0)
+                    {
+                        resultsArray.push(child.targets[j]);
+                    }
                 }
             }
         }
@@ -423,14 +530,12 @@ public class CompositeEffect extends Effect
         n = targets.length;
         for (i = 0; i < n; i++)
         {
-            if (targets[i] != null) // Don't include null targets
-                results[targets[i].toString()] = targets[i];
-        }
-        
-        // Return the results as an array.
-        for (var p:String in results)
-        {
-            resultsArray.push(results[p]);
+            // Don't include null or duplicate targets
+            if (targets[i] != null && 
+                resultsArray.indexOf(targets[i]) < 0)
+            {
+                resultsArray.push(targets[i]);
+            }
         }
         
         return resultsArray;

@@ -14,29 +14,41 @@ package mx.resources
 
 import flash.events.Event;
 import flash.events.EventDispatcher;
+import flash.events.FocusEvent;
 import flash.events.IEventDispatcher;
 import flash.events.TimerEvent;
 import flash.system.ApplicationDomain;
 import flash.system.Capabilities;
 import flash.system.SecurityDomain;
+import flash.utils.Dictionary;
 import flash.utils.Timer;
 import mx.core.IFlexModuleFactory;
 import mx.core.mx_internal;
 import mx.core.Singleton;
+import mx.events.FlexEvent;
 import mx.events.ModuleEvent;
 import mx.events.ResourceEvent;
+import mx.managers.SystemManagerGlobals;
 import mx.modules.IModuleInfo;
 import mx.modules.ModuleManager;
 import mx.utils.StringUtil;
 
+use namespace mx_internal;
+
 /**
  *  @copy mx.resources.IResourceManager#change
+ *  
+ *  @langversion 3.0
+ *  @playerversion Flash 9
+ *  @playerversion AIR 1.1
+ *  @productversion Flex 3
  */
 [Event(name="change", type="flash.events.Event")]
 
 [ExcludeClass]
 
 /**
+ *  @private
  *  This class provides an implementation of the IResourceManager interface.
  *  The IResourceManager and IResourceBundle interfaces work together
  *  to provide internationalization support for Flex applications.
@@ -74,6 +86,11 @@ public class ResourceManagerImpl extends EventDispatcher implements IResourceMan
      *  This object manages all localized resources for a Flex application.
      *  
      *  @return An object implementing IResourceManager.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public static function getInstance():IResourceManager
     {
@@ -91,11 +108,36 @@ public class ResourceManagerImpl extends EventDispatcher implements IResourceMan
 
     /**
      *  Constructor.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function ResourceManagerImpl()
     {
         super();
-	}
+
+        if (SystemManagerGlobals.topLevelSystemManagers.length)
+        {
+            if (SystemManagerGlobals.topLevelSystemManagers[0].currentFrame == 1)
+            {
+                ignoreMissingBundles = true;
+                SystemManagerGlobals.topLevelSystemManagers[0].
+                    addEventListener(Event.ENTER_FRAME, enterFrameHandler);
+            }
+        }
+        
+        var info:Object = SystemManagerGlobals.info;
+        if (info)
+            processInfo(info, false);
+
+        ignoreMissingBundles = false;
+        
+        if (SystemManagerGlobals.topLevelSystemManagers.length)
+		    SystemManagerGlobals.topLevelSystemManagers[0].
+			    addEventListener(FlexEvent.NEW_CHILD_APPLICATION, newChildApplicationHandler);
+    }
     
     //--------------------------------------------------------------------------
     //
@@ -103,6 +145,20 @@ public class ResourceManagerImpl extends EventDispatcher implements IResourceMan
     //
     //--------------------------------------------------------------------------
 
+    /**
+     *  @private
+     * 
+     *  Whether or not to throw an error.
+     */
+    private var ignoreMissingBundles:Boolean;
+    
+    /**
+     *  @private
+     * 
+     *  The dictionary to hold all of the weak reference resource bundles.
+     */
+    private var bundleDictionary:Dictionary;
+    
     /**
      *  @private
      *  A map whose keys are locale strings like "en_US"
@@ -125,7 +181,7 @@ public class ResourceManagerImpl extends EventDispatcher implements IResourceMan
      *  @private
      */
     private var initializedForNonFrameworkApp:Boolean = false;
-
+    
     //--------------------------------------------------------------------------
     //
     //  Properties
@@ -144,6 +200,11 @@ public class ResourceManagerImpl extends EventDispatcher implements IResourceMan
     
     /**
      *  @copy mx.resources.IResourceManager#localeChain
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get localeChain():Array /* of String */
     {
@@ -209,15 +270,24 @@ public class ResourceManagerImpl extends EventDispatcher implements IResourceMan
      *  If a bundle for a given locale and bundle name already exists
      *  in the ResourceManager already exists, it does not get replaced.
      *  This can happen when a code module gets loaded into an application.
+     * 
+     *  When sub-applications and modules install their resource bundles 
+     *  they set useWeakReference = true. Any new resource bundles they 
+     *  create will be weak referenced by the ResourceManager. The 
+     *  sub-application or module will then provide a hard reference
+     *  to the returned Array of resource bundles to keep them from 
+     *  being garbage collected.
      */
     public function installCompiledResourceBundles(
                                 applicationDomain:ApplicationDomain,
                                 locales:Array /* of String */,
-                                bundleNames:Array /* of String */):void
+                                bundleNames:Array /* of String */,
+                                useWeakReference:Boolean = false):Array
     {
         //trace("locales", locales);
         //trace("bundleNames", bundleNames);
-
+        var bundles:Array = [];
+        var bundleCount:uint = 0;
         var n:int = locales ? locales.length : 0;
         var m:int = bundleNames ? bundleNames.length : 0;
 
@@ -231,18 +301,25 @@ public class ResourceManagerImpl extends EventDispatcher implements IResourceMan
             {
                 var bundleName:String = bundleNames[j];
                 
-                mx_internal::installCompiledResourceBundle(
-                    applicationDomain, locale, bundleName);
+                var bundle:IResourceBundle = installCompiledResourceBundle(
+                    applicationDomain, locale, bundleName, 
+                    useWeakReference);
+                
+                if (bundle)
+                    bundles[bundleCount++] = bundle;
             }
         }
+        
+        return bundles;
     }
 
     /**
      *  @private
      */
-    mx_internal function installCompiledResourceBundle(
+    private function installCompiledResourceBundle(
                                 applicationDomain:ApplicationDomain,
-                                locale:String, bundleName:String):void
+                                locale:String, bundleName:String,
+                                useWeakReference:Boolean = false):IResourceBundle
     {
         var packageName:String = null;
         var localName:String = bundleName;
@@ -255,8 +332,14 @@ public class ResourceManagerImpl extends EventDispatcher implements IResourceMan
 
         // If a bundle with that locale and bundle name already exists
         // in the ResourceManager, don't replace it.
-        if (getResourceBundle(locale, bundleName))
-            return;
+        // If we want to install a  weakReferenceDictionary then don't rely on
+        // a weak reference dictionary because it may go way when the 
+        // application goes away.
+        var resourceBundle:IResourceBundle = getResourceBundleInternal(locale,
+                                                    bundleName, 
+                                                    useWeakReference);
+        if (resourceBundle)
+            return resourceBundle;
         
         // The autogenerated resource bundle classes produced by the
         // mxmlc and compc compilers have names that incorporate
@@ -301,29 +384,94 @@ public class ResourceManagerImpl extends EventDispatcher implements IResourceMan
         
         if (!bundleClass)
         {
+            if (ignoreMissingBundles)
+                return null;
+            
             throw new Error(
                 "Could not find compiled resource bundle '" + bundleName +
                 "' for locale '" + locale + "'.");
         }
         
         // Create an instance of the bundle class.
-        var resourceBundle:ResourceBundle =
-            ResourceBundle(new bundleClass());
+        resourceBundle = ResourceBundle(new bundleClass());
 
         // In case we just created a ResourceBundle from a Flex 2 SWC,
         // set its locale and bundleName, because the old constructor
         // didn't used to do this.
-        resourceBundle.mx_internal::_locale = locale;
-        resourceBundle.mx_internal::_bundleName = bundleName;
+        ResourceBundle(resourceBundle)._locale = locale;
+        ResourceBundle(resourceBundle)._bundleName = bundleName;
                 
         // Add that resource bundle instance to the ResourceManager.
-        addResourceBundle(resourceBundle);
+        addResourceBundle(resourceBundle, useWeakReference);
+        
+        return resourceBundle;
     }
     
+    // FocusEvent is used just so we can add a relatedObject
+	private function newChildApplicationHandler(event:FocusEvent):void
+	{
+		var info:Object = event.relatedObject["info"]();
+        var weakReference:Boolean = false;
+        if ("_resourceBundles" in event.relatedObject)
+            weakReference = true;
+        
+        // If the application has a "_resourceBundles" object for us to put
+        // the bundles into then we will. Otherwise have the ResourceManager
+        // create a hard reference to the resources.
+        var bundles:Array = processInfo(info, weakReference);
+        if (weakReference)
+            event.relatedObject["_resourceBundles"] = bundles;
+    }
+		
+    private function processInfo(info:Object, useWeakReference:Boolean):Array
+    {
+		var compiledLocales:Array = info["compiledLocales"];
+
+		ResourceBundle.locale =
+			compiledLocales != null && compiledLocales.length > 0 ?
+			compiledLocales[0] :
+			"en_US";
+
+		// The FlashVars of the SWF's HTML wrapper,
+		// or the query parameters of the SWF URL,
+		// can specify the ResourceManager's localeChain.
+		var localeChainList:String =  
+			SystemManagerGlobals.parameters["localeChain"];
+		if (localeChainList != null && localeChainList != "")
+			localeChain = localeChainList.split(",");
+
+		var applicationDomain:ApplicationDomain = info["currentDomain"];
+
+		var compiledResourceBundleNames:Array /* of String */ =
+			info["compiledResourceBundleNames"];
+		
+		var bundles:Array = installCompiledResourceBundles(
+			applicationDomain, compiledLocales, compiledResourceBundleNames,
+            useWeakReference);
+
+		// If the localeChain wasn't specified in the FlashVars of the SWF's
+		// HTML wrapper, or in the query parameters of the SWF URL,
+		// then initialize it to the list of compiled locales,
+        // sorted according to the system's preferred locales as reported by
+        // Capabilities.languages or Capabilities.language.
+		// For example, if the applications was compiled with, say,
+		// -locale=en_US,ja_JP and Capabilities.languages reports [ "ja-JP" ],
+        // set the localeChain to [ "ja_JP" "en_US" ].
+		if (!localeChain)
+			initializeLocaleChain(compiledLocales);
+
+        return bundles;
+	}
+
     /**
-	 *  @copy mx.resources.IResourceManager#initializeLocaleChain()
-	 */
-	public function initializeLocaleChain(compiledLocales:Array):void
+     *  @copy mx.resources.IResourceManager#initializeLocaleChain()
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
+     */
+    public function initializeLocaleChain(compiledLocales:Array):void
     {
         localeChain = LocaleSorter.sortLocalesByPreference(
             compiledLocales, getSystemPreferredLocales(), null, true);
@@ -331,6 +479,11 @@ public class ResourceManagerImpl extends EventDispatcher implements IResourceMan
 
     /**
      *  @copy mx.resources.IResourceManager#loadResourceModule()
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function loadResourceModule(url:String, updateFlag:Boolean = true,
                                        applicationDomain:ApplicationDomain = null,
@@ -415,6 +568,11 @@ public class ResourceManagerImpl extends EventDispatcher implements IResourceMan
 
     /**
      *  @copy mx.resources.IResourceManager#unloadResourceModule()
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function unloadResourceModule(url:String, update:Boolean = true):void
     {
@@ -454,8 +612,14 @@ public class ResourceManagerImpl extends EventDispatcher implements IResourceMan
  
     /**
      *  @copy mx.resources.IResourceManager#addResourceBundle()
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
-    public function addResourceBundle(resourceBundle:IResourceBundle):void
+    public function addResourceBundle(resourceBundle:IResourceBundle, 
+                                      useWeakReference:Boolean = false):void
     {
         var locale:String = resourceBundle.locale;
         var bundleName:String = resourceBundle.bundleName;
@@ -463,24 +627,87 @@ public class ResourceManagerImpl extends EventDispatcher implements IResourceMan
         if (!localeMap[locale])
             localeMap[locale] = {};
             
-        localeMap[locale][bundleName] = resourceBundle;
+        if (useWeakReference)
+        {
+            if (!bundleDictionary)
+            {
+                bundleDictionary = new Dictionary(true);
+            }
+            
+            bundleDictionary[resourceBundle] = locale + bundleName;
+            localeMap[locale][bundleName] = bundleDictionary;
+        }
+        else
+        {
+            localeMap[locale][bundleName] = resourceBundle;
+        }
     }
     
     /**
      *  @copy mx.resources.IResourceManager#getResourceBundle()
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function getResourceBundle(locale:String,
                                       bundleName:String):IResourceBundle
     {
+        return getResourceBundleInternal(locale, bundleName, false);
+    }
+    
+    /**
+     *  @private
+     *  
+     *  @param ignoreWeakReferenceBundles if true, do not search weak
+     *  reference bundles.
+     * 
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
+     */
+    private function getResourceBundleInternal(locale:String,
+                                      bundleName:String,
+                                      ignoreWeakReferenceBundles:Boolean):IResourceBundle
+    {
         var bundleMap:Object = localeMap[locale];
         if (!bundleMap)
             return null;
+           
+        var bundle:IResourceBundle = null;
+        var bundleObject:Object = bundleMap[bundleName];
+        if (bundleObject is Dictionary)
+        {
+            if (ignoreWeakReferenceBundles)
+                return null;
             
-        return bundleMap[bundleName];
+            var localeBundleNameString:String = locale + bundleName;
+            for (var obj:Object in bundleObject)
+            {
+                if (bundleObject[obj] == localeBundleNameString)
+                {
+                    bundle = obj as IResourceBundle;
+                    break;
+                }
+            }
+        }
+        else 
+        {
+            bundle = bundleObject as IResourceBundle;
+        }
+        
+        return bundle;
     }
     
     /**
      *  @copy mx.resources.IResourceManager#removeResourceBundle()
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function removeResourceBundle(locale:String, bundleName:String):void
     {
@@ -495,6 +722,11 @@ public class ResourceManagerImpl extends EventDispatcher implements IResourceMan
     
     /**
      *  @copy mx.resources.IResourceManager#removeResourceBundlesForLocale()
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function removeResourceBundlesForLocale(locale:String):void
     {
@@ -503,6 +735,11 @@ public class ResourceManagerImpl extends EventDispatcher implements IResourceMan
     
     /**
      *  @copy mx.resources.IResourceManager#update()
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function update():void
     {
@@ -511,6 +748,11 @@ public class ResourceManagerImpl extends EventDispatcher implements IResourceMan
 
     /**
      *  @copy mx.resources.IResourceManager#getLocales()
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function getLocales():Array /* of String */
     {
@@ -522,8 +764,13 @@ public class ResourceManagerImpl extends EventDispatcher implements IResourceMan
         return locales;
     }
 
-	/**
+    /**
      *  @copy mx.resources.IResourceManager#getPreferredLocaleChain()
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function getPreferredLocaleChain():Array /* of String */
     {
@@ -533,6 +780,11 @@ public class ResourceManagerImpl extends EventDispatcher implements IResourceMan
     
     /**
      *  @copy mx.resources.IResourceManager#getBundleNamesForLocale()
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function getBundleNamesForLocale(locale:String):Array /* of String */
     {
@@ -546,6 +798,11 @@ public class ResourceManagerImpl extends EventDispatcher implements IResourceMan
 
     /**
      *  @copy mx.resources.findResourceBundleWithResource
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function findResourceBundleWithResource(
                         bundleName:String, resourceName:String):IResourceBundle
@@ -562,11 +819,30 @@ public class ResourceManagerImpl extends EventDispatcher implements IResourceMan
             if (!bundleMap)
                 continue;
             
-            var bundle:ResourceBundle = bundleMap[bundleName];
-            if (!bundle)
+            var bundleObject:Object = bundleMap[bundleName];
+            if (!bundleObject)
                 continue;
                 
-            if (resourceName in bundle.content)
+            var bundle:IResourceBundle = null;
+            
+            if (bundleObject is Dictionary)
+            {
+                var localeBundleNameString:String = locale + bundleName;
+                for (var obj:Object in bundleObject)
+                {
+                    if (bundleObject[obj] == localeBundleNameString)
+                    {
+                        bundle = obj as IResourceBundle;
+                        break;
+                    }
+                }
+            }
+            else 
+            {
+                bundle = bundleObject as IResourceBundle;
+            }
+                
+            if (bundle && resourceName in bundle.content)
                 return bundle;
         }
 
@@ -577,6 +853,11 @@ public class ResourceManagerImpl extends EventDispatcher implements IResourceMan
     
     /**
      *  @copy mx.resources.IResourceManager#getObject()
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function getObject(bundleName:String, resourceName:String,
                               locale:String = null):*
@@ -593,6 +874,11 @@ public class ResourceManagerImpl extends EventDispatcher implements IResourceMan
     
     /**
      *  @copy mx.resources.IResourceManager#getString()
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function getString(bundleName:String, resourceName:String,
                               parameters:Array = null,
@@ -615,6 +901,11 @@ public class ResourceManagerImpl extends EventDispatcher implements IResourceMan
     
     /**
      *  @copy mx.resources.IResourceManager#getStringArray()
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function getStringArray(bundleName:String,
                                    resourceName:String,
@@ -642,6 +933,11 @@ public class ResourceManagerImpl extends EventDispatcher implements IResourceMan
     
     /**
      *  @copy mx.resources.IResourceManager#getNumber()
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function getNumber(bundleName:String, resourceName:String,
                               locale:String = null):Number
@@ -660,6 +956,11 @@ public class ResourceManagerImpl extends EventDispatcher implements IResourceMan
     
     /**
      *  @copy mx.resources.IResourceManager#getInt()
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function getInt(bundleName:String, resourceName:String,
                            locale:String = null):int
@@ -678,6 +979,11 @@ public class ResourceManagerImpl extends EventDispatcher implements IResourceMan
     
     /**
      *  @copy mx.resources.IResourceManager#getUint()
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function getUint(bundleName:String, resourceName:String,
                             locale:String = null):uint
@@ -696,6 +1002,11 @@ public class ResourceManagerImpl extends EventDispatcher implements IResourceMan
     
     /**
      *  @copy mx.resources.IResourceManager#getBoolean()
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function getBoolean(bundleName:String, resourceName:String,
                                locale:String = null):Boolean
@@ -714,6 +1025,11 @@ public class ResourceManagerImpl extends EventDispatcher implements IResourceMan
     
     /**
      *  @copy mx.resources.IResourceManager#getClass()
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function getClass(bundleName:String, resourceName:String,
                              locale:String = null):Class
@@ -776,14 +1092,14 @@ public class ResourceManagerImpl extends EventDispatcher implements IResourceMan
      */  
     private function getSystemPreferredLocales():Array /* of String */
     {
-    	var systemPreferences:Array;
+        var systemPreferences:Array;
         
         // Capabilities.languages was added in AIR 1.1,
         // so this API may not exist.
         if (Capabilities["languages"])
-        	systemPreferences = Capabilities["languages"];
+            systemPreferences = Capabilities["languages"];
         else
-        	systemPreferences = [ Capabilities.language ];
+            systemPreferences = [ Capabilities.language ];
 
         return systemPreferences;
     }
@@ -803,6 +1119,26 @@ public class ResourceManagerImpl extends EventDispatcher implements IResourceMan
         }
     }
 
+    /**
+     *  @private
+     */
+    private function enterFrameHandler(event:Event):void
+    {
+        if (SystemManagerGlobals.topLevelSystemManagers.length)
+        {
+            if (SystemManagerGlobals.topLevelSystemManagers[0].currentFrame == 2)
+            {
+                SystemManagerGlobals.topLevelSystemManagers[0].
+                    removeEventListener(Event.ENTER_FRAME, enterFrameHandler);
+            }
+            else
+                return;
+        }
+        
+        var info:Object = SystemManagerGlobals.info;
+        if (info)
+            processInfo(info, false);
+    }
 }
 
 }
@@ -832,6 +1168,11 @@ class ResourceModuleInfo
 
     /**
      *  Constructor.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function ResourceModuleInfo(moduleInfo:IModuleInfo,
                                        readyHandler:Function,
@@ -906,6 +1247,11 @@ class ResourceEventDispatcher extends EventDispatcher
 
     /**
      *  Constructor.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function ResourceEventDispatcher(moduleInfo:IModuleInfo)
     {

@@ -548,7 +548,11 @@ package air.update
 		protected function onStateClear(event:Event):void
 		{
 			state.resetUpdateData();
-			state.saveToStorage();
+			try {
+				state.saveToStorage();
+			} catch(e : Error) {
+				logger.warning("The application cannot be updated (state file)." + e.message);
+			}
 		}
 		
 		protected function onInstall():void

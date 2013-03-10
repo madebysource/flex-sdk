@@ -13,6 +13,7 @@ package mx.core
 {
 
 import flash.display.FocusDirection;
+import flash.events.Event;
 import flash.html.HTMLLoader;
 import mx.managers.IFocusManagerComplexComponent
 import mx.utils.NameUtil;
@@ -24,9 +25,12 @@ import mx.utils.NameUtil;
  *  to return a string indicating the location of the object
  *  within the hierarchy of DisplayObjects in the application.
  * 
+ *  
+ *  @langversion 3.0
  *  @playerversion AIR 1.1
+ *  @productversion Flex 3
  */
-public class FlexHTMLLoader extends HTMLLoader implements IFocusManagerComplexComponent
+public class FlexHTMLLoader extends HTMLLoader implements IFocusManagerComplexComponent, IIMESupport
 {
     include "../core/Version.as";
 
@@ -49,6 +53,10 @@ public class FlexHTMLLoader extends HTMLLoader implements IFocusManagerComplexCo
      *
      *  @see flash.display.DisplayObject#name
      *  @see mx.utils.NameUtils#createUniqueName()
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function FlexHTMLLoader()
     {
@@ -71,6 +79,8 @@ public class FlexHTMLLoader extends HTMLLoader implements IFocusManagerComplexCo
             // In this case, we ignore the error and toString() will
             // use the name assigned in the Flash authoring tool.
         }
+
+        addEventListener(Event.HTML_RENDER, htmlRenderHandler);
     }
 
     //--------------------------------------------------------------------------
@@ -78,6 +88,28 @@ public class FlexHTMLLoader extends HTMLLoader implements IFocusManagerComplexCo
     //  Methods
     //
     //--------------------------------------------------------------------------
+
+    // AIR 1.5 unexpectedly changes hasFocusableContent during interaction
+    // so we cache it on RENDER.  It seems to be correct then.
+    private var _hasFocusableContent:Boolean;
+
+    //----------------------------------
+    //  enableIME
+    //----------------------------------
+
+    /**
+     *  A flag that indicates whether the IME should
+     *  be enabled when the component receives focus. 
+     *
+     *  @langversion 3.0
+     *  @playerversion Flash 10
+     *  @playerversion AIR 1.5
+     *  @productversion Flex 4
+     */
+    public function get enableIME():Boolean
+    {
+        return _hasFocusableContent;
+    }
 
     //----------------------------------
     //  focusEnabled
@@ -99,7 +131,7 @@ public class FlexHTMLLoader extends HTMLLoader implements IFocusManagerComplexCo
      *  on the child component.</p>
      *
      *  <p>This will cause the FocusManager to ignore this component
-     *  and not monitor it for changes to the <code>tabEnabled</code>,
+     *  and not monitor it for changes to the <code>tabFocusEnabled</code>,
      *  <code>tabChildren</code>, and <code>mouseFocusEnabled</code> properties.
      *  This also means you cannot change this value after
      *  <code>addChild()</code> and expect the FocusManager to notice.</p>
@@ -108,6 +140,10 @@ public class FlexHTMLLoader extends HTMLLoader implements IFocusManagerComplexCo
      *  programmatically in your <code>setFocus()</code> method;
      *  it just tells the FocusManager to ignore this IFocusManagerComponent
      *  component in the Tab and mouse searches.</p>
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get focusEnabled():Boolean
     {
@@ -123,8 +159,82 @@ public class FlexHTMLLoader extends HTMLLoader implements IFocusManagerComplexCo
     }
 
     //----------------------------------
-    //  mouseFocusEnabled
+    //  hasFocusableChildren
     //----------------------------------
+
+    /**
+     *  @private
+     *  Storage for the hasFocusableChildren property.
+     */
+    private var _hasFocusableChildren:Boolean = false;
+
+    [Bindable("hasFocusableChildrenChange")]
+    [Inspectable(defaultValue="true")]
+
+    /**
+     *  @copy mx.core.UIComponent#hasFocusableChildren
+     *  
+     *  @default false
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.5
+     *  @productversion Flex 4
+     */
+    public function get hasFocusableChildren():Boolean
+    {
+        return _hasFocusableChildren;
+    }
+
+    /**
+     *  @private
+     */
+    public function set hasFocusableChildren(value:Boolean):void
+    {
+        if (value != _hasFocusableChildren)
+        {
+            _hasFocusableChildren = value;
+            dispatchEvent(new Event("hasFocusableChildrenChange"));
+        }
+    }
+
+    //----------------------------------
+    //  imeMode
+    //----------------------------------
+
+    /**
+     *  @private
+     */
+    private var _imeMode:String = null;
+
+    /**
+     *  This is just a stub to support the interface.
+     *  The parent mx.controls.HTML contains the conversionMode and
+     *  applies it.
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.5
+     *  @productversion Flex 4
+     */
+    public function get imeMode():String
+    {
+        return _imeMode;
+    }
+
+    /**
+     *  @private
+     */
+    public function set imeMode(value:String):void
+    {
+        _imeMode = value;
+        // We don't call IME.conversionMode here. We call it
+        // only on focusIn. Thus fringe cases like setting
+        // imeMode dynamically without moving focus, through
+        // keyboard events, wouldn't change the mode. Also
+        // getting imeMode asynch. from the server which gets
+        // delayed and set later after focusIn is not handled
+        // as having the text partly in one script and partly
+        // in another is not desirable.
+    }
 
     //----------------------------------
     //  mouseFocusEnabled
@@ -145,6 +255,10 @@ public class FlexHTMLLoader extends HTMLLoader implements IFocusManagerComplexCo
      *  set to <code>true</code>.
      *
      *  @default true
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get mouseFocusEnabled():Boolean
     {
@@ -160,6 +274,54 @@ public class FlexHTMLLoader extends HTMLLoader implements IFocusManagerComplexCo
     }
 
 
+    //----------------------------------
+    //  tabFocusEnabled
+    //----------------------------------
+
+    /**
+     *  @private
+     *  Storage for the tabFocusEnabled property.
+     */
+    private var _tabFocusEnabled:Boolean = true;
+
+    [Bindable("tabFocusEnabledChange")]
+    [Inspectable(defaultValue="true")]
+
+    /**
+     *  A flag that indicates whether child objects can receive focus
+     * 
+     *  <p>This is similar to the <code>tabEnabled</code> property
+     *  used by the Flash Player.</p>
+     * 
+     *  <p>This is usually <code>true</code> for components that
+     *  handle keyboard input, but some components in controlbars
+     *  have them set to <code>false</code> because they should not steal
+     *  focus from another component like an editor.
+     *  </p>
+     *
+     *  @default true
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.5
+     *  @productversion Flex 4
+     */
+    public function get tabFocusEnabled():Boolean
+    {
+        return _tabFocusEnabled;
+    }
+
+    /**
+     *  @private
+     */
+    public function set tabFocusEnabled(value:Boolean):void
+    {
+        if (value != _tabFocusEnabled)
+        {
+            _tabFocusEnabled = value;
+            dispatchEvent(new Event("tabFocusEnabledChange"));
+        }
+    }
+
     //--------------------------------------------------------------------------
     //
     //  Methods
@@ -169,6 +331,10 @@ public class FlexHTMLLoader extends HTMLLoader implements IFocusManagerComplexCo
     /**
      *  Called by the FocusManager when the component receives focus.
      *  The component may in turn set focus to an internal component.
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function setFocus():void
     {
@@ -182,6 +348,10 @@ public class FlexHTMLLoader extends HTMLLoader implements IFocusManagerComplexCo
      *
      *  @param isFocused If <code>true</code>, draw the focus indicator,
      *  otherwise hide it.
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function drawFocus(isFocused:Boolean):void
     {
@@ -195,10 +365,28 @@ public class FlexHTMLLoader extends HTMLLoader implements IFocusManagerComplexCo
      *  keyboard.
      *
      *  @param direction one of flash.display.FocusDirection
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function assignFocus(direction:String):void
     {
         stage.assignFocus(this, direction);
+    }
+
+    //--------------------------------------------------------------------------
+    //
+    //  Event Handlers
+    //
+    //--------------------------------------------------------------------------
+
+    /**
+     *  @private
+     */
+    private  function htmlRenderHandler(event:Event):void
+    {
+        _hasFocusableContent = hasFocusableContent;
     }
 
     //--------------------------------------------------------------------------
@@ -220,6 +408,10 @@ public class FlexHTMLLoader extends HTMLLoader implements IFocusManagerComplexCo
      *
      *  @see flash.display.DisplayObject#name
      *  @see mx.utils.NameUtils#displayObjectToString()
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     override public function toString():String
     {

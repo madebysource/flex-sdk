@@ -29,6 +29,11 @@ use namespace mx_internal;
  *
  *  @see mx.effects.Tween
  *  @see mx.effects.TweenEffect 
+ *  
+ *  @langversion 3.0
+ *  @playerversion Flash 9
+ *  @playerversion AIR 1.1
+ *  @productversion Flex 3
  */
 public class TweenEffectInstance extends EffectInstance
 {
@@ -44,6 +49,11 @@ public class TweenEffectInstance extends EffectInstance
 	 *  Constructor.
 	 *
 	 *  @param target The Object to animate with this effect.
+	 *  
+	 *  @langversion 3.0
+	 *  @playerversion Flash 9
+	 *  @playerversion AIR 1.1
+	 *  @productversion Flex 3
 	 */
 	public function TweenEffectInstance(target:Object)
 	{
@@ -84,6 +94,11 @@ public class TweenEffectInstance extends EffectInstance
 	 *  as the TweenEffect class.
 	 *
 	 *  @see mx.effects.TweenEffect#easingFunction
+	 *  
+	 *  @langversion 3.0
+	 *  @playerversion Flash 9
+	 *  @playerversion AIR 1.1
+	 *  @productversion Flex 3
 	 */
 	public var easingFunction:Function;
 	
@@ -107,18 +122,32 @@ public class TweenEffectInstance extends EffectInstance
 	//----------------------------------
 
 	/**
-	 *  The current position of the effect, in milliseconds. 
-	 *  This value is between 0 and the value of the
-	 *  <code>duration</code> property.
-	 *  Use the <code>seek()</code> method to change the position of the effect.
+	 *  @inheritDoc
+	 *  
+	 *  @langversion 3.0
+	 *  @playerversion Flash 9
+	 *  @playerversion AIR 1.1
+	 *  @productversion Flex 3
 	 */
 	override public function get playheadTime():Number
 	{
 		if (tween)
-			return tween.mx_internal::playheadTime + super.playheadTime;
+			return tween.playheadTime + super.playheadTime;
 		else
 			return 0;
 	}
+
+    /**
+     * @private
+     */
+    override public function set playheadTime(value:Number):void
+    {
+        if (tween)
+            tween.seek(value);
+        else
+            _seekTime = value;
+    } 
+    
 	
   	//----------------------------------
 	//  tween
@@ -130,6 +159,11 @@ public class TweenEffectInstance extends EffectInstance
 	 *  in the override of the <code>EffectInstance.play()</code> method
 	 *  and assign it to the <code>tween</code> property. 
 	 *  Use the <code>createTween()</code> method to create your Tween object.
+	 *  
+	 *  @langversion 3.0
+	 *  @playerversion Flash 9
+	 *  @playerversion AIR 1.1
+	 *  @productversion Flex 3
 	 */
 	public var tween:Tween;
 	
@@ -186,20 +220,6 @@ public class TweenEffectInstance extends EffectInstance
 	}
 	
 	/**
-  	 *  Advances the effect to the specified position. 
-  	 *
-  	 *  @param playheadTime The position, in milliseconds, between 0
-	 *  and the value of the <code>duration</code> property.
-  	 */
-	public function seek(playheadTime:Number):void
-	{
-		if (tween)
-			tween.seek(playheadTime);
-		else
-			_seekTime = playheadTime;
-	} 
-	
-	/**
 	 *  Interrupts an effect that is currently playing,
 	 *  and immediately jumps to the end of the effect.
 	 *  Calls the <code>Tween.endTween()</code> method
@@ -212,6 +232,11 @@ public class TweenEffectInstance extends EffectInstance
 	 *  <p>The effect dispatches the <code>effectEnd</code> event.</p>
 	 *
 	 *  @see mx.effects.EffectInstance#end()
+	 *  
+	 *  @langversion 3.0
+	 *  @playerversion Flash 9
+	 *  @playerversion AIR 1.1
+	 *  @productversion Flex 3
 	 */
 	override public function end():void
 	{
@@ -280,6 +305,11 @@ public class TweenEffectInstance extends EffectInstance
 	 *  where it left off, instead of suddenly jumping ahead. 
 	 *
 	 *  @return The newly created Tween instance.
+	 *  
+	 *  @langversion 3.0
+	 *  @playerversion Flash 9
+	 *  @playerversion AIR 1.1
+	 *  @productversion Flex 3
 	 */
 	protected function createTween(listener:Object,
 						  		     startValue:Object,
@@ -349,6 +379,11 @@ public class TweenEffectInstance extends EffectInstance
 	 *  a Tween object that plays the effect over a time period.
 	 *  The <code>value</code> argument can be either a Number
 	 *  or an Array of Numbers. 
+	 *  
+	 *  @langversion 3.0
+	 *  @playerversion Flash 9
+	 *  @playerversion AIR 1.1
+	 *  @productversion Flex 3
 	 */
 	public function onTweenUpdate(value:Object):void
 	{
@@ -378,6 +413,11 @@ public class TweenEffectInstance extends EffectInstance
 	 *  a Tween object that plays the effect over a time period. 
      *  The <code>value</code> argument can be either a Number
 	 *  or an Array of Numbers. 
+	 *  
+	 *  @langversion 3.0
+	 *  @playerversion Flash 9
+	 *  @playerversion AIR 1.1
+	 *  @productversion Flex 3
 	 */
 	public function onTweenEnd(value:Object):void 
 	{
@@ -386,7 +426,7 @@ public class TweenEffectInstance extends EffectInstance
 
 		tween = null;
 
-		if (mx_internal::needToLayout)
+		if (needToLayout)
 			UIComponentGlobals.layoutManager.validateNow();
 		
 		// Notify the object that created this effect (either the

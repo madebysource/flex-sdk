@@ -50,6 +50,11 @@ use namespace mx_internal;
  *
  *  @see mx.effects.Zoom
  *  @see mx.events.TweenEvent
+ *  
+ *  @langversion 3.0
+ *  @playerversion Flash 9
+ *  @playerversion AIR 1.1
+ *  @productversion Flex 3
  */  
 public class ZoomInstance extends TweenEffectInstance
 {
@@ -65,6 +70,11 @@ public class ZoomInstance extends TweenEffectInstance
 	 *  Constructor.
 	 *
 	 *  @param target The Object to animate with this effect.
+	 *  
+	 *  @langversion 3.0
+	 *  @playerversion Flash 9
+	 *  @playerversion AIR 1.1
+	 *  @productversion Flex 3
 	 */
 	public function ZoomInstance(target:Object)
 	{
@@ -154,6 +164,11 @@ public class ZoomInstance extends TweenEffectInstance
 	 *  toggles between a big and small state without moving the mouse.
 	 *
 	 *  @default false
+	 *  
+	 *  @langversion 3.0
+	 *  @playerversion Flash 9
+	 *  @playerversion AIR 1.1
+	 *  @productversion Flex 3
 	 */
 	public var captureRollEvents:Boolean;
 
@@ -166,6 +181,11 @@ public class ZoomInstance extends TweenEffectInstance
 	 *  or registration point.
 	 *  The default value is <code>target.width / 2</code>,
 	 *  which is the center of the target.
+	 *  
+	 *  @langversion 3.0
+	 *  @playerversion Flash 9
+	 *  @playerversion AIR 1.1
+	 *  @productversion Flex 3
 	 */
 	public var originX:Number;
 	
@@ -178,6 +198,11 @@ public class ZoomInstance extends TweenEffectInstance
 	 *  or registration point.
 	 *  The default value is <code>target.height / 2</code>,
 	 *  which is the center of the target.
+	 *  
+	 *  @langversion 3.0
+	 *  @playerversion Flash 9
+	 *  @playerversion AIR 1.1
+	 *  @productversion Flex 3
 	 */
 	public var originY:Number;
 	
@@ -189,6 +214,11 @@ public class ZoomInstance extends TweenEffectInstance
 	 *  Number that represents the scale at which to start the height zoom, 
 	 *  as a percent between 0.01 and 1.0. 
 	 *  The default value is 0.01, which is very small.
+	 *  
+	 *  @langversion 3.0
+	 *  @playerversion Flash 9
+	 *  @playerversion AIR 1.1
+	 *  @productversion Flex 3
 	 */
 	public var zoomHeightFrom:Number;
 	
@@ -200,6 +230,11 @@ public class ZoomInstance extends TweenEffectInstance
 	 *  Number that represents the scale at which to complete the height zoom, 
 	 *  as a percent between 0.01 and 1.0. 
 	 *  The default value is 1.0, which is the object's normal size.
+	 *  
+	 *  @langversion 3.0
+	 *  @playerversion Flash 9
+	 *  @playerversion AIR 1.1
+	 *  @productversion Flex 3
 	 */
 	public var zoomHeightTo:Number;
 		
@@ -211,6 +246,11 @@ public class ZoomInstance extends TweenEffectInstance
 	 *  Number that represents the scale at which to start the width zoom, 
 	 *  as a percent between 0.01 and 1.0. 
 	 *  The default value is 0.01, which is very small.
+	 *  
+	 *  @langversion 3.0
+	 *  @playerversion Flash 9
+	 *  @playerversion AIR 1.1
+	 *  @productversion Flex 3
 	 */
 	public var zoomWidthFrom:Number;
 	
@@ -222,6 +262,11 @@ public class ZoomInstance extends TweenEffectInstance
 	 *  Number that represents the scale at which to complete the width zoom, 
 	 *  as a percent between 0.01 and 1.0. 
 	 *  The default value is 1.0, which is the object's normal size.
+	 *  
+	 *  @langversion 3.0
+	 *  @playerversion Flash 9
+	 *  @playerversion AIR 1.1
+	 *  @productversion Flex 3
 	 */
 	public var zoomWidthTo:Number;
 	
@@ -424,7 +469,7 @@ public class ZoomInstance extends TweenEffectInstance
         // Zero-duration effects have no tween, so if !tween, tell 
         // our superclass to layout and it will happen after we're done.
         if (tween)
-            tween.mx_internal::needToLayout = true;
+            tween.needToLayout = true;
         else
             needToLayout = true;
 
@@ -451,7 +496,7 @@ public class ZoomInstance extends TweenEffectInstance
 			// to be rendered as with a width and height of zero. To
 			// avoid that situation, set its _width and _height explicitly.	
 			if (target.parent && target.parent.autoLayout == false)
-				target.mx_internal::_width = curWidth;	
+				target._width = curWidth;	
 		}
 		if (!isNaN(origPercentHeight))
 		{
@@ -460,12 +505,12 @@ public class ZoomInstance extends TweenEffectInstance
 			target.percentHeight = origPercentHeight;
 
 			if (target.parent && target.parent.autoLayout == false)
-				target.mx_internal::_height = curHeight;
+				target._height = curHeight;
 		}
 
 		super.onTweenEnd(value);
 		
-		if (mx_internal::hideOnEffectEnd)
+		if (hideOnEffectEnd)
 		{
 			EffectManager.suspendEventHandling();
 			

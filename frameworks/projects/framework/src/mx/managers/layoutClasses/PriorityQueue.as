@@ -14,6 +14,8 @@ package mx.managers.layoutClasses
 
 import flash.display.DisplayObject;
 import flash.display.DisplayObjectContainer;
+import flash.utils.Dictionary;
+
 import mx.core.IChildList;
 import mx.core.IRawChildrenContainer;
 import mx.managers.ILayoutManagerClient;
@@ -27,252 +29,348 @@ import mx.managers.ILayoutManagerClient;
  */
 public class PriorityQueue
 {
-	include "../../core/Version.as";
+    include "../../core/Version.as";
 
-	//--------------------------------------------------------------------------
-	//
-	//  Constructor
-	//
-	//--------------------------------------------------------------------------
-	
-	/**
-	 *  Constructor.
-	 */
-	public function PriorityQueue()
-	{
-		super();
-	}
+    //--------------------------------------------------------------------------
+    //
+    //  Constructor
+    //
+    //--------------------------------------------------------------------------
+    
+    /**
+     *  Constructor.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
+     */
+    public function PriorityQueue()
+    {
+        super();
+    }
 
-	//--------------------------------------------------------------------------
-	//
-	//  Variables
-	//
-	//--------------------------------------------------------------------------
-	
-	/**
-	 *  @private
-	 */
-	private var arrayOfArrays:Array /* of Array */ = [];
+    //--------------------------------------------------------------------------
+    //
+    //  Variables
+    //
+    //--------------------------------------------------------------------------
+    
+    /**
+     *  @private
+     */
+    private var priorityBins:Array = [];
 
-	/**
-	 *  @private
-	 *  The smallest occupied index in arrayOfArrays.
-	 */
-	private var minPriority:int = 0;
-	
-	/**
-	 *  @private
-	 *  The largest occupied index in arrayOfArrays.
-	 */
-	private var maxPriority:int = -1;
+    /**
+     *  @private
+     *  The smallest occupied index in arrayOfDictionaries.
+     */
+    private var minPriority:int = 0;
+    
+    /**
+     *  @private
+     *  The largest occupied index in arrayOfDictionaries.
+     */
+    private var maxPriority:int = -1;
+    
+    //--------------------------------------------------------------------------
+    //
+    //  Methods
+    //
+    //--------------------------------------------------------------------------
 
-	//--------------------------------------------------------------------------
-	//
-	//  Methods
-	//
-	//--------------------------------------------------------------------------
+    /**
+     *  @private
+     */
+    public function addObject(obj:Object, priority:int):void
+    {       
+        // Update our min and max priorities.
+        if (maxPriority < minPriority)
+        {
+            minPriority = maxPriority = priority;
+        }
+        else
+        {
+            if (priority < minPriority)
+                minPriority = priority;
+            if (priority > maxPriority)
+                maxPriority = priority;
+        }
+            
+        var bin:PriorityBin = priorityBins[priority];
+        
+        if (!bin)
+        {
+            // If no hash exists for the specified priority, create one.
+            bin = new PriorityBin();
+            priorityBins[priority] = bin;
+            bin.items[obj] = true;
+            bin.length++;
+        }
+        else
+        {
+            // If we don't already hold the obj in the specified hash, add it
+            // and update our item count.
+            if (bin.items[obj] == null)
+            { 
+                bin.items[obj] = true;
+                bin.length++;
+            }
+        }
+        
+    }
 
-	/**
-	 *  @private
-	 */
-	public function addObject(obj:Object, priority:int):void
-	{		
-		if (!arrayOfArrays[priority])
-			arrayOfArrays[priority] = [];
+    /**
+     *  @private
+     */
+    public function removeLargest():Object
+    {
+        var obj:Object = null;
 
-		arrayOfArrays[priority].push(obj);
+        if (minPriority <= maxPriority)
+        {
+            var bin:PriorityBin = priorityBins[maxPriority];
+            while (!bin || bin.length == 0)
+            {
+                maxPriority--;
+                if (maxPriority < minPriority)
+                    return null;
+                bin = priorityBins[maxPriority];
+            }
+        
+            // Remove the item with largest priority from our priority queue.
+            // Must use a for loop here since we're removing a specific item
+            // from a 'Dictionary' (no means of directly indexing).
+            for (var key:Object in bin.items )
+            {
+                obj = key;
+                removeChild(ILayoutManagerClient(key), maxPriority);
+                break;
+            }
 
-		if (maxPriority < minPriority)
-		{
-			minPriority = maxPriority = priority;
-		}
-		else
-		{
-			if (priority < minPriority)
-				minPriority = priority;
-			if (priority > maxPriority)
-				maxPriority = priority;
-		}
-	}
+            // Update maxPriority if applicable.
+            while (!bin || bin.length == 0)
+            {
+                maxPriority--;
+                if (maxPriority < minPriority)
+                    break;
+                bin = priorityBins[maxPriority];
+            }
+            
+        }
+        
+        return obj;
+    }
 
-	/**
-	 *  @private
-	 */
-	public function removeLargest():Object
-	{
-		var obj:Object = null;
+    /**
+     *  @private
+     */
+    public function removeLargestChild(client:ILayoutManagerClient ):Object
+    {
+        var max:int = maxPriority;
+        var min:int = client.nestLevel;
 
-		if (minPriority <= maxPriority)
-		{
-			while (!arrayOfArrays[maxPriority] || 
-				   arrayOfArrays[maxPriority].length == 0)
-			{
-				maxPriority--;
-				if (maxPriority < minPriority)
-					return null;
-			}
-			
-			obj = arrayOfArrays[maxPriority].shift();
+        while (min <= max)
+        {
+            var bin:PriorityBin = priorityBins[max];
+            if (bin && bin.length > 0)
+            {
+                if (max == client.nestLevel)
+                {
+                    // If the current level we're searching matches that of our
+                    // client, no need to search the entire list, just check to see
+                    // if the client exists in the queue (it would be the only item
+                    // at that nestLevel).
+                    if (bin.items[client])
+                    {
+                        removeChild(ILayoutManagerClient(client), max);
+                        return client;
+                    }
+                }
+                else
+                {
+                    for (var key:Object in bin.items )
+                    {
+                        if ((key is DisplayObject) && contains(DisplayObject(client), DisplayObject(key)))
+                        {
+                            removeChild(ILayoutManagerClient(key), max);
+                            return key;
+                        }
+                    }
+                }
+                
+                max--;
+            }
+            else
+            {
+                if (max == maxPriority)
+                    maxPriority--;
+                max--;
+                if (max < min)
+                    break;
+            }           
+        }
 
-			while (!arrayOfArrays[maxPriority] || 
-				   arrayOfArrays[maxPriority].length == 0)
-			{
-				maxPriority--;
-				if (maxPriority < minPriority)
-					break;
-			}
-			
-		}
+        return null;
+    }
 
-		return obj;
-	}
+    /**
+     *  @private
+     */
+    public function removeSmallest():Object
+    {
+        var obj:Object = null;
 
-	/**
-	 *  @private
-	 */
-	public function removeLargestChild(client:ILayoutManagerClient ):Object
-	{
-		var obj:Object = null;
+        if (minPriority <= maxPriority)
+        {
+            var bin:PriorityBin = priorityBins[minPriority];
+            while (!bin || bin.length == 0)
+            {
+                minPriority++;
+                if (minPriority > maxPriority)
+                    return null;
+                bin = priorityBins[minPriority];
+            }           
 
-		var max:int = maxPriority;
-		var min:int = client.nestLevel;
+            // Remove the item with smallest priority from our priority queue.
+            // Must use a for loop here since we're removing a specific item
+            // from a 'Dictionary' (no means of directly indexing).
+            for (var key:Object in bin.items )
+            {
+                obj = key;
+                removeChild(ILayoutManagerClient(key), minPriority);
+                break;
+            }
 
-		while (min <= max)
-		{
-			if (arrayOfArrays[max] && 
-				   arrayOfArrays[max].length > 0)
-			{
-				for (var i:int = 0; i < arrayOfArrays[max].length; i++)
-				{
-					if (contains(DisplayObject(client), arrayOfArrays[max][i]))
-					{
-						obj = arrayOfArrays[max][i];
-						arrayOfArrays[max].splice(i, 1);
-						return obj;
-					}
-				}
-				max--;
-			}
-			else
-			{
-				if (max == maxPriority)
-					maxPriority--;
-				max--;
-				if (max < min)
-					break;
-			}			
-		}
+            // Update minPriority if applicable.
+            while (!bin || bin.length == 0)
+            {
+                minPriority++;
+                if (minPriority > maxPriority)
+                    break;
+                bin = priorityBins[minPriority];
+            }           
+        }
 
-		return obj;
-	}
+        return obj;
+    }
 
-	/**
-	 *  @private
-	 */
-	public function removeSmallest():Object
-	{
-		var obj:Object = null;
+    /**
+     *  @private
+     */
+    public function removeSmallestChild(client:ILayoutManagerClient ):Object
+    {
+        var min:int = client.nestLevel;
 
-		if (minPriority <= maxPriority)
-		{
-			while (!arrayOfArrays[minPriority] || 
-				   arrayOfArrays[minPriority].length == 0)
-			{
-				minPriority++;
-				if (minPriority > maxPriority)
-					return null;
-			}			
+        while (min <= maxPriority)
+        {
+            var bin:PriorityBin = priorityBins[min];
+            if (bin && bin.length > 0)
+            {   
+                if (min == client.nestLevel)
+                {
+                    // If the current level we're searching matches that of our
+                    // client, no need to search the entire list, just check to see
+                    // if the client exists in the queue (it would be the only item
+                    // at that nestLevel).
+                    if (bin.items[client])
+                    {
+                        removeChild(ILayoutManagerClient(client), min);
+                        return client;
+                    }
+                }
+                else
+                {
+                    for (var key:Object in bin.items)
+                    {
+                        if ((key is DisplayObject) && contains(DisplayObject(client), DisplayObject(key)))
+                        {
+                            removeChild(ILayoutManagerClient(key), min);
+                            return key;
+                        }
+                    }
+                }
+                
+                min++;
+            }
+            else
+            {
+                if (min == minPriority)
+                    minPriority++;
+                min++;
+                if (min > maxPriority)
+                    break;
+            }           
+        }
+        
+        return null;
+    }
 
-			obj = arrayOfArrays[minPriority].shift();
+    /**
+     *  @private
+     */
+    public function removeChild(client:ILayoutManagerClient, level:int=-1):Object
+    {
+        var priority:int = (level >= 0) ? level : client.nestLevel;
+        var bin:PriorityBin = priorityBins[priority];
+        if (bin && bin.items[client] != null)
+        {
+            delete bin.items[client];
+            bin.length--;
+            return client;
+        }
+        return null;
+    }
+    
+    /**
+     *  @private
+     */
+    public function removeAll():void
+    {
+        priorityBins.length = 0;
+        minPriority = 0;
+        maxPriority = -1;
+    }
 
-			while (!arrayOfArrays[minPriority] || 
-				   arrayOfArrays[minPriority].length == 0)
-			{
-				minPriority++;
-				if (minPriority > maxPriority)
-					break;
-			}			
-		}
+    /**
+     *  @private
+     */
+    public function isEmpty():Boolean
+    {
+        return minPriority > maxPriority;
+    }
 
-		return obj;
-	}
+    /**
+     *  @private
+     */
+    private function contains(parent:DisplayObject, child:DisplayObject):Boolean
+    {
+        if (parent is IRawChildrenContainer)
+        {
+            var rawChildren:IChildList = IRawChildrenContainer(parent).rawChildren;
+            return rawChildren.contains(child);
+        }
+        else if (parent is DisplayObjectContainer)
+        {
+            return DisplayObjectContainer(parent).contains(child);
+        }
 
-	/**
-	 *  @private
-	 */
-	public function removeSmallestChild(client:ILayoutManagerClient ):Object
-	{
-		var obj:Object = null;
-
-		var min:int = client.nestLevel;
-
-		while (min <= maxPriority)
-		{
-			if (arrayOfArrays[min] && 
-				   arrayOfArrays[min].length > 0)
-			{
-				for (var i:int = 0; i < arrayOfArrays[min].length; i++)
-				{
-					if (contains(DisplayObject(client), arrayOfArrays[min][i]))
-					{
-						obj = arrayOfArrays[min][i];
-						arrayOfArrays[min].splice(i, 1);
-						return obj;
-					}
-				}
-				min++;
-			}
-			else
-			{
-				if (min == minPriority)
-					minPriority++;
-				min++;
-				if (min > maxPriority)
-					break;
-			}			
-		}
-
-		return obj;
-	}
-
-	/**
-	 *  @private
-	 */
-	public function removeAll():void
-	{
-		arrayOfArrays.splice(0);
-
-		minPriority = 0;
-		maxPriority = -1;
-	}
-
-	/**
-	 *  @private
-	 */
-	public function isEmpty():Boolean
-	{
-		return minPriority > maxPriority;
-	}
-
-	/**
-	 *  @private
-	 */
-	private function contains(parent:DisplayObject, child:DisplayObject):Boolean
-	{
-		if (parent is IRawChildrenContainer)
-		{
-			// trace("using view rawChildren");
-			var rawChildren:IChildList = IRawChildrenContainer(parent).rawChildren;
-			return rawChildren.contains(child);
-		}
-		else if (parent is DisplayObjectContainer)
-		{
-			return DisplayObjectContainer(parent).contains(child);
-		}
-
-		return parent == child;
-	}
+        return parent == child;
+    }
 
 }
 
+}
+
+import flash.utils.Dictionary;
+
+/**
+ *  Represents one priority bucket of entries.
+ *  @private
+ */
+class PriorityBin 
+{
+    public var length:int;
+    public var items:Dictionary = new Dictionary();
+    
 }

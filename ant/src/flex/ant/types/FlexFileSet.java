@@ -22,7 +22,10 @@ import org.apache.tools.ant.util.FileUtils;
 import java.io.File;
 
 /**
- *
+ * Adds support for setting Flex configuration options using Ant FileSets.  For example:
+ * <code>
+ *     &lt;library-path dir="${FLEX_HOME}/libs" includes="flex.swc" append="true"/&gt;
+ * </code>
  */
 public class FlexFileSet extends FileSet implements OptionSource
 {
@@ -79,9 +82,9 @@ public class FlexFileSet extends FileSet implements OptionSource
         }
     }
 
-    private void addFiles(File base, String[] files, Commandline cmdl)
+    protected void addFiles(File base, String[] files, Commandline cmdl)
     {
-        FileUtils utils = FileUtils.newFileUtils();
+        FileUtils utils = FileUtils.getFileUtils();
 
         if (spec == null)
         {
@@ -100,7 +103,7 @@ public class FlexFileSet extends FileSet implements OptionSource
         }
     }
 
-    private String equalString()
+    protected String equalString()
     {
         return append ? "+=" : "=";
     }

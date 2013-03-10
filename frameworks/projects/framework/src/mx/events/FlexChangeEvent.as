@@ -58,6 +58,11 @@ public class FlexChangeEvent extends Event
      *  </table>
      *
      *  @eventType addChildBridge
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public static const ADD_CHILD_BRIDGE:String = "addChildBridge";
 
@@ -84,10 +89,29 @@ public class FlexChangeEvent extends Event
      *  </table>
      *
      *  @eventType removeChildBridge
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public static const REMOVE_CHILD_BRIDGE:String = "removeChildBridge";
 
-
+    /**
+     *  @private
+     * 
+     *  Dispatched by a StyleManager when a style property is changed.
+     * 
+     *  The data parameter is an object that describes what changed:
+     *  
+     *  "property" - This property describes what kind of style manager
+     *  property changed. 
+     *  If the "property" property is "inheritingStyles" then the 
+     *  StyleManager's inheritingStyles property was updated. 
+     *  
+     */
+    public static const STYLE_MANAGER_CHANGE:String = "styleManagerChange";
+    
     //--------------------------------------------------------------------------
     //
     //  Constructor
@@ -104,6 +128,11 @@ public class FlexChangeEvent extends Event
      *  @param cancelable Specifies whether the behavior associated with the event can be prevented.
      *
      *  @param data Data related to the event.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */ 
     public function FlexChangeEvent(type:String, bubbles:Boolean=false, cancelable:Boolean=false, data:Object = null)
     {
@@ -124,6 +153,11 @@ public class FlexChangeEvent extends Event
 
     /**
      *  Data related to the event. For more information on this object, see each event type.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public var data:Object;
     

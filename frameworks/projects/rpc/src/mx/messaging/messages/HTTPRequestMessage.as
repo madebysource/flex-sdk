@@ -23,6 +23,12 @@ package mx.messaging.messages
  *  HTTP requests are sent to the HTTP endpoint using this message type.
  *  An HTTPRequestMessage encapsulates content and header information normally
  *  found in HTTP requests made by a browser.
+ *  
+ *  @langversion 3.0
+ *  @playerversion Flash 9
+ *  @playerversion AIR 1.1
+ *  @productversion BlazeDS 4
+ *  @productversion LCDS 3 
  */
 public class HTTPRequestMessage extends AbstractMessage
 {
@@ -34,6 +40,12 @@ public class HTTPRequestMessage extends AbstractMessage
 
     /**
      *  Constructs an uninitialized HTTP request.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion BlazeDS 4
+     *  @productversion LCDS 3 
      */
     public function HTTPRequestMessage()
     {
@@ -58,12 +70,24 @@ public class HTTPRequestMessage extends AbstractMessage
      *      msg.method = HTTPRequestMessage.POST_METHOD;
      *      msg.url = "http://my.company.com/login";
      *    </pre>
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion BlazeDS 4
+     *  @productversion LCDS 3 
      */
     public var contentType:String;
 
     /**
      *  Contains specific HTTP headers that should be placed on the request made
      *  to the destination.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion BlazeDS 4
+     *  @productversion LCDS 3 
      */
     public var httpHeaders:Object;
     
@@ -71,6 +95,12 @@ public class HTTPRequestMessage extends AbstractMessage
      * Only used when going through the proxy, should the proxy 
      * send back the request and response headers it used.  Defaults to false.
      * Currently only set when using the NetworkMonitor.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion BlazeDS 4
+     *  @productversion LCDS 3 
      */
     public var recordHeaders:Boolean;    
     
@@ -87,6 +117,12 @@ public class HTTPRequestMessage extends AbstractMessage
      *      msg.method = HTTPRequestMessage.POST_METHOD;
      *      msg.url = "http://my.company.com/login";
      *    </pre>
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion BlazeDS 4
+     *  @productversion LCDS 3 
      */
     public var url:String;    
 
@@ -132,6 +168,12 @@ public class HTTPRequestMessage extends AbstractMessage
      *      msg.method = HTTPRequestMessage.POST_METHOD;
      *      msg.url = "http://my.company.com/login";
      *    </pre>
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion BlazeDS 4
+     *  @productversion LCDS 3 
      */
     public function get method():String
     {
@@ -171,6 +213,12 @@ public class HTTPRequestMessage extends AbstractMessage
      *      msg.method = HTTPRequestMessage.POST_METHOD;
      *      msg.url = "http://my.company.com/login";
      *    </pre>
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion BlazeDS 4
+     *  @productversion LCDS 3 
      */
     public static const CONTENT_TYPE_XML:String = "application/xml";
     
@@ -184,6 +232,12 @@ public class HTTPRequestMessage extends AbstractMessage
      *      msg.method = HTTPRequestMessage.POST_METHOD;
      *      msg.url = "http://my.company.com/login";
      *    </pre>
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion BlazeDS 4
+     *  @productversion LCDS 3 
      */
     public static const CONTENT_TYPE_FORM:String = "application/x-www-form-urlencoded";
     
@@ -198,6 +252,12 @@ public class HTTPRequestMessage extends AbstractMessage
      *      msg.method = HTTPRequestMessage.POST_METHOD;
      *      msg.url = "http://my.company.com/login";
      *    </pre>
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion BlazeDS 4
+     *  @productversion LCDS 3 
      */
     public static const CONTENT_TYPE_SOAP_XML:String = "text/xml; charset=utf-8";
 
@@ -211,6 +271,12 @@ public class HTTPRequestMessage extends AbstractMessage
      *      msg.method = HTTPRequestMessage.POST_METHOD;
      *      msg.url = "http://my.company.com/login";
      *    </pre>
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion BlazeDS 4
+     *  @productversion LCDS 3 
      */
     public static const POST_METHOD:String = "POST";
 
@@ -224,6 +290,12 @@ public class HTTPRequestMessage extends AbstractMessage
      *      msg.method = HTTPRequestMessage.GET_METHOD;
      *      msg.url = "http://my.company.com/login";
      *    </pre>
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion BlazeDS 4
+     *  @productversion LCDS 3 
      */
     public static const GET_METHOD:String = "GET";
 
@@ -237,6 +309,12 @@ public class HTTPRequestMessage extends AbstractMessage
      *      msg.method = HTTPRequestMessage.PUT_METHOD;
      *      msg.url = "http://my.company.com/login";
      *    </pre>
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion BlazeDS 4
+     *  @productversion LCDS 3 
      */
     public static const PUT_METHOD:String = "PUT";
 
@@ -250,6 +328,12 @@ public class HTTPRequestMessage extends AbstractMessage
      *      msg.method = HTTPRequestMessage.HEAD_METHOD;
      *      msg.url = "http://my.company.com/login";
      *    </pre>
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion BlazeDS 4
+     *  @productversion LCDS 3 
      */
     public static const HEAD_METHOD:String = "HEAD";
 
@@ -263,6 +347,12 @@ public class HTTPRequestMessage extends AbstractMessage
      *      msg.method = HTTPRequestMessage.DELETE_METHOD;
      *      msg.url = "http://my.company.com/login";
      *    </pre>
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion BlazeDS 4
+     *  @productversion LCDS 3 
      */
     public static const DELETE_METHOD:String = "DELETE";
 
@@ -276,6 +366,12 @@ public class HTTPRequestMessage extends AbstractMessage
      *      msg.method = HTTPRequestMessage.OPTIONS_METHOD;
      *      msg.url = "http://my.company.com/login";
      *    </pre>
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion BlazeDS 4
+     *  @productversion LCDS 3 
      */
     public static const OPTIONS_METHOD:String = "OPTIONS";
 
@@ -289,6 +385,12 @@ public class HTTPRequestMessage extends AbstractMessage
      *      msg.method = HTTPRequestMessage.TRACE_METHOD;
      *      msg.url = "http://my.company.com/login";
      *    </pre>
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion BlazeDS 4
+     *  @productversion LCDS 3 
      */
     public static const TRACE_METHOD:String = "TRACE";
 

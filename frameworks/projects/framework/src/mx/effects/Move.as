@@ -14,6 +14,8 @@ package mx.effects
 
 import mx.effects.effectClasses.MoveInstance;
 
+[Alternative(replacement="spark.effects.Move", since="4.0")]
+
 /**
  *  The Move effect changes the position of a component
  *  over a specified time interval.
@@ -67,6 +69,11 @@ import mx.effects.effectClasses.MoveInstance;
  *  @see mx.effects.effectClasses.MoveInstance
  *  
  *  @includeExample examples/MoveEffectExample.mxml
+ *  
+ *  @langversion 3.0
+ *  @playerversion Flash 9
+ *  @playerversion AIR 1.1
+ *  @productversion Flex 3
  */
 public class Move extends TweenEffect
 {
@@ -82,6 +89,8 @@ public class Move extends TweenEffect
      *  @private
      */
     private static var AFFECTED_PROPERTIES:Array = [ "x", "y" ];
+    private static var RELEVANT_STYLES:Array = 
+        ["left", "right", "top", "bottom", "horizontalCenter", "verticalCenter"];
 
     //--------------------------------------------------------------------------
     //
@@ -93,6 +102,11 @@ public class Move extends TweenEffect
      *  Constructor.
      *
      *  @param target The Object to animate with this effect.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function Move(target:Object = null)
     {
@@ -116,6 +130,11 @@ public class Move extends TweenEffect
     /** 
      *  Number of pixels to move the components along the x axis.
      *  Values can be negative. 
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public var xBy:Number;
 
@@ -127,6 +146,11 @@ public class Move extends TweenEffect
 
     /** 
      *  Initial position's x coordinate.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public var xFrom:Number;
     
@@ -138,6 +162,11 @@ public class Move extends TweenEffect
 
     /** 
      *  Destination position's x coordinate.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public var xTo:Number;
     
@@ -150,6 +179,11 @@ public class Move extends TweenEffect
     /** 
      *  Number of pixels to move the components along the y axis.
      *  Values can be negative.     
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public var yBy:Number;
 
@@ -161,6 +195,11 @@ public class Move extends TweenEffect
 
     /**
      *  Initial position's y coordinate.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public var yFrom:Number;
 
@@ -172,6 +211,11 @@ public class Move extends TweenEffect
 
     /** 
      *  Destination position's y coordinate.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public var yTo:Number;
 
@@ -187,6 +231,14 @@ public class Move extends TweenEffect
     override public function getAffectedProperties():Array /* of String */
     {
         return AFFECTED_PROPERTIES;
+    }   
+
+    /**
+     *  @private
+     */
+    override public function get relevantStyles():Array /* of String */
+    {
+        return RELEVANT_STYLES;
     }   
 
     /**

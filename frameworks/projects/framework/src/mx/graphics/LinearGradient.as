@@ -15,8 +15,12 @@ package mx.graphics
 import flash.display.GradientType;
 import flash.display.Graphics;
 import flash.geom.Matrix;
+import flash.geom.Point;
 import flash.geom.Rectangle;
+
 import mx.core.mx_internal;
+    
+use namespace mx_internal;
 
 /**
  *  The LinearGradient class lets you specify the fill of a graphical element,
@@ -103,6 +107,11 @@ import mx.core.mx_internal;
  *  @see mx.graphics.GradientEntry
  *  @see mx.graphics.RadialGradient 
  *  @see mx.graphics.IFill
+ *  
+ *  @langversion 3.0
+ *  @playerversion Flash 9
+ *  @playerversion AIR 1.1
+ *  @productversion Flex 3
  */
 public class LinearGradient extends GradientBase implements IFill
 {
@@ -116,71 +125,89 @@ public class LinearGradient extends GradientBase implements IFill
 
  	/**
 	 *  Constructor.
+	 *  
+	 *  @langversion 3.0
+	 *  @playerversion Flash 9
+	 *  @playerversion AIR 1.1
+	 *  @productversion Flex 3
 	 */
 	public function LinearGradient()
  	{
 		super();
 	}
 
+    /**
+     *  @private
+     */
+    private static var commonMatrix:Matrix = new Matrix();
+    
 	//--------------------------------------------------------------------------
 	//
-	//  Variables
-	//
-	//--------------------------------------------------------------------------
-
- 	/**
-	 *  @private
-	 */
-	private var matrix:Matrix = new Matrix();
-	
-	//--------------------------------------------------------------------------
 	//
 	//  Properties
 	//
 	//--------------------------------------------------------------------------
 
+    //----------------------------------
+	//  matrix
 	//----------------------------------
-	//  angle
-	//----------------------------------
+    
+    /**
+     *  @private
+     */
+    override public function set matrix(value:Matrix):void
+    {
+    	scaleX = NaN;
+    	super.matrix = value;
+    }
 
- 	/**
-	 *  @private
-	 *  Storage for the angle property.
-	 */
-	private var _rotation:Number = 0.0;
-	
-	[Bindable("propertyChange")]
+	//----------------------------------
+    //  scaleX
+    //----------------------------------
+    
+    private var _scaleX:Number;
+    
+    [Bindable("propertyChange")]
     [Inspectable(category="General")]
+    
+    /**
+     *  The horizontal scale of the gradient transform, which defines the width of the (unrotated) gradient
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
+     */
+    public function get scaleX():Number
+    {
+        return compoundTransform ? compoundTransform.scaleX : _scaleX;
+    }
+    
+    /**
+     *  @private
+     */
+    public function set scaleX(value:Number):void
+    {
+        if (value != scaleX)
+        {
+            var oldValue:Number = scaleX;
 
-	/**
-	 *  Controls the transition direction. 
-	 *
-	 *  <p>By default, the LinearGradient class defines a transition
-	 *  from left to right across the graphical element.</p>
-	 *   
-	 *  A value of 180.0 causes the transition
-	 *  to occur from right to left.
-	 *
-	 *  @default 0.0
-	 */
-	public function get angle():Number
-	{
-		return _rotation / Math.PI * 180;
-	}
-
- 	/**
-	 *  @private
-	 */
-	public function set angle(value:Number):void
-	{
-		var oldValue:Number = _rotation;
-		
-		_rotation = value / 180 * Math.PI;
-		
-		mx_internal::dispatchGradientChangedEvent("angle", oldValue, _rotation);
-	}
+            if (compoundTransform)
+            {
+                // If we have a compoundTransform, only non-NaN values are allowed
+                if (!isNaN(value))
+                    compoundTransform.scaleX = value;
+            }
+            else
+            {
+                _scaleX = value;
+            }
+            dispatchGradientChangedEvent("scaleX", oldValue, value);
+        }
+    }
 
 	//--------------------------------------------------------------------------
+	//
 	//
 	//  Methods
 	//
@@ -188,19 +215,115 @@ public class LinearGradient extends GradientBase implements IFill
 
 	/**
 	 *  @inheritDoc
+	 *  
+	 *  @langversion 3.0
+	 *  @playerversion Flash 9
+	 *  @playerversion AIR 1.1
+	 *  @productversion Flex 3
 	 */
-	public function begin(target:Graphics, rc:Rectangle):void
-	{			
-		matrix.createGradientBox(rc.width, rc.height, _rotation,
-								 rc.left, rc.top);
-
-		target.beginGradientFill(GradientType.LINEAR, mx_internal::colors,
-								 mx_internal::alphas, mx_internal::ratios,
-								 matrix);		
+	public function begin(target:Graphics, targetBounds:Rectangle, targetOrigin:Point):void
+	{
+		commonMatrix.identity();
+		
+		if (!compoundTransform)
+		{
+	        var tx:Number = x;
+			var ty:Number = y;
+			var length:Number = scaleX;
+	        
+			if (isNaN(length))
+	    	{
+				// Figure out the two sides
+				if (rotation % 90 != 0)
+				{			
+					// Normalize angles with absolute value > 360 
+					var normalizedAngle:Number = rotation % 360;
+					// Normalize negative angles
+					if (normalizedAngle < 0)
+						normalizedAngle += 360;
+					
+					// Angles wrap at 180
+					normalizedAngle %= 180;
+					
+					// Angles > 90 get mirrored
+					if (normalizedAngle > 90)
+						normalizedAngle = 180 - normalizedAngle;
+					
+					var side:Number = targetBounds.width;
+					// Get the hypotenuse of the largest triangle that can fit in the bounds
+					var hypotenuse:Number = Math.sqrt(targetBounds.width * targetBounds.width + targetBounds.height * targetBounds.height);
+					// Get the angle of that largest triangle
+					var hypotenuseAngle:Number =  Math.acos(targetBounds.width / hypotenuse) * 180 / Math.PI;
+					
+					// If the angle is larger than the hypotenuse angle, then use the height 
+					// as the adjacent side of the triangle
+					if (normalizedAngle > hypotenuseAngle)
+					{
+						normalizedAngle = 90 - normalizedAngle;
+						side = targetBounds.height;
+					}
+					
+					// Solve for the hypotenuse given an adjacent side and an angle. 
+					length = side / Math.cos(normalizedAngle / 180 * Math.PI);
+				}
+				else 
+				{
+					// Use either width or height based on the rotation
+					length = (rotation % 180) == 0 ? targetBounds.width : targetBounds.height;
+				}
+	    	}
+	    	
+	    	// If only x or y is defined, force the other to be set to 0
+	    	if (!isNaN(tx) && isNaN(ty))
+	    		ty = 0;
+	    	else if (isNaN(tx) && !isNaN(ty))
+	    		tx = 0;
+	    	
+	    	// If x and y are specified, then move the gradient so that the
+	    	// top left corner is at 0,0
+	    	if (!isNaN(tx) && !isNaN(ty))
+	    		commonMatrix.translate(GRADIENT_DIMENSION / 2, GRADIENT_DIMENSION / 2); // 1638.4 / 2
+	    	
+	    	// Force the length to a absolute minimum of 2. Values of 0, 1, or -1 have undesired behavior	
+	    	if (length >= 0 && length < 2)
+				length = 2;
+			else if (length < 0 && length > -2)
+				length = -2;
+	    	
+	    	// Scale the gradient in the x direction. The natural size is 1638.4px. No need
+	    	// to scale the y direction because it is infinite
+	    	commonMatrix.scale (length / GRADIENT_DIMENSION, 1 / GRADIENT_DIMENSION);
+	    	 
+		    commonMatrix.rotate (!isNaN(_angle) ? _angle : rotationInRadians);
+		    if (isNaN(tx))
+	    		tx = targetBounds.left + targetBounds.width / 2;
+            else
+                tx += targetOrigin.x;
+		    if (isNaN(ty))
+	    		ty = targetBounds.top + targetBounds.height / 2;
+            else
+                ty += targetOrigin.y;
+	    	commonMatrix.translate(tx, ty);	
+		}
+		else
+		{
+            commonMatrix.translate(GRADIENT_DIMENSION / 2, GRADIENT_DIMENSION / 2);
+            commonMatrix.scale(1 / GRADIENT_DIMENSION, 1 / GRADIENT_DIMENSION);
+            commonMatrix.concat(compoundTransform.matrix);
+            commonMatrix.translate(targetOrigin.x, targetOrigin.y);
+		}			 
+		
+		target.beginGradientFill(GradientType.LINEAR, colors, alphas, ratios,
+            commonMatrix, spreadMethod, interpolationMethod);						 
 	}
 
 	/**
 	 *  @inheritDoc
+	 *  
+	 *  @langversion 3.0
+	 *  @playerversion Flash 9
+	 *  @playerversion AIR 1.1
+	 *  @productversion Flex 3
 	 */
 	public function end(target:Graphics):void
 	{

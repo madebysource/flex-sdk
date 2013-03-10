@@ -11,6 +11,7 @@
 
 package flex.ant.types;
 
+import flex.ant.FlexTask;
 import flex.ant.config.ConfigBoolean;
 import flex.ant.config.ConfigString;
 import flex.ant.config.ConfigVariable;
@@ -26,7 +27,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 /**
- *
+ * Supports the nested &lt;fonts&gt; tag.
  */
 public final class Fonts implements OptionSource, DynamicConfigurator
 {
@@ -45,9 +46,15 @@ public final class Fonts implements OptionSource, DynamicConfigurator
 
     private final ConfigVariable[] attribs;
 
-    private final ArrayList nestedAttribs;
-
+    private final ArrayList<NestedAttributeElement> nestedAttribs;
+    private final FlexTask task;
+    
     public Fonts()
+    {
+        this(null);
+    }
+
+    public Fonts(FlexTask task)
     {
         attribs = new ConfigVariable[] {
             new ConfigBoolean(new OptionSpec("compiler.fonts", "flash-type")),
@@ -57,7 +64,8 @@ public final class Fonts implements OptionSource, DynamicConfigurator
             new ConfigString(new OptionSpec("compiler.fonts", "max-glyphs-per-face"))
         };
 
-        nestedAttribs = new ArrayList();
+        nestedAttribs = new ArrayList<NestedAttributeElement>();
+        this.task = task;
     }
 
     /*=======================================================================*
@@ -87,7 +95,7 @@ public final class Fonts implements OptionSource, DynamicConfigurator
     public Object createDynamicElement(String name)
     {
         if (lrSpec.matches(name)) {
-            NestedAttributeElement e = new NestedAttributeElement(new String[] { "lang", "range" }, lrSpec);
+            NestedAttributeElement e = new NestedAttributeElement(new String[] { "lang", "range" }, lrSpec, task);
             nestedAttribs.add(e);
             return e;
         }
@@ -98,7 +106,7 @@ public final class Fonts implements OptionSource, DynamicConfigurator
 
     public NestedAttributeElement createManager()
     {
-        NestedAttributeElement e = new NestedAttributeElement("class", maSpec);
+        NestedAttributeElement e = new NestedAttributeElement("class", maSpec, task);
         nestedAttribs.add(e);
         return e;
     }
@@ -112,7 +120,7 @@ public final class Fonts implements OptionSource, DynamicConfigurator
         for (int i = 0; i < attribs.length; i++)
             attribs[i].addToCommandline(cmdl);
 
-        Iterator it = nestedAttribs.iterator();
+        Iterator<NestedAttributeElement> it = nestedAttribs.iterator();
 
         while (it.hasNext())
             ((OptionSource) it.next()).addToCommandline(cmdl);

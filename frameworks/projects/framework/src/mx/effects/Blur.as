@@ -15,6 +15,11 @@ package mx.effects
 import mx.effects.effectClasses.BlurInstance;
 
 /**
+ *  In Flex 4, use the AnimateFilter effect with a Blur bitmap filter.
+ */
+[Alternative(replacement="spark.effects.AnimateFilter", since="4.0")]
+
+/**
  *  The Blur effect lets you apply a blur visual effect to a component. 
  *  A Blur effect softens the details of an image. 
  *  You can produce blurs that range from a softly unfocused look to a Gaussian
@@ -47,6 +52,11 @@ import mx.effects.effectClasses.BlurInstance;
  *  @see mx.effects.effectClasses.BlurInstance
  *
  *  @includeExample examples/BlurEffectExample.mxml
+ *  
+ *  @langversion 3.0
+ *  @playerversion Flash 9
+ *  @playerversion AIR 1.1
+ *  @productversion Flex 3
  */
 public class Blur extends TweenEffect
 {
@@ -73,6 +83,11 @@ public class Blur extends TweenEffect
 	 *  Constructor.
 	 *
 	 *  @param target The Object to animate with this effect.
+	 *  
+	 *  @langversion 3.0
+	 *  @playerversion Flash 9
+	 *  @playerversion AIR 1.1
+	 *  @productversion Flex 3
 	 */
 	public function Blur(target:Object = null)
 	{
@@ -91,49 +106,77 @@ public class Blur extends TweenEffect
 	//  blurXFrom
 	//----------------------------------
 
-	[Inspectable(category="General", defaultValue="NaN")]
+	[Inspectable(category="General", defaultValue="4")]
 	
 	/** 
 	 *  The starting amount of horizontal blur.
 	 *  Valid values are from 0.0 to 255.0. 
+	 * 
+	 *  @default 4
+	 *  
+	 *  @langversion 3.0
+	 *  @playerversion Flash 9
+	 *  @playerversion AIR 1.1
+	 *  @productversion Flex 3
 	 */
-	public var blurXFrom:Number;
+	public var blurXFrom:Number = 4;
 	
 	//----------------------------------
 	//  blurXTo
 	//----------------------------------
 
-	[Inspectable(category="General", defaultValue="NaN")]
+	[Inspectable(category="General", defaultValue="0")]
 	
 	/** 
 	 *  The ending amount of horizontal blur.
-	 *  Valid values are from 0.0 to 255.0. 
+	 *  Valid values are from 0.0 to 255.0.
+	 * 
+	 *  @default 0 
+	 *  
+	 *  @langversion 3.0
+	 *  @playerversion Flash 9
+	 *  @playerversion AIR 1.1
+	 *  @productversion Flex 3
 	 */
-	public var blurXTo:Number;
+	public var blurXTo:Number = 0;
 	
 	//----------------------------------
 	//  blurYFrom
 	//----------------------------------
 
-	[Inspectable(category="General", defaultValue="NaN")]
+	[Inspectable(category="General", defaultValue="4")]
 	
 	/** 
 	 *  The starting amount of vertical blur.
 	 *  Valid values are from 0.0 to 255.0. 
+	 * 
+	 *  @default 4
+	 *  
+	 *  @langversion 3.0
+	 *  @playerversion Flash 9
+	 *  @playerversion AIR 1.1
+	 *  @productversion Flex 3
 	 */
-	public var blurYFrom:Number;
+	public var blurYFrom:Number = 4;
 	
 	//----------------------------------
 	//  blurYTo
 	//----------------------------------
 
-	[Inspectable(category="General", defaultValue="NaN")]
+	[Inspectable(category="General", defaultValue="0")]
 	
 	/** 
 	 *  The ending amount of vertical blur.
-	 *  Valid values are from 0.0 to 255.0. 
+	 *  Valid values are from 0.0 to 255.0.
+	 * 
+	 *  @default 0 
+	 *  
+	 *  @langversion 3.0
+	 *  @playerversion Flash 9
+	 *  @playerversion AIR 1.1
+	 *  @productversion Flex 3
 	 */
-	public var blurYTo:Number;
+	public var blurYTo:Number = 0;
 	
 	//--------------------------------------------------------------------------
 	//

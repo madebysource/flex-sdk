@@ -20,68 +20,113 @@ package mx.core
  *  a reference to the object thereafter.
  *
  *  @see DeferredInstanceFromClass
+ *  
+ *  @langversion 3.0
+ *  @playerversion Flash 9
+ *  @playerversion AIR 1.1
+ *  @productversion Flex 3
  */
-public class DeferredInstanceFromFunction implements IDeferredInstance
+public class DeferredInstanceFromFunction implements ITransientDeferredInstance
 {
     include "../core/Version.as";
 
-	//--------------------------------------------------------------------------
-	//
-	//  Constructor
-	//
-	//--------------------------------------------------------------------------
+    //--------------------------------------------------------------------------
+    //
+    //  Constructor
+    //
+    //--------------------------------------------------------------------------
 
     /**
      *  Constructor.
-	 *
-	 *  @param generator A function that creates and returns an instance
-	 *  of the required object.
+     *
+     *  @param generator A function that creates and returns an instance
+     *  of the required object.
+     *
+     *  @param destructor An optional function used to cleanup outstanding
+     *  references when <code>reset()</code> is called.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
-    public function DeferredInstanceFromFunction(generator:Function)
+    public function DeferredInstanceFromFunction(generator:Function,
+        destructor:Function = null )
     {
-		super();
+        super();
 
-    	this.generator = generator;
+        this.generator = generator;
+        this.destructor = destructor;
     }
 
-	//--------------------------------------------------------------------------
-	//
-	//  Variables
-	//
-	//--------------------------------------------------------------------------
+    //--------------------------------------------------------------------------
+    //
+    //  Variables
+    //
+    //--------------------------------------------------------------------------
 
     /**
-	 * 	@private
-     *	The generator function.
+     *  @private
+     *  The generator function.
      */
     private var generator:Function;
 
-	/**
-	 * 	@private
-	 * 	The generated value.
-	 */
-	private var instance:Object = null;
+    /**
+     *  @private
+     *  The generated value.
+     */
+    private var instance:Object = null;
 
-	//--------------------------------------------------------------------------
-	//
-	//  Methods
-	//
-	//--------------------------------------------------------------------------
+    /**
+     *  @private
+     *  An optional function used to cleanup outstanding
+     *  references when reset() is invoked
+     */
+    private var destructor:Function;
 
-	/**
-	 *	Returns a reference to an instance of the desired object.
-	 *  If no instance of the required object exists, calls the function
-	 *  specified in this class' <code>generator</code> constructor parameter.
-	 * 
-	 *  @return An instance of the object.
-	 */
-	public function getInstance():Object
-	{
-		if (!instance)
-			instance = generator();
+    //--------------------------------------------------------------------------
+    //
+    //  Methods
+    //
+    //--------------------------------------------------------------------------
 
-		return instance;
-	}
+    /**
+     *  Returns a reference to an instance of the desired object.
+     *  If no instance of the required object exists, calls the function
+     *  specified in this class' <code>generator</code> constructor parameter.
+     * 
+     *  @return An instance of the object.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
+     */
+    public function getInstance():Object
+    {
+        if (!instance)
+            instance = generator();
+
+        return instance;
+    }
+    
+    /**
+     *  Resets the state of our factory to the initial, uninitialized state.
+     *  The reference to our cached instance is cleared.
+     * 
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 4
+     */
+    public function reset():void
+    {
+        instance = null;
+        
+        if (destructor != null)
+            destructor();
+    }
+
 }
 
 }

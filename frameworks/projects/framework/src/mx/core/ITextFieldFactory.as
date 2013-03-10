@@ -18,20 +18,46 @@ import flash.text.TextField;
 
 /**
  *  @private
- *  Interface to create text fields.
- *  Text fields are re-used so there are no more than one per module factory.
+ *  Interface to create instances of TextField and FTETextField.
+ *  These are re-used so that there are no more than one of each
+ *  per module factory.
  */
 public interface ITextFieldFactory
 {
 	/**
-	 *  Creates a TextField object in the context
-	 *  of a specified module factory.
-	 * 
-	 *  @param moduleFactory May not be null.
+	 *  Creates an instance of TextField
+	 *  in the context of the specified IFlexModuleFactory.
 	 *
-	 *  @return A TextField created in the context of the module factory.
+	 *  @param moduleFactory The IFlexModuleFactory requesting the TextField.
+	 *
+	 *	@return A FTETextField created in the context
+	 *  of <code>moduleFactory</code>.
+	 *  
+	 *  @langversion 3.0
+	 *  @playerversion Flash 9
+	 *  @playerversion AIR 1.1
+	 *  @productversion Flex 3
 	 */
 	function createTextField(moduleFactory:IFlexModuleFactory):TextField;
+	
+	/**
+	 *  Creates an instance of FTETextField
+	 *  in the context of the specified module factory.
+	 * 
+	 *  @param moduleFactory The IFlexModuleFactory requesting the TextField.
+	 *  May not be <code>null</code>.
+	 *
+	 *	@return A FTETextField created in the context
+	 *  of <code>moduleFactory</code>.
+	 *  The return value is loosely typed as Object
+	 *  to avoid linking in FTETextField (and therefore much of TLF).
+	 *  
+	 *  @langversion 3.0
+	 *  @playerversion Flash 9
+	 *  @playerversion AIR 1.1
+	 *  @productversion Flex 4
+	 */
+	function createFTETextField(moduleFactory:IFlexModuleFactory):Object;
 }
 
 }

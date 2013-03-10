@@ -38,12 +38,12 @@ package mx.core
  *  <p>or</p>
  *
  *  <pre>
- *  &lt;mx:Style&gt;
- *      Application
- *      {
+ *  &lt;fx:Style&gt;
+ *      &#64;namespace mx "library://ns.adobe.com/flex/mx"
+ *      mx|Application {
  *          backgroundImage: Embed(source="Assets.swf", symbol="BackgroundAnimation")
  *      }
- *  &lt;mx:Style/&gt;</pre>
+ *  &lt;fx:Style/&gt;</pre>
  *
  *  <p>without having to understand that the MXML compiler has created
  *  a subclass of MovieClipAsset for you.</p>
@@ -80,6 +80,11 @@ package mx.core
  *
  *  <pre>
  *  &lt;mx:Application backgroundImage="{backgroundAnimationClass}"/&gt;</pre>
+ *  
+ *  @langversion 3.0
+ *  @playerversion Flash 9
+ *  @playerversion AIR 1.1
+ *  @productversion Flex 3
  */
 public class MovieClipAsset extends FlexMovieClip
                             implements IFlexAsset, IFlexDisplayObject, IBorder
@@ -94,6 +99,11 @@ public class MovieClipAsset extends FlexMovieClip
 
     /**
      *  Constructor.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function MovieClipAsset()
     {
@@ -122,6 +132,11 @@ public class MovieClipAsset extends FlexMovieClip
 
     /**
      *  @inheritDoc
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get measuredHeight():Number
     {
@@ -140,6 +155,11 @@ public class MovieClipAsset extends FlexMovieClip
 
     /**
      *  @inheritDoc
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get measuredWidth():Number
     {
@@ -152,6 +172,11 @@ public class MovieClipAsset extends FlexMovieClip
     
     /**
      *  @inheritDoc
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get borderMetrics():EdgeMetrics
     {
@@ -177,6 +202,11 @@ public class MovieClipAsset extends FlexMovieClip
 
     /**
      *  @inheritDoc
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function move(x:Number, y:Number):void
     {
@@ -186,6 +216,11 @@ public class MovieClipAsset extends FlexMovieClip
 
     /**
      *  @inheritDoc
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function setActualSize(newWidth:Number, newHeight:Number):void
     {

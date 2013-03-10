@@ -18,6 +18,7 @@ import mx.managers.SystemManager;
 [ResourceBundle("formatters")]
 [ResourceBundle("SharedResources")]
 
+[Alternative(replacement="spark.formatters.CurrencyFormatter", since="4.5")]
 /**
  *  The CurrencyFormatter class formats a valid number as a currency value.
  *  It adjusts the decimal rounding and precision, the thousands separator, 
@@ -63,6 +64,11 @@ import mx.managers.SystemManager;
  *  
  *  @see mx.formatters.NumberBase
  *  @see mx.formatters.NumberBaseRoundType
+ *  
+ *  @langversion 3.0
+ *  @playerversion Flash 9
+ *  @playerversion AIR 1.1
+ *  @productversion Flex 3
  */
 public class CurrencyFormatter extends Formatter
 {
@@ -76,6 +82,11 @@ public class CurrencyFormatter extends Formatter
 
 	/**
 	 *  Constructor.
+	 *  
+	 *  @langversion 3.0
+	 *  @playerversion Flash 9
+	 *  @playerversion AIR 1.1
+	 *  @productversion Flex 3
 	 */
 	public function CurrencyFormatter()
 	{
@@ -111,6 +122,11 @@ public class CurrencyFormatter extends Formatter
      *  Permitted values are <code>"left"</code> and <code>"right"</code>.
 	 *
      *  @default "left"
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
 	public function get alignSymbol():String
 	{
@@ -157,6 +173,11 @@ public class CurrencyFormatter extends Formatter
 	 *  appears between the number and the minus sign or parentheses.
 	 *
      *  @default "$"
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
 	public function get currencySymbol():String
 	{
@@ -198,6 +219,11 @@ public class CurrencyFormatter extends Formatter
 	 *  when parsing an input string.
 	 *
      *  @default "."
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
 	public function get decimalSeparatorFrom():String
 	{
@@ -239,6 +265,11 @@ public class CurrencyFormatter extends Formatter
 	 *  when outputting formatted decimal numbers.
 	 *
      *  @default "."
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
 	public function get decimalSeparatorTo():String
 	{
@@ -285,6 +316,11 @@ public class CurrencyFormatter extends Formatter
 	 *  rounding, return a value based on that rounding type.
 	 *
      *  @default -1
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
 	public function get precision():Object
 	{
@@ -332,6 +368,11 @@ public class CurrencyFormatter extends Formatter
 	 *  @default NumberBaseRoundType.NONE
  	 *
 	 *  @see mx.formatters.NumberBaseRoundType
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
 	public function get rounding():String
 	{
@@ -373,6 +414,11 @@ public class CurrencyFormatter extends Formatter
 	 *  in the input String.
 	 *
      *  @default ","
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
 	public function get thousandsSeparatorFrom():String
 	{
@@ -414,6 +460,11 @@ public class CurrencyFormatter extends Formatter
 	 *  in the output string.
 	 *
      *  @default ","
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
 	public function get thousandsSeparatorTo():String
 	{
@@ -457,6 +508,11 @@ public class CurrencyFormatter extends Formatter
 	 *  surrounded by parentheses, for example (400).
 	 *
      *  @default true
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
 	public function get useNegativeSign():Object
 	{
@@ -473,7 +529,7 @@ public class CurrencyFormatter extends Formatter
 		_useNegativeSign = value != null ?
 						   Boolean(value) :
 						   resourceManager.getBoolean(
-						       "formatters", "useNegativeSign");
+						       "formatters", "useNegativeSignInCurrency");
 	}
 
 	//----------------------------------
@@ -498,6 +554,11 @@ public class CurrencyFormatter extends Formatter
 	 *  by using a separator character.
 	 *
      *  @default true
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
 	public function get useThousandsSeparator():Object
 	{
@@ -550,6 +611,11 @@ public class CurrencyFormatter extends Formatter
      *  @param value Value to format.
 	 *
      *  @return Formatted string. Empty if an error occurs.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     override public function format(value:Object):String
     {

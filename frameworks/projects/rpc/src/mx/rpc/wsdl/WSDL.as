@@ -51,6 +51,11 @@ public class WSDL
      *
      * @param xml An XML document starting from the top-level WSDL 
      * <code>defintions</code> element.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function WSDL(xml:XML, topLevelManager:SchemaManager=null)
     {
@@ -79,7 +84,7 @@ public class WSDL
      *  @private
      */
     private var resourceManager:IResourceManager =
-									ResourceManager.getInstance();
+                                    ResourceManager.getInstance();
 
     //--------------------------------------------------------------------------
     //
@@ -130,6 +135,11 @@ public class WSDL
     /**
      * The raw XML representing the WSDL starting from the top-level
      * definitions element.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get xml():XML
     {
@@ -176,6 +186,11 @@ public class WSDL
      * service is first located, otherwise the first service is used by default.
      * Once a service has been selected, the search then considers the port.
      * If a portName is not provided, the first port is used by default.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function getPort(serviceName:String = null, portName:String = null):WSDLPort
     {
@@ -192,8 +207,8 @@ public class WSDL
 
         if (port == null)
         {
-			var message:String = resourceManager.getString(
-				"rpc", "noServiceAndPort", [ serviceName, portName ]);
+            var message:String = resourceManager.getString(
+                "rpc", "noServiceAndPort", [ serviceName, portName ]);
             throw new Fault("Client.NoSuchPort", message);
         }
 
@@ -203,6 +218,11 @@ public class WSDL
     /**
      * Search for WSDL service and port by name. If a serviceName is not
      * provided the first service found will be selected by default. 
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function getService(serviceName:String = null, portName:String = null):WSDLService
     {
@@ -233,8 +253,8 @@ public class WSDL
         {
             service = parseService(serviceName, portName);
 
-			var message:String;
-			var detail:String;
+            var message:String;
+            var detail:String;
 
             if (service != null)
             {
@@ -245,16 +265,16 @@ public class WSDL
             }
             else if (serviceName != null)
             {
-				message = resourceManager.getString(
-					"rpc", "noSuchServiceInWSDL", [ serviceName ]);
+                message = resourceManager.getString(
+                    "rpc", "noSuchServiceInWSDL", [ serviceName ]);
                 throw new Fault("Client.NoSuchService", message);
             }
             else
             {
-				message = resourceManager.getString(
-					"rpc", "noServiceElement");
-				detail = resourceManager.getString(
-					"rpc", "noServiceElement.details", [ "" ]);
+                message = resourceManager.getString(
+                    "rpc", "noServiceElement");
+                detail = resourceManager.getString(
+                    "rpc", "noServiceElement.details", [ "" ]);
                 throw new Fault("Server.NoServicesInWSDL", message, detail);
             }
         }
@@ -297,6 +317,11 @@ public class WSDL
      * default. If a service is located it is parsed and then the search
      * continues for the requested port, which is in turn parsed, and so forth.
      * </p>
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     private function parseService(serviceName:String = null, portName:String = null):WSDLService
     {
@@ -352,6 +377,11 @@ public class WSDL
     /**
      * Search for a requested port in the given service XML. If a port
      * name was not specified, the first port is used by default.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     private function parsePort(service:WSDLService, serviceXML:XML, portName:String = null):WSDLPort
     {
@@ -397,9 +427,9 @@ public class WSDL
             }
             else
             {
-				var message:String = resourceManager.getString(
-					"rpc", "unrecognizedBindingName",
-					[ bindingQName.localName, bindingQName.uri ]);
+                var message:String = resourceManager.getString(
+                    "rpc", "unrecognizedBindingName",
+                    [ bindingQName.localName, bindingQName.uri ]);
                 throw new Fault("WSDL.UnrecognizedBindingName", message);
             }
         }
@@ -411,6 +441,11 @@ public class WSDL
      * Search for a binding by QName. If a URI is not specified, the
      * targetNamespace is assumed. FIXME: We may need to consider whether
      * formElementDefault is set to qualified or not.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     private function parseBinding(bindingQName:QName):WSDLBinding
     {
@@ -629,6 +664,11 @@ public class WSDL
     /**
      * Search for a portType by QName. If a URI is not specified, the
      * targetNamespace is assumed.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     private function parsePortType(portTypeQName:QName, portType:WSDLPortType):Boolean
     {
@@ -752,6 +792,11 @@ public class WSDL
     /**
      * Search for a message by QName. If a URI is not specified, the
      * targetNamespace is assumed.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     private function parseMessage(message:WSDLMessage, messageQName:QName, operationName:String, mode:int):Boolean
     {
@@ -826,6 +871,11 @@ public class WSDL
      * Returns a WSDL message part based on the name and looks for either an
      * element QName or type QName to determine which definition describes
      * this message part.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     private function parseMessagePart(partXML:XML):WSDLMessagePart
     {
@@ -856,6 +906,11 @@ public class WSDL
      * Looks for the SOAP encoding extensions based on the type of WSDL
      * operation message. SOAP encoding is required for SOAP Body, Header
      * (header and headerfault) and Fault extensions.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     private function parseHeader(operationName:String, headerXML:XML):WSDLMessage
     {
@@ -871,6 +926,11 @@ public class WSDL
      * Looks for the SOAP encoding extensions based on the type of WSDL
      * operation message. SOAP encoding is required for SOAP Body, Header
      * (header and headerfault) and Fault extensions.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     private function parseEncodingExtension(extensionXML:XML, isHeader:Boolean = false, isFault:Boolean = false):WSDLEncoding
     {
@@ -900,6 +960,11 @@ public class WSDL
      * to message params, and SOAP decoders correctly bind output params
      * to predictable ActionScript constructs. Essentially the wrappers should
      * be an encoding detail that is invisible to the Flex developer.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     private function parseDocumentOperation(operation:WSDLOperation):void
     {
@@ -1077,6 +1142,11 @@ public class WSDL
      * Returns a WSDL message part based on the name and looks for either an
      * element QName or type QName to determine which definition describes
      * this message part.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     private function parseWrappedMessagePart(elementXML:XML):WSDLMessagePart
     {
@@ -1142,6 +1212,11 @@ public class WSDL
     /**
      * Determines the WSDL and SOAP versions from the definitions and creates
      * a map of top level prefixes to namespaces.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     private function processNamespaces():void
     {
@@ -1186,34 +1261,64 @@ public class WSDL
 
     /**
      * Manages WSDL imports.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */ 
     private var importsManager:QualifiedResourceManager;
 
     /**
      * Logs warnings encountered while parsing WSDL.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     private var _log:ILogger;
 
     /**
      * Maps a namespace prefix (as a <code>String</code>) to a
      * <code>Namespace</code> (i.e. this helps to resolve a prefix to a URI).
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     private var namespaces:Object;
 
     /**
      * Provides a static cache of the constants for various versions of XSD.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     private var _schemaConstants:SchemaConstants;
 
     /**
      * A map of target namespaces to XSD Schemas that describe the types 
      * used in this WSDL.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     private var _schemaManager:SchemaManager;
 
     /**
      * Map to cache a WSDLService by service name. The cache is cleared 
      * when a new definitions element is set for the WSDL.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     private var serviceMap:Object;
 
@@ -1221,16 +1326,31 @@ public class WSDL
 
     /**
      * WSDL target namespace.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     private var _targetNamespace:Namespace;
 
     /**
      * Provides a static cache of the constants for various versions of WSDL.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     private var _wsdlConstants:WSDLConstants;
 
     /**
      * The raw XML representing the WSDL definitions top level element.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     private var _xml:XML;
 }

@@ -49,6 +49,12 @@ use namespace mx_internal;
  *  Dispatched after a Channel in the ChannelSet has connected to its endpoint.
  *
  *  @eventType mx.messaging.events.ChannelEvent.CONNECT
+ *
+ *  @langversion 3.0
+ *  @playerversion Flash 9
+ *  @playerversion AIR 1.1
+ *  @productversion BlazeDS 4
+ *  @productversion LCDS 3
  */
 [Event(name="channelConnect", type="mx.messaging.events.ChannelEvent")]
 
@@ -57,6 +63,12 @@ use namespace mx_internal;
  *  endpoint.
  *
  *  @eventType mx.messaging.events.ChannelEvent.DISCONNECT
+ *
+ *  @langversion 3.0
+ *  @playerversion Flash 9
+ *  @playerversion AIR 1.1
+ *  @productversion BlazeDS 4
+ *  @productversion LCDS 3
  */
 [Event(name="channelDisconnect", type="mx.messaging.events.ChannelEvent")]
 
@@ -64,18 +76,36 @@ use namespace mx_internal;
  *  Dispatched after a Channel in the ChannelSet has faulted.
  *
  *  @eventType mx.messaging.events.ChannelFaultEvent.FAULT
+ *
+ *  @langversion 3.0
+ *  @playerversion Flash 9
+ *  @playerversion AIR 1.1
+ *  @productversion BlazeDS 4
+ *  @productversion LCDS 3
  */
 [Event(name="channelFault", type="mx.messaging.events.ChannelFaultEvent")]
 
 /**
  * The result event is dispatched when a login or logout call successfully returns.
  * @eventType mx.rpc.events.ResultEvent.RESULT
+ *
+ *  @langversion 3.0
+ *  @playerversion Flash 9
+ *  @playerversion AIR 1.1
+ *  @productversion BlazeDS 4
+ *  @productversion LCDS 3
  */
 [Event(name="result", type="mx.rpc.events.ResultEvent")]
 
 /**
  * The fault event is dispatched when a login or logout call fails.
  * @eventType mx.rpc.events.FaultEvent.FAULT
+ *
+ *  @langversion 3.0
+ *  @playerversion Flash 9
+ *  @playerversion AIR 1.1
+ *  @productversion BlazeDS 4
+ *  @productversion LCDS 3
  */
 [Event(name="fault", type="mx.rpc.events.FaultEvent")]
 
@@ -83,6 +113,12 @@ use namespace mx_internal;
  *  Dispatched when a property of the ChannelSet changes.
  *
  *  @eventType mx.events.PropertyChangeEvent.PROPERTY_CHANGE
+ *
+ *  @langversion 3.0
+ *  @playerversion Flash 9
+ *  @playerversion AIR 1.1
+ *  @productversion BlazeDS 4
+ *  @productversion LCDS 3
  */
 [Event(name="propertyChange", type="mx.events.PropertyChangeEvent")]
 
@@ -93,6 +129,12 @@ use namespace mx_internal;
  *  target destination. The ChannelSet improves the quality of service on the
  *  client by hunting through its Channels to send messages in the face of
  *  network failures or individual Channel problems.
+ *
+ *  @langversion 3.0
+ *  @playerversion Flash 9
+ *  @playerversion AIR 1.1
+ *  @productversion BlazeDS 4
+ *  @productversion LCDS 3
  */
 public class ChannelSet extends EventDispatcher
 {
@@ -136,6 +178,12 @@ public class ChannelSet extends EventDispatcher
      *
      *  @param clusteredWithURLLoadBalancing True if the Channels in the ChannelSet are clustered
      *                   using url load balancing.
+     *
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion BlazeDS 4
+     *  @productversion LCDS 3
      */
     public function ChannelSet(channelIds:Array = null, clusteredWithURLLoadBalancing:Boolean = false)
     {
@@ -207,7 +255,7 @@ public class ChannelSet extends EventDispatcher
      *  connect to the cluster.
      */
     private var _hasRequestedClusterEndpoints:Boolean;
-    
+
     /**
      *  @private
      *  Timer used to issue periodic heartbeats to the remote host if the
@@ -291,6 +339,12 @@ public class ChannelSet extends EventDispatcher
     /**
      *  Indicates whether the ChannelSet has an underlying Channel that successfully
      *  authenticated with its endpoint.
+     *
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion BlazeDS 4
+     *  @productversion LCDS 3
      */
     public function get authenticated():Boolean
     {
@@ -313,9 +367,12 @@ public class ChannelSet extends EventDispatcher
                 for (var i:int = 0; i < _messageAgents.length; i++)
                 {
                     ma = MessageAgent(_messageAgents[i]);
-                    ma.mx_internal::setAuthenticated(value, creds);
+                    ma.setAuthenticated(value, creds);
                 }
             }
+
+            if (!value && _authAgent != null)
+                _authAgent.state = AuthenticationAgent.LOGGED_OUT_STATE;
 
             dispatchEvent(event);
         }
@@ -339,6 +396,12 @@ public class ChannelSet extends EventDispatcher
      *
      *  @throws flash.errors.IllegalOperationError If the ChannelSet is
      *             <code>configured</code>, assigning to this property is not allowed.
+     *
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion BlazeDS 4
+     *  @productversion LCDS 3
      */
     public function get channels():Array
     {
@@ -388,6 +451,12 @@ public class ChannelSet extends EventDispatcher
 
     /**
      *  The ids of the Channels used by the ChannelSet.
+     *
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion BlazeDS 4
+     *  @productversion LCDS 3
      */
     public function get channelIds():Array
     {
@@ -421,6 +490,12 @@ public class ChannelSet extends EventDispatcher
 
     /**
      *  Returns the current Channel for the ChannelSet.
+     *
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion BlazeDS 4
+     *  @productversion LCDS 3
      */
     public function get currentChannel():Channel
     {
@@ -481,6 +556,12 @@ public class ChannelSet extends EventDispatcher
     /**
      *  Indicates whether the ChannelSet is using automatically configured
      *  Channels or manually assigned Channels.
+     *
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion BlazeDS 4
+     *  @productversion LCDS 3
      */
     mx_internal function get configured():Boolean
     {
@@ -520,7 +601,7 @@ public class ChannelSet extends EventDispatcher
             {
                 unscheduleHeartbeat();
             }
-            else if (heartbeatInterval > 0) 
+            else if (heartbeatInterval > 0)
             {
                 scheduleHeartbeat();
             }
@@ -546,6 +627,12 @@ public class ChannelSet extends EventDispatcher
      *  Error will be thrown when this property is set to true if this is not the case.
      *  If the ChannelSet is not using url load balancing on the client this
      *  property should not be set to true.
+     *
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion BlazeDS 4
+     *  @productversion LCDS 3
      */
     public function get clustered():Boolean
     {
@@ -577,20 +664,20 @@ public class ChannelSet extends EventDispatcher
             _clustered = value;
         }
     }
-    
+
     //----------------------------------
     //  heartbeatInterval
     //----------------------------------
-    
+
     /**
      *  @private
      */
     private var _heartbeatInterval:int = 0;
-    
+
     /**
      *  The number of milliseconds between heartbeats sent to the remote
      *  host while this ChannelSet is actively connected but idle.
-     *  Any outbound message traffic will delay heartbeats temporarily, with 
+     *  Any outbound message traffic will delay heartbeats temporarily, with
      *  this number of milliseconds elapsing after the last sent message before
      *  the next heartbeat is issued.
      *  <p>
@@ -601,13 +688,13 @@ public class ChannelSet extends EventDispatcher
      *  heartbeats the client can force the networking layer to report a timeout
      *  if the underlying connection has dropped without notification and the
      *  application can respond to the disconnect appropriately.
-     *  </p> 
+     *  </p>
      *  <p>
      *  Any non-positive value disables heartbeats to the remote host.
      *  The default value is 0 indicating that heartbeats are disabled.
      *  If the application sets this value it should prefer a longer rather than
      *  shorter interval, to avoid placing unnecessary load on the remote host.
-     *  As an illustrative example, low-level TCP socket keep-alives generally 
+     *  As an illustrative example, low-level TCP socket keep-alives generally
      *  default to an interval of 2 hours. That is a longer interval than most
      *  applications that enable heartbeats will likely want to use, but it
      *  serves as a clear precedent to prefer a longer interval over a shorter
@@ -622,7 +709,7 @@ public class ChannelSet extends EventDispatcher
     {
         return _heartbeatInterval;
     }
-    
+
     /**
      *  @private
      */
@@ -653,6 +740,12 @@ public class ChannelSet extends EventDispatcher
      *  Provides access to the initial destination this ChannelSet is used to access.
      *  When the clustered property is true, this value is used to request available failover URIs
      *  for the configured channels for the destination.
+     *
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion BlazeDS 4
+     *  @productversion LCDS 3
      */
     public function get initialDestinationId():String
     {
@@ -678,6 +771,12 @@ public class ChannelSet extends EventDispatcher
 
     /**
      *  Provides access to the set of MessageAgents that use this ChannelSet.
+     *
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion BlazeDS 4
+     *  @productversion LCDS 3
      */
     public function get messageAgents():Array
     {
@@ -694,6 +793,12 @@ public class ChannelSet extends EventDispatcher
      *  Returns a String containing the ids of the Channels in the ChannelSet.
      *
      *  @return String representation of the ChannelSet.
+     *
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion BlazeDS 4
+     *  @productversion LCDS 3
      */
     override public function toString():String
     {
@@ -723,6 +828,12 @@ public class ChannelSet extends EventDispatcher
      *             <code>configured</code>, adding a Channel is not supported.
      *             This error is also thrown if the ChannelSet's <code>clustered</code> property
      *             is <code>true</code> but the Channel has a null id.
+     *
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion BlazeDS 4
+     *  @productversion LCDS 3
      */
     public function addChannel(channel:Channel):void
     {
@@ -762,6 +873,12 @@ public class ChannelSet extends EventDispatcher
      *
      *  @throws flash.errors.IllegalOperationError If the ChannelSet is
      *             <code>configured</code>, removing a Channel is not supported.
+     *
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion BlazeDS 4
+     *  @productversion LCDS 3
      */
     public function removeChannel(channel:Channel):void
     {
@@ -796,6 +913,12 @@ public class ChannelSet extends EventDispatcher
      *  can use the ChannelSet to send messages.
      *
      *  @param agent The MessageAgent to connect.
+     *
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion BlazeDS 4
+     *  @productversion LCDS 3
      */
     public function connect(agent:MessageAgent):void
     {
@@ -803,7 +926,7 @@ public class ChannelSet extends EventDispatcher
         {
             _shouldBeConnected = true;
             _messageAgents.push(agent);
-            agent.mx_internal::internalSetChannelSet(this);
+            agent.internalSetChannelSet(this);
             // Wire up agent's channel event listeners to this ChannelSet.
             addEventListener(ChannelEvent.CONNECT, agent.channelConnectHandler);
             addEventListener(ChannelEvent.DISCONNECT, agent.channelDisconnectHandler);
@@ -825,6 +948,12 @@ public class ChannelSet extends EventDispatcher
      *  connected, the Channel will physically disconnect from the server.
      *
      *  @param agent The MessageAgent to disconnect.
+     *
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion BlazeDS 4
+     *  @productversion LCDS 3
      */
     public function disconnect(agent:MessageAgent):void
     {
@@ -884,8 +1013,8 @@ public class ChannelSet extends EventDispatcher
                 }
 
                 // Null out automatically assigned ChannelSet on agent; if manually assigned leave it alone.
-                if (agent.mx_internal::channelSetMode == MessageAgent.mx_internal::AUTO_CONFIGURED_CHANNELSET)
-                    agent.mx_internal::internalSetChannelSet(null);
+                if (agent.channelSetMode == MessageAgent.AUTO_CONFIGURED_CHANNELSET)
+                    agent.internalSetChannelSet(null);
             }
         }
     }
@@ -896,6 +1025,12 @@ public class ChannelSet extends EventDispatcher
      *  Unlike <code>disconnect(MessageAgent)</code> which is invoked by the disconnect implementations
      *  of specific service components, this method provides a single, convenient point to shut down
      *  connectivity between the client and server.
+     *
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion BlazeDS 4
+     *  @productversion LCDS 3
      */
     public function disconnectAll():void
     {
@@ -906,6 +1041,12 @@ public class ChannelSet extends EventDispatcher
      *  Handles a CONNECT ChannelEvent and redispatches the event.
      *
      *  @param event The ChannelEvent.
+     *
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion BlazeDS 4
+     *  @productversion LCDS 3
      */
     public function channelConnectHandler(event:ChannelEvent):void
     {
@@ -960,6 +1101,12 @@ public class ChannelSet extends EventDispatcher
      *  Handles a DISCONNECT ChannelEvent and redispatches the event.
      *
      *  @param event The ChannelEvent.
+     *
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion BlazeDS 4
+     *  @productversion LCDS 3
      */
     public function channelDisconnectHandler(event:ChannelEvent):void
     {
@@ -1013,6 +1160,12 @@ public class ChannelSet extends EventDispatcher
      *  Handles a ChannelFaultEvent and redispatches the event.
      *
      *  @param event The ChannelFaultEvent.
+     *
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion BlazeDS 4
+     *  @productversion LCDS 3
      */
     public function channelFaultHandler(event:ChannelFaultEvent):void
     {
@@ -1089,6 +1242,12 @@ public class ChannelSet extends EventDispatcher
      *
      *  @throws flash.errors.IllegalOperationError in two situations; if the ChannelSet is
      *          already authenticated, or if a login or logout operation is currently in progress.
+     *
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion BlazeDS 4
+     *  @productversion LCDS 3
      */
     public function login(username:String, password:String, charset:String=null):AsyncToken
     {
@@ -1225,13 +1384,21 @@ public class ChannelSet extends EventDispatcher
      *
      *  @throws mx.messaging.errors.NoChannelAvailableError If the ChannelSet has no internal
      *                                  Channels to use.
+     *
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion BlazeDS 4
+     *  @productversion LCDS 3
      */
     public function send(agent:MessageAgent, message:IMessage):void
     {
-        if (_currentChannel != null && _currentChannel.connected && !agent.needsConfig)
+        if (_currentChannel != null && _currentChannel.connected)
         {
-            // Filter out any commands to trigger connection establishment, and ack them locally.
-            if ((message is CommandMessage) && (CommandMessage(message).operation == CommandMessage.TRIGGER_CONNECT_OPERATION))
+            // Filter out any commands to trigger connection establishment, and
+            // ack them locally unless the agent needs config.
+            if ((message is CommandMessage && CommandMessage(message).operation == CommandMessage.TRIGGER_CONNECT_OPERATION)
+                && !agent.needsConfig)
             {
                 var ack:AcknowledgeMessage = new AcknowledgeMessage();
                 ack.clientId = agent.clientId;
@@ -1309,6 +1476,12 @@ public class ChannelSet extends EventDispatcher
      *  have already been set and an authentication is in progress with the remote
      *  detination, or if authenticated and the credentials specified don't match
      *  the currently authenticated credentials.
+     *
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion BlazeDS 4
+     *  @productversion LCDS 3
      */
     public function setCredentials(credentials:String, agent:MessageAgent, charset:String=null):void
     {
@@ -1337,6 +1510,7 @@ public class ChannelSet extends EventDispatcher
         var command:CommandMessage = CommandMessage(token.message);
         var handlingLogin:Boolean = (command.operation == CommandMessage.LOGIN_OPERATION);
         var creds:String = (handlingLogin) ? String(command.body) : null;
+        var delay:Number = 0;
 
         if (handlingLogin)
         {
@@ -1365,6 +1539,10 @@ public class ChannelSet extends EventDispatcher
             // Shutdown the current logged out agent.
             agent.state = AuthenticationAgent.SHUTDOWN_STATE;
             _authAgent = null;
+            // Slight delay is used to make sure the disconnect message makes it
+            // to the server before result is dispatched to avoid duplicate session
+            // errors. See Watson 2780176 for details.
+            delay = 250;
             disconnect(agent);
 
             // Flip current channel to *not* authenticated; this percolates
@@ -1374,7 +1552,10 @@ public class ChannelSet extends EventDispatcher
 
         // Notify.
         var resultEvent:ResultEvent = ResultEvent.createEvent(ackMessage.body, token, ackMessage);
-        dispatchRPCEvent(resultEvent);
+        if (delay > 0)
+            new AsyncDispatcher(dispatchRPCEvent, [resultEvent], delay);
+        else
+            dispatchRPCEvent(resultEvent);
     }
 
     /**
@@ -1456,13 +1637,13 @@ public class ChannelSet extends EventDispatcher
     {
         dispatchEvent(event);
     }
-    
+
     /**
      *  @private
      *  Schedules a heartbeat to be sent in heartbeatInterval milliseconds.
      */
     protected function scheduleHeartbeat():void
-    {          
+    {
         if (_heartbeatTimer == null && heartbeatInterval > 0)
         {
             _heartbeatTimer = new Timer(heartbeatInterval, 1);
@@ -1470,7 +1651,7 @@ public class ChannelSet extends EventDispatcher
             _heartbeatTimer.start();
         }
     }
-    
+
     /**
      *  @private
      *  Handles a heartbeat timer event by conditionally sending a heartbeat
@@ -1485,13 +1666,13 @@ public class ChannelSet extends EventDispatcher
             scheduleHeartbeat();
         }
     }
-    
+
     /**
-     *  @private 
+     *  @private
      *  Sends a heartbeat request.
      */
     protected function sendHeartbeat():void
-    {        
+    {
         // Current channel may be actively polling, which suppresses explicit heartbeats.
         var pollingChannel:PollingChannel = currentChannel as PollingChannel;
         if (pollingChannel != null && pollingChannel._shouldPoll) return;
@@ -1501,7 +1682,7 @@ public class ChannelSet extends EventDispatcher
         heartbeat.headers[CommandMessage.HEARTBEAT_HEADER] = true;
         currentChannel.sendInternalMessage(new MessageResponder(null /* no agent */, heartbeat));
     }
-    
+
     /**
      *  @private
      *  Unschedules any currently scheduled pending heartbeat.
@@ -1514,7 +1695,7 @@ public class ChannelSet extends EventDispatcher
             _heartbeatTimer.removeEventListener(TimerEvent.TIMER, sendHeartbeatHandler);
             _heartbeatTimer = null;
         }
-    }    
+    }
 
     //--------------------------------------------------------------------------
     //
@@ -1680,6 +1861,12 @@ class ClusterMessageResponder extends MessageResponder
 
     /**
      *  Constructor.
+     *
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion BlazeDS 4
+     *  @productversion LCDS 3
      */
     public function ClusterMessageResponder(message:IMessage, channelSet:ChannelSet)
     {
@@ -1710,6 +1897,12 @@ class ClusterMessageResponder extends MessageResponder
      *  Handles a cluster message response.
      *
      *  @param message The response Message.
+     *
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion BlazeDS 4
+     *  @productversion LCDS 3
      */
     override protected function resultHandler(message:IMessage):void
     {
@@ -1809,6 +2002,12 @@ class AuthenticationAgent extends MessageAgent
 
     /**
      *  Constructor.
+     *
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion BlazeDS 4
+     *  @productversion LCDS 3
      */
     public function AuthenticationAgent(channelSet:ChannelSet)
     {
@@ -1826,6 +2025,12 @@ class AuthenticationAgent extends MessageAgent
 
     /**
      * Map of login/logout message Ids to associated tokens.
+     *
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion BlazeDS 4
+     *  @productversion LCDS 3
      */
     private var tokens:Object = {};
 
@@ -1840,6 +2045,12 @@ class AuthenticationAgent extends MessageAgent
     /**
      * Returns the current state for the agent.
      * See the static state constants defined by this class.
+     *
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion BlazeDS 4
+     *  @productversion LCDS 3
      */
     public function get state():int
     {
@@ -1861,6 +2072,12 @@ class AuthenticationAgent extends MessageAgent
 
     /**
      * Registers an outbound login/logout message and its associated token for response/fault handling.
+     *
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion BlazeDS 4
+     *  @productversion LCDS 3
      */
     public function registerToken(token:AsyncToken):void
     {
@@ -1869,6 +2086,12 @@ class AuthenticationAgent extends MessageAgent
 
     /**
      * Acknowledge message callback.
+     *
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion BlazeDS 4
+     *  @productversion LCDS 3
      */
     override public function acknowledge(ackMsg:AcknowledgeMessage, msg:IMessage):void
     {
@@ -1890,6 +2113,12 @@ class AuthenticationAgent extends MessageAgent
 
     /**
      * Fault callback.
+     *
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion BlazeDS 4
+     *  @productversion LCDS 3
      */
     override public function fault(errMsg:ErrorMessage, msg:IMessage):void
     {

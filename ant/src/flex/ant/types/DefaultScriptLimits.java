@@ -20,7 +20,7 @@ import org.apache.tools.ant.types.Commandline;
 import org.apache.tools.ant.types.FlexInteger;
 
 /**
- *
+ * Implements &lt;default-script-limits&gt;.
  */
 public class DefaultScriptLimits implements DynamicAttribute, OptionSource
 {

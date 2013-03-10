@@ -17,6 +17,8 @@ import mx.effects.effectClasses.ZoomInstance;
 
 use namespace mx_internal;
 
+[Alternative(replacement="spark.effects.Scale", since="4.0")]
+
 /**
  *  The Zoom effect zooms the object in or out on a center point.
  *
@@ -51,6 +53,11 @@ use namespace mx_internal;
  *  @see mx.managers.LayoutManager
  *
  *  @includeExample examples/ZoomEffectExample.mxml
+ *  
+ *  @langversion 3.0
+ *  @playerversion Flash 9
+ *  @playerversion AIR 1.1
+ *  @productversion Flex 3
  */
 public class Zoom extends TweenEffect
 {
@@ -78,6 +85,11 @@ public class Zoom extends TweenEffect
 	 *  Constructor.
 	 *
 	 *  @param target The Object to animate with this effect.
+	 *  
+	 *  @langversion 3.0
+	 *  @playerversion Flash 9
+	 *  @playerversion AIR 1.1
+	 *  @productversion Flex 3
 	 */
 	public function Zoom(target:Object = null)
 	{
@@ -116,6 +128,11 @@ public class Zoom extends TweenEffect
 	 *  unless it occurs because you moved the mouse. </p>
 	 *  
 	 *  @default false
+	 *  
+	 *  @langversion 3.0
+	 *  @playerversion Flash 9
+	 *  @playerversion AIR 1.1
+	 *  @productversion Flex 3
 	 */
 	public var captureRollEvents:Boolean;
 	
@@ -134,6 +151,11 @@ public class Zoom extends TweenEffect
 	 *  <p>The value must be between 0 and the width of the target component.</p> 
 	 * 
 	 *  The default value is <code>target.width</code> / 2, which is the center of the target.
+	 *  
+	 *  @langversion 3.0
+	 *  @playerversion Flash 9
+	 *  @playerversion AIR 1.1
+	 *  @productversion Flex 3
 	 */
 	public var originX:Number;
 	
@@ -152,6 +174,11 @@ public class Zoom extends TweenEffect
 	 *  <p>The value must be between 0 and the height of the target component.</p> 
 	 * 
 	 *  The default value is <code>target.height</code> / 2, which is the center of the target.
+	 *  
+	 *  @langversion 3.0
+	 *  @playerversion Flash 9
+	 *  @playerversion AIR 1.1
+	 *  @productversion Flex 3
 	 */
 	public var originY:Number;
 	
@@ -165,6 +192,11 @@ public class Zoom extends TweenEffect
 	 *  Number that represents the scale at which to start the height zoom, 
 	 *  as a percent between 0.01 and 1.0. 
 	 *  The default value is 0.01, which is very small.
+	 *  
+	 *  @langversion 3.0
+	 *  @playerversion Flash 9
+	 *  @playerversion AIR 1.1
+	 *  @productversion Flex 3
 	 */
 	public var zoomHeightFrom:Number;
 	
@@ -178,6 +210,11 @@ public class Zoom extends TweenEffect
 	 *  Number that represents the scale at which to complete the height zoom, 
 	 *  as a percent between 0.01 and 1.0. 
 	 *  The default value is 1.0, which is the object's normal size.
+	 *  
+	 *  @langversion 3.0
+	 *  @playerversion Flash 9
+	 *  @playerversion AIR 1.1
+	 *  @productversion Flex 3
 	 */
 	public var zoomHeightTo:Number;
 	
@@ -191,6 +228,11 @@ public class Zoom extends TweenEffect
 	 *  Number that represents the scale at which to start the width zoom, 
 	 *  as a percent between 0.01 and 1.0. 
 	 *  The default value is 0.01, which is very small.
+	 *  
+	 *  @langversion 3.0
+	 *  @playerversion Flash 9
+	 *  @playerversion AIR 1.1
+	 *  @productversion Flex 3
 	 */
 	public var zoomWidthFrom:Number;
 	
@@ -204,6 +246,11 @@ public class Zoom extends TweenEffect
 	 *  Number that represents the scale at which to complete the width zoom, 
 	 *  as a percent between 0.01 and 1.0. 
 	 *  The default value is 1.0, which is the object's normal size.
+	 *  
+	 *  @langversion 3.0
+	 *  @playerversion Flash 9
+	 *  @playerversion AIR 1.1
+	 *  @productversion Flex 3
 	 */
 	public var zoomWidthTo:Number;
 	

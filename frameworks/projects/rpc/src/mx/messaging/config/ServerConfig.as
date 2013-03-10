@@ -40,6 +40,12 @@ use namespace mx_internal;
  *  However, there is currently no internal restriction preventing the
  *  acquisition of this XML data by other means, such as network, local file
  *  system, or shared object at runtime.</p>
+ *  
+ *  @langversion 3.0
+ *  @playerversion Flash 9
+ *  @playerversion AIR 1.1
+ *  @productversion BlazeDS 4
+ *  @productversion LCDS 3 
  */
 public class ServerConfig
 {
@@ -144,6 +150,12 @@ public class ServerConfig
     /**
      *  The XML configuration; this value must contain the relevant portions of
      *  the &lt;services&gt; tag from the services-config.xml file.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion BlazeDS 4
+     *  @productversion LCDS 3 
      */
     public static function get xml():XML
     {
@@ -192,6 +204,12 @@ public class ServerConfig
      *  @param   destinationB:String second destination to compare channels with
      *  @throw   ArgumentError if the channel definitions of the specified
      *           destinations aren't identical.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion BlazeDS 4
+     *  @productversion LCDS 3 
      */
     public static function checkChannelConsistency(destinationA:String,
                                                    destinationB:String):void
@@ -213,6 +231,12 @@ public class ServerConfig
      *  @return The Channel instance.
      *
      *  @throws mx.messaging.errors.InvalidChannelError If no Channel has the specified id.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion BlazeDS 4
+     *  @productversion LCDS 3 
      */
     public static function getChannel(id:String,
                                       clustered:Boolean = false):Channel
@@ -258,6 +282,12 @@ public class ServerConfig
      *  @throws mx.messaging.errors.InvalidDestinationError If the specified destination
      *                                  does not have channels and the application
      *                                  did not define default channels.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion BlazeDS 4
+     *  @productversion LCDS 3 
      */
     public static function getChannelSet(destinationId:String):ChannelSet
     {
@@ -273,6 +303,12 @@ public class ServerConfig
      *  @return XMLList containing the &lt;property&gt; tag information.
      *
      *  @throws mx.messaging.errors.InvalidDestinationError If the specified destination is not found.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion BlazeDS 4
+     *  @productversion LCDS 3 
      */
     public static function getProperties(destinationId:String):XMLList
     {
@@ -301,6 +337,12 @@ public class ServerConfig
     /**
      *  This method returns true iff the channelset specified has channels with
      *  ids or uris that match those found in the destination specified.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion BlazeDS 4
+     *  @productversion LCDS 3 
      */
     mx_internal static function channelSetMatchesDestinationConfig(channelSet:ChannelSet,
                                                                    destination:String):Boolean
@@ -503,6 +545,12 @@ public class ServerConfig
      *
      *  @throws mx.messaging.errors.InvalidChannelError If no configuration data for the specified
      *                             id exists.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion BlazeDS 4
+     *  @productversion LCDS 3 
      */
     private static function createChannel(channelId:String):Channel
     {
@@ -544,6 +592,12 @@ public class ServerConfig
 
        /**
         * Converts the ConfigMap of properties into XML
+        *  
+        *  @langversion 3.0
+        *  @playerversion Flash 9
+        *  @playerversion AIR 1.1
+        *  @productversion BlazeDS 4
+        *  @productversion LCDS 3 
         */
     private static function convertToXML(config:ConfigMap, configXML:XML):void
     {
@@ -619,6 +673,12 @@ public class ServerConfig
     /**
      *  Returns the destination XML data specific to the destination and message
      *  type specified. Returns null if the destination is not found.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion BlazeDS 4
+     *  @productversion LCDS 3 
      */
     private static function getDestinationConfig(destinationId:String):XML
     {
@@ -643,6 +703,12 @@ public class ServerConfig
      *  @param destinatonId The id of the target destination.
      *
      *  @return The ChannelSet.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion BlazeDS 4
+     *  @productversion LCDS 3 
      */
     private static function internalGetChannelSet(
                                         destinationConfig:XML,

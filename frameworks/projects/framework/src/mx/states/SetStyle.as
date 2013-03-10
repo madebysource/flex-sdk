@@ -7,14 +7,19 @@
 //  NOTICE: Adobe permits you to use, modify, and distribute this file
 //  in accordance with the terms of the license agreement accompanying it.
 //
+//  AdobePatentID="B770"
+//
 ////////////////////////////////////////////////////////////////////////////////
 
 package mx.states
 {
 
 import mx.core.UIComponent;
+import mx.core.IDeferredInstance;
 import mx.styles.IStyleClient;
 import mx.styles.StyleManager;
+import mx.core.IFlexModule;
+import mx.styles.IStyleManager2;
 
 /**
  *  The SetStyle class specifies a style that is in effect only during the parent view state.
@@ -40,8 +45,13 @@ import mx.styles.StyleManager;
  *  @see mx.effects.SetStyleAction
  *
  *  @includeExample examples/StatesExample.mxml
+ *  
+ *  @langversion 3.0
+ *  @playerversion Flash 9
+ *  @playerversion AIR 1.1
+ *  @productversion Flex 3
  */
-public class SetStyle implements IOverride
+public class SetStyle extends OverrideBase
 {
     include "../core/Version.as";
 
@@ -80,17 +90,29 @@ public class SetStyle implements IOverride
      *  @param name The style to set.
      *
      *  @param value The value of the style in the view state.
+     * 
+     *  @param valueFactory An optional write-only property from which to obtain 
+     *  a shared value.  This is primarily used when this override's value is 
+     *  shared by multiple states or state groups.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function SetStyle(
             target:IStyleClient = null,
             name:String = null,
-            value:Object = null)
+            value:Object = null,
+            valueFactory:IDeferredInstance = null
+    )
     {
         super();
 
         this.target = target;
         this.name = name;
         this.value = value;
+        this.valueFactory = valueFactory;
     }
 
     //--------------------------------------------------------------------------
@@ -104,13 +126,19 @@ public class SetStyle implements IOverride
      *  Storage for the old style value.
      */
     private var oldValue:Object;
+    
+    /**
+     *  @private
+     *  True if old value was set as an inline style.
+     */
+    private var wasInline:Boolean;
 
     /**
      *  @private
      *  Storage for the old related property values, if used.
      */
     private var oldRelatedValues:Array;
-
+    
     //--------------------------------------------------------------------------
     //
     //  Properties
@@ -129,6 +157,11 @@ public class SetStyle implements IOverride
      *  You must set this property, either in 
      *  the SetStyle constructor or by setting
      *  the property value directly.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public var name:String;
 
@@ -145,9 +178,25 @@ public class SetStyle implements IOverride
      *  immediate parent of the State object.
      * 
      *  @default null
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
-    public var target:IStyleClient;
+    public var target:Object;
 
+    /**
+     *  The cached target for which we applied our override.
+     *  We keep track of the applied target while applied since
+     *  our target may be swapped out in the owning document and 
+     *  we want to make sure we roll back the correct (original) 
+     *  element. 
+     *
+     *  @private
+     */
+    private var appliedTarget:Object;
+    
     //----------------------------------
     //  value
     //----------------------------------
@@ -155,13 +204,65 @@ public class SetStyle implements IOverride
     [Inspectable(category="General")]
 
     /**
-     *
+     *  @private
+     *  Storage for the style value.
+     */
+    public var _value:Object;
+    
+    /**
      *  The new value for the style.
      *
-     *  @default null
+     *  @default undefined
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
-    public var value:Object;
+    public function get value():Object
+    {
+        return _value;
+    }
 
+    /**
+     *  @private
+     */
+    public function set value(val:Object):void
+    {
+        _value = val;
+        
+        // Reapply if necessary.
+        if (applied) 
+        {
+            apply(parentContext);
+        }
+    }
+    
+    //----------------------------------
+    //  valueFactory
+    //----------------------------------
+    
+    /**
+     *  An optional write-only property from which to obtain a shared value.  This 
+     *  is primarily used when this override's value is shared by multiple states 
+     *  or state groups. 
+     *
+     *  @default undefined
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 4
+     */
+    public function set valueFactory(factory:IDeferredInstance):void
+    {
+        // We instantiate immediately in order to retain the instantiation
+        // behavior of a typical (unshared) value.  We may later enhance to
+        // allow for deferred instantiation.
+        if (factory)
+            value = factory.getInstance();
+    }
+    
     //--------------------------------------------------------------------------
     //
     //  IOverride methods
@@ -169,92 +270,166 @@ public class SetStyle implements IOverride
     //--------------------------------------------------------------------------
 
     /**
-     *  IOverride interface method; this class implements it as an empty method.
-     * 
-     *  @copy IOverride#initialize()
-     */
-    public function initialize():void
-    {
-    }
-
-    /**
      *  @inheritDoc
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
-    public function apply(parent:UIComponent):void
+    override public function apply(parent:UIComponent):void
     {
-        var obj:IStyleClient = target ? target : parent;
-        var relatedProps:Array = RELATED_PROPERTIES[name] ?
-                                 RELATED_PROPERTIES[name] :
-                                 null;
-
-        // Remember the current value so it can be restored
-        oldValue = obj.getStyle(name);
-
-        if (relatedProps)
+        parentContext = parent;
+        var context:Object = getOverrideContext(target, parent);
+        if (context != null)
         {
-            oldRelatedValues = [];
-
-            for (var i:int = 0; i < relatedProps.length; i++)
-                oldRelatedValues[i] = obj[relatedProps[i]];
-        }
-
-        // Set new value
-        if (value === null)
-        {
-            obj.clearStyle(name);
-        }
-        else if (oldValue is Number)
-        {
-            // The "value" for colors can be several different formats:
-            // 0xNNNNNN, #NNNNNN or "red". We can't use
-            // StyleManager.isColorStyle() because that only returns true
-            // for inheriting color styles and misses non-inheriting styles like
-            // backgroundColor.
-            if (name.toLowerCase().indexOf("color") != -1)
-                obj.setStyle(name, StyleManager.getColorName(value));
-            else
-                obj.setStyle(name, Number(value));
-        }
-        else if (oldValue is Boolean)
-        {
-            obj.setStyle(name, toBoolean(value));
-        }
-        else
-        {
-            obj.setStyle(name, value);
-        }
-    }
-
-    /**
-     *  @inheritDoc
-     */
-    public function remove(parent:UIComponent):void
-    {
-        var obj:IStyleClient = target ? target : parent;
-
-        // Restore the old value
-        if (oldValue is Number)
-            obj.setStyle(name, Number(oldValue));
-        else if (oldValue is Boolean)
-            obj.setStyle(name, toBoolean(oldValue));
-        else if (oldValue === null)
-            obj.clearStyle(name);
-        else
-            obj.setStyle(name, oldValue);
-
-
-        var relatedProps:Array = RELATED_PROPERTIES[name] ?
-                                 RELATED_PROPERTIES[name] :
-                                 null;
-
-        // Restore related property values, if needed
-        if (relatedProps)
-        {
-            for (var i:int = 0; i < relatedProps.length; i++)
+            appliedTarget = context;
+            var obj:IStyleClient = IStyleClient(appliedTarget);
+            
+            var relatedProps:Array = RELATED_PROPERTIES[name] ?
+                                     RELATED_PROPERTIES[name] :
+                                     null;
+    
+            // Remember the original value so it can be restored later
+            // after we are asked to remove our override (and only if we
+            // aren't being asked to re-apply a value).
+            if (!applied)
             {
-                obj[relatedProps[i]] = oldRelatedValues[i];
+                wasInline = obj.styleDeclaration && 
+                    obj.styleDeclaration.getStyle(name) !== undefined;
+                oldValue = wasInline ? obj.getStyle(name) : null;
             }
+    
+            if (relatedProps)
+            {
+                oldRelatedValues = [];
+    
+                for (var i:int = 0; i < relatedProps.length; i++)
+                    oldRelatedValues[i] = obj[relatedProps[i]];
+            }
+    
+            // Set new value
+            if (value === null)
+            {
+                obj.clearStyle(name);
+            }
+            else if (oldValue is Number)
+            {
+                // The "value" for colors can be several different formats:
+                // 0xNNNNNN, #NNNNNN or "red". We can't use
+                // StyleManager.isColorStyle() because that only returns true
+                // for inheriting color styles and misses non-inheriting styles like
+                // backgroundColor.
+                if (name.toLowerCase().indexOf("color") != -1)
+                {
+                    var styleManager:IStyleManager2;
+                    if (obj is UIComponent)
+                        styleManager = UIComponent(obj).styleManager;
+                    else
+                        styleManager = parent.styleManager;
+                    
+                    obj.setStyle(name, styleManager.getColorName(value));
+                }
+                else if (value is String && 
+                         String(value).lastIndexOf("%") == 
+                         String(value).length - 1)
+                {
+                    obj.setStyle(name, value);
+                }
+                else
+                {
+                    obj.setStyle(name, Number(value));
+                }               
+            }
+            else if (oldValue is Boolean)
+            {
+                obj.setStyle(name, toBoolean(value));
+            }
+            else
+            {
+                obj.setStyle(name, value);
+            }
+            
+            // Disable bindings for the base style if appropriate. If the binding
+            // fires while our override is applied, the correct value will automatically
+            // be applied when the binding is later enabled.
+            enableBindings(obj, parent, name, false);
         }
+        else if (!applied)
+        {
+            // Our target context is unavailable so we attempt to register
+            // a listener on our parent document to detect when/if it becomes
+            // valid.
+            addContextListener(target);
+        }
+        
+        // Save state in case our value or target is changed while applied. This
+        // can occur when our value property is databound or when a target is 
+        // deferred instantiated.
+        applied = true;
+    }
+
+    /**
+     *  @inheritDoc
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
+     */
+    override public function remove(parent:UIComponent):void
+    {
+        var obj:IStyleClient = IStyleClient(getOverrideContext(appliedTarget, parent));
+        if (obj != null && appliedTarget)
+        {
+            if (wasInline)
+            {
+                // Restore the old value
+                if (oldValue is Number)
+                    obj.setStyle(name, Number(oldValue));
+                else if (oldValue is Boolean)
+                    obj.setStyle(name, toBoolean(oldValue));
+                else if (oldValue === null)
+                    obj.clearStyle(name);
+                else
+                    obj.setStyle(name, oldValue);
+            }
+            else
+            {
+                obj.clearStyle(name);
+            }
+    
+            // Re-enable bindings for the base style if appropriate. If the binding
+            // fired while our override was applied, the current value will automatically
+            // be applied once enabled.
+            enableBindings(obj, parent, name);
+            
+            var relatedProps:Array = RELATED_PROPERTIES[name] ?
+                                     RELATED_PROPERTIES[name] :
+                                     null;
+    
+            // Restore related property values, if needed
+            if (relatedProps)
+            {
+                for (var i:int = 0; i < relatedProps.length; i++)
+                {
+                    obj[relatedProps[i]] = oldRelatedValues[i];
+                }
+            }
+            
+        }
+        else
+        {
+            // It seems our override is no longer active, but we were never
+            // able to successfully apply ourselves, so remove our context
+            // listener if applicable.
+            removeContextListener();
+        }
+        
+        // Clear our flags and override context.
+        applied = false;
+        parentContext = null;
+        appliedTarget = null;
     }
 
     /**

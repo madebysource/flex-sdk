@@ -111,7 +111,7 @@ public interface ISOAPDecoder extends IXMLDecoder
     //--------------------------------------------------------------------------
 
     /**
-     *  Decodes a SOAP response into a result and headers.
+     * Decodes a SOAP response into a result and headers.
      *
      *  @param response The SOAP response object.
      *

@@ -24,19 +24,20 @@ import flash.events.IOErrorEvent;
 import flash.events.MouseEvent;
 import flash.events.ProgressEvent;
 import flash.geom.Point;
+import flash.system.ApplicationDomain;
 import flash.text.TextField;
 import flash.text.TextFieldType;
 import flash.ui.Mouse;
-import mx.core.ApplicationGlobals;
 import mx.core.EventPriority;
+import mx.core.FlexGlobals;
 import mx.core.FlexSprite;
 import mx.core.mx_internal;
+import mx.core.ISystemCursorClient;
 import mx.core.IUIComponent;
-import mx.events.InterManagerRequest;
-import mx.events.SandboxMouseEvent;
-import mx.events.SWFBridgeRequest;
+import mx.events.Request;
 import mx.styles.CSSStyleDeclaration;
 import mx.styles.StyleManager;
+import mx.core.IFlexModuleFactory;
 
 use namespace mx_internal;
 
@@ -45,7 +46,7 @@ use namespace mx_internal;
 /**
  *  @private
  */
-public class CursorManagerImpl implements ICursorManager
+public class CursorManagerImpl extends EventDispatcher implements ICursorManager
 {
     include "../core/Version.as";
 
@@ -59,6 +60,13 @@ public class CursorManagerImpl implements ICursorManager
      *  @private
      */
     private static var instance:ICursorManager;
+
+	/**
+	 * @private
+	 * 
+	 * Place to hook in additional classes
+	 */
+	public static var mixins:Array;
 
     //--------------------------------------------------------------------------
     //
@@ -98,13 +106,15 @@ public class CursorManagerImpl implements ICursorManager
 		else
 			this.systemManager = SystemManagerGlobals.topLevelSystemManagers[0] as ISystemManager;
 
-		sandboxRoot = this.systemManager.getSandboxRoot();
-		sandboxRoot.addEventListener(InterManagerRequest.CURSOR_MANAGER_REQUEST, marshalCursorManagerHandler, false, 0, true);
-		var me:InterManagerRequest = new InterManagerRequest(InterManagerRequest.CURSOR_MANAGER_REQUEST);
-		me.name = "update";
-		// trace("--->update request for CursorManagerImpl", sm);
-		sandboxRoot.dispatchEvent(me);
-		// trace("<---update request for CursorManagerImpl", sm);
+		if (mixins)
+		{
+			var n:int = mixins.length;
+			for (var i:int = 0; i < n; i++)
+			{
+				new mixins[i](this);
+		
+			}
+		}
     }
 
     //--------------------------------------------------------------------------
@@ -131,12 +141,12 @@ public class CursorManagerImpl implements ICursorManager
     /**
      *  @private
      */
-    private var initialized:Boolean = false;
+    mx_internal var initialized:Boolean = false;
     
     /**
      *  @private
      */
-    private var cursorHolder:Sprite;
+    mx_internal var cursorHolder:Sprite;
     
     /**
      *  @private
@@ -153,6 +163,11 @@ public class CursorManagerImpl implements ICursorManager
      *    Don't modify or read these variables unless you are certain
      *    you will not create race conditions. E.g. you may get the
      *    wrong (or no) cursor, and get stuck in an inconsistent state.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
      
     /**
@@ -189,12 +204,12 @@ public class CursorManagerImpl implements ICursorManager
     /**
      *  @private
      */
-    private var systemManager:ISystemManager = null;
+    mx_internal var systemManager:ISystemManager = null;
     
     /**
      *  @private
      */
-    private var sandboxRoot:IEventDispatcher = null;
+    mx_internal var sandboxRoot:IEventDispatcher = null;
     
     /**
      *  @private
@@ -214,11 +229,16 @@ public class CursorManagerImpl implements ICursorManager
     /**
      *  @private
      */
-    private var _currentCursorID:int = 0 /* CursorManager.NO_CURSOR */;
+    mx_internal var _currentCursorID:int = 0 /* CursorManager.NO_CURSOR */;
 
     /**
      *  ID of the current custom cursor,
      *  or CursorManager.NO_CURSOR if the system cursor is showing.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get currentCursorID():int
     {
@@ -231,15 +251,9 @@ public class CursorManagerImpl implements ICursorManager
     public function set currentCursorID(value:int):void
     {
         _currentCursorID = value;
-		if (!cursorHolder)
-		{
-			var me:InterManagerRequest = new InterManagerRequest(InterManagerRequest.CURSOR_MANAGER_REQUEST);
-			me.name = "currentCursorID";
-			me.value = currentCursorID;
-			// trace("-->dispatched currentCursorID for CursorManagerImpl", sm, currentCursorID);
-			sandboxRoot.dispatchEvent(me);
-			// trace("<--dispatched currentCursorID for CursorManagerImpl", sm, currentCursorID);
-		}
+
+        if (hasEventListener("currentCursorID"))
+	    	dispatchEvent(new Event("currentCursorID"));
     }
 
     //----------------------------------
@@ -249,13 +263,18 @@ public class CursorManagerImpl implements ICursorManager
     /**
      *  @private
      */
-    private var _currentCursorXOffset:Number = 0;
+    mx_internal var _currentCursorXOffset:Number = 0;
 
     /**
      *  The x offset of the custom cursor, in pixels,
      *  relative to the mouse pointer.
      *       
      *  @default 0
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get currentCursorXOffset():Number 
     {
@@ -268,15 +287,9 @@ public class CursorManagerImpl implements ICursorManager
     public function set currentCursorXOffset(value:Number):void
     {
         _currentCursorXOffset = value;
-		if (!cursorHolder)
-		{
-			var me:InterManagerRequest = new InterManagerRequest(InterManagerRequest.CURSOR_MANAGER_REQUEST);
-			me.name = "currentCursorXOffset";
-			me.value = currentCursorXOffset;
-			// trace("-->dispatched currentCursorXOffset for CursorManagerImpl", sm, currentCursorXOffset);
-			sandboxRoot.dispatchEvent(me);
-			// trace("<--dispatched currentCursorXOffset for CursorManagerImpl", sm, currentCursorXOffset);
-		}
+
+        if (hasEventListener("currentCursorXOffset"))
+    		dispatchEvent(new Event("currentCursorXOffset"));
     }
 
     //----------------------------------
@@ -286,13 +299,18 @@ public class CursorManagerImpl implements ICursorManager
     /**
      *  @private
      */
-    private var _currentCursorYOffset:Number = 0;
+    mx_internal var _currentCursorYOffset:Number = 0;
 
     /**
      *  The y offset of the custom cursor, in pixels,
      *  relative to the mouse pointer.
      *
      *  @default 0
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get currentCursorYOffset():Number 
     {
@@ -305,15 +323,9 @@ public class CursorManagerImpl implements ICursorManager
     public function set currentCursorYOffset(value:Number):void
     {
         _currentCursorYOffset = value;
-		if (!cursorHolder)
-		{
-			var me:InterManagerRequest = new InterManagerRequest(InterManagerRequest.CURSOR_MANAGER_REQUEST);
-			me.name = "currentCursorYOffset";
-			me.value = currentCursorYOffset;
-			// trace("-->dispatched currentCursorYOffset for CursorManagerImpl", sm, currentCursorYOffset);
-			sandboxRoot.dispatchEvent(me);
-			// trace("<--dispatched currentCursorYOffset for CursorManagerImpl", sm, currentCursorYOffset);
-		}
+
+        if (hasEventListener("currentCursorYOffset"))
+    		dispatchEvent(new Event("currentCursorYOffset"));
     }
 
     //--------------------------------------------------------------------------
@@ -328,19 +340,19 @@ public class CursorManagerImpl implements ICursorManager
      *  A single call to the <code>showCursor()</code> method
      *  always shows the cursor regardless of how many calls
      *  to the <code>hideCursor()</code> method were made.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function showCursor():void
     {
         if (cursorHolder)
 	        cursorHolder.visible = true;
-		else
-		{
-			var me:InterManagerRequest = new InterManagerRequest(InterManagerRequest.CURSOR_MANAGER_REQUEST);
-			me.name = "showCursor";
-			// trace("-->dispatched showCursor for CursorManagerImpl", sm);
-			sandboxRoot.dispatchEvent(me);
-			// trace("<--dispatched showCursor for CursorManagerImpl", sm);
-		}
+
+        if (hasEventListener("showCursor"))
+    		dispatchEvent(new Event("showCursor"));
     }
     
     /**
@@ -349,19 +361,20 @@ public class CursorManagerImpl implements ICursorManager
      *  A single call to the <code>hideCursor()</code> method
      *  always hides the cursor regardless of how many calls
      *  to the <code>showCursor()</code> method were made.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function hideCursor():void
     {
     	if (cursorHolder)
 	        cursorHolder.visible = false;
-		else
-		{
-			var me:InterManagerRequest = new InterManagerRequest(InterManagerRequest.CURSOR_MANAGER_REQUEST);
-			me.name = "hideCursor";
-			// trace("-->dispatched hideCursor for CursorManagerImpl", sm);
-			sandboxRoot.dispatchEvent(me);
-			// trace("<--dispatched hideCursor for CursorManagerImpl", sm);
-		}
+		
+        if (hasEventListener("hideCursor"))
+    		dispatchEvent(new Event("hideCursor"));
+
     }
 
     /**
@@ -387,21 +400,25 @@ public class CursorManagerImpl implements ICursorManager
      *  @return The ID of the cursor.
      *
      *  @see mx.managers.CursorManagerPriority
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function setCursor(cursorClass:Class, priority:int = 2,
                                      xOffset:Number = 0,
                                      yOffset:Number = 0):int 
     {
-        if (initialized && !cursorHolder)
-		{
-			var me:InterManagerRequest = new InterManagerRequest(InterManagerRequest.CURSOR_MANAGER_REQUEST);
-			me.name = "setCursor";
-			me.value = [ cursorClass, priority, xOffset, yOffset ];
-			// trace("-->dispatched setCursor for CursorManagerImpl", sm, me.value);
-			sandboxRoot.dispatchEvent(me);
-			// trace("<--dispatched setCursor for CursorManagerImpl", sm, me.value);
-			return me.value as int;
-		}
+        if (hasEventListener("setCursor"))
+        {
+		    var event:Request = new Request("setCursor", false, true);
+		    event.value = [ cursorClass, priority, xOffset, yOffset ];
+		    if (!dispatchEvent(event))
+		    {
+			    return event.value as int;
+		    }
+        }
 
         var cursorID:int = nextCursorID++;
         
@@ -415,7 +432,7 @@ public class CursorManagerImpl implements ICursorManager
         if (systemManager)
         	item.systemManager = systemManager;
         else
-        	item.systemManager = ApplicationGlobals.application.systemManager;
+        	item.systemManager = FlexGlobals.topLevelApplication.systemManager;
         
         // Push it onto the cursor list.
         cursorList.push(item);
@@ -450,19 +467,17 @@ public class CursorManagerImpl implements ICursorManager
      *  the default system cursor.
      *
      *  @param cursorID ID of cursor to remove.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function removeCursor(cursorID:int):void 
     {
-        if (initialized && !cursorHolder)
-		{
-			var me:InterManagerRequest = new InterManagerRequest(InterManagerRequest.CURSOR_MANAGER_REQUEST);
-			me.name = "removeCursor";
-			me.value = cursorID;
-			// trace("-->dispatched removeCursor for CursorManagerImpl", sm, me.value);
-			sandboxRoot.dispatchEvent(me);
-			// trace("<--dispatched removeCursor for CursorManagerImpl", sm, me.value);
-			return;
-		}
+        if (hasEventListener("removeCursor"))
+    		if (!dispatchEvent(new Request("removeCursor", false, true, cursorID)))
+	    		return;
 
         for (var i:Object in cursorList)
         {
@@ -483,18 +498,17 @@ public class CursorManagerImpl implements ICursorManager
     /**
      *  Removes all of the cursors from the cursor list
      *  and restores the system cursor.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function removeAllCursors():void
     {
-        if (initialized && !cursorHolder)
-		{
-			var me:InterManagerRequest = new InterManagerRequest(InterManagerRequest.CURSOR_MANAGER_REQUEST);
-			me.name = "removeAllCursors";
-			// trace("-->dispatched removeAllCursors for CursorManagerImpl", sm);
-			sandboxRoot.dispatchEvent(me);
-			// trace("<--dispatched removeAllCursors for CursorManagerImpl", sm);
-			return;
-		}
+        if (hasEventListener("removeAllCursors"))
+    		if (!dispatchEvent(new Event("removeAllCursors", false, true)))
+	    		return;
 
         cursorList.splice(0);
         
@@ -509,21 +523,21 @@ public class CursorManagerImpl implements ICursorManager
      *  until you remove the higher priority cursor.
      *  To create a busy cursor at a higher priority level,
      *  use the <code>setCursor()</code> method.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function setBusyCursor():void 
     {
-        if (initialized && !cursorHolder)
-		{
-			var me:InterManagerRequest = new InterManagerRequest(InterManagerRequest.CURSOR_MANAGER_REQUEST);
-			me.name = "setBusyCursor";
-			// trace("-->dispatched setBusyCursor for CursorManagerImpl", sm);
-			sandboxRoot.dispatchEvent(me);
-			// trace("<--dispatched setBusyCursor for CursorManagerImpl", sm);
-			return;
-		}
+        if (hasEventListener("setBusyCursor"))
+    		if (!dispatchEvent(new Event("setBusyCursor", false, true)))
+	    		return;
 
         var cursorManagerStyleDeclaration:CSSStyleDeclaration =
-            StyleManager.getStyleDeclaration("CursorManager");
+            StyleManager.getStyleManager(systemManager as IFlexModuleFactory).
+            getMergedStyleDeclaration("mx.managers.CursorManager");
         
         var busyCursorClass:Class =
             cursorManagerStyleDeclaration.getStyle("busyCursor");
@@ -537,18 +551,17 @@ public class CursorManagerImpl implements ICursorManager
      *  which means you called the <code>setBusyCursor()</code> method more than once,
      *  a busy cursor does not disappear until you remove
      *  all busy cursors from the list.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function removeBusyCursor():void 
     {
-        if (initialized && !cursorHolder)
-		{
-			var me:InterManagerRequest = new InterManagerRequest(InterManagerRequest.CURSOR_MANAGER_REQUEST);
-			me.name = "removeBusyCursor";
-			// trace("-->dispatched removeBusyCursor for CursorManagerImpl", sm);
-			sandboxRoot.dispatchEvent(me);
-			// trace("<--dispatched removeBusyCursor for CursorManagerImpl", sm);
-			return;
-		}
+        if (hasEventListener("removeBusyCursor"))
+    		if (!dispatchEvent(new Event("removeBusyCursor", false, true)))
+	    		return;
 
         if (busyCursorList.length > 0)
             removeCursor(int(busyCursorList.pop()));
@@ -565,22 +578,23 @@ public class CursorManagerImpl implements ICursorManager
         {
             if (!initialized)
             {
-                // The first time a cursor is requested of the CursorManager,
-                // create a Sprite to hold the cursor symbol
-                cursorHolder = new FlexSprite();
-                cursorHolder.name = "cursorHolder";
-                cursorHolder.mouseEnabled = false;
-                cursorHolder.mouseChildren = false;
-               	systemManager.addChildToSandboxRoot("cursorChildren", cursorHolder);
+				initialized = true;
 
-                initialized = true;
-
-				var me:InterManagerRequest = new InterManagerRequest(InterManagerRequest.CURSOR_MANAGER_REQUEST);
-				me.name = "initialized";
-				// trace("-->dispatched removeBusyCursor for CursorManagerImpl", sm);
-				sandboxRoot.dispatchEvent(me);
-				// trace("<--dispatched removeBusyCursor for CursorManagerImpl", sm);
-
+                var e:Event;
+                if (hasEventListener("initialize"))
+                {
+                    e = new Event("initialize", false, true);
+                }
+				if (!e || dispatchEvent(e))
+				{
+					// The first time a cursor is requested of the CursorManager,
+					// create a Sprite to hold the cursor symbol
+					cursorHolder = new FlexSprite();
+					cursorHolder.name = "cursorHolder";
+					cursorHolder.mouseEnabled = false;
+					cursorHolder.mouseChildren = false;
+               		systemManager.cursorChildren.addChild(cursorHolder);
+				}
             }
 
             // Get the top most cursor.
@@ -633,21 +647,18 @@ public class CursorManagerImpl implements ICursorManager
                     	cursorHolder.x = item.x;
                     	cursorHolder.y = item.y;
                     }
-                    
-                   	if (systemManager.useSWFBridge())
-						sandboxRoot.addEventListener(MouseEvent.MOUSE_MOVE,
-                                                   mouseMoveHandler,true,EventPriority.CURSOR_MANAGEMENT);
-					else
+
+                    var e2:Event;
+                    if (hasEventListener("addMouseMoveListener"))
+                        e2 = new Event("addMouseMoveListener", false, true);
+					if (!e2 || dispatchEvent(e2))
 						systemManager.stage.addEventListener(MouseEvent.MOUSE_MOVE,
                                                    mouseMoveHandler,true,EventPriority.CURSOR_MANAGEMENT);
                     
-                    sandboxRoot.addEventListener(SandboxMouseEvent.MOUSE_MOVE_SOMEWHERE,
-                                                   marshalMouseMoveHandler,false,EventPriority.CURSOR_MANAGEMENT);
-
-                   	if (systemManager.useSWFBridge())
-						sandboxRoot.addEventListener(MouseEvent.MOUSE_OUT,
-                                                   mouseOutHandler,true,EventPriority.CURSOR_MANAGEMENT);
-					else
+                    var e3:Event;
+                    if (hasEventListener("addMouseOutListener"))
+                        e3 = new Event("addMouseOutListener", false, true);
+					if (!e3 || dispatchEvent(e3))
 						systemManager.stage.addEventListener(MouseEvent.MOUSE_OUT,
                                                    mouseOutHandler,true,EventPriority.CURSOR_MANAGEMENT);
                     
@@ -670,38 +681,30 @@ public class CursorManagerImpl implements ICursorManager
                 currentCursorXOffset = 0;
                 currentCursorYOffset = 0;
 
+                var e4:Event;
+                if (hasEventListener("removeMouseMoveListener"))
+                    e4 = new Event("removeMouseMoveListener", false, true)
+				if (!e4 || dispatchEvent(e4))
+                {
+               		systemManager.stage.removeEventListener(MouseEvent.MOUSE_MOVE,
+                                          mouseMoveHandler,true);
+                }
+
+                var e5:Event;
+                if (hasEventListener("removeMouseMoveListener"))
+                    e5 = new Event("removeMouseOutListener", false, true)
+				if (!e5 || dispatchEvent(e5))
+                {
+               		systemManager.stage.removeEventListener(MouseEvent.MOUSE_OUT,
+                                          mouseOutHandler,true);
+                }
+
                 cursorHolder.removeChild(currentCursor);
                 
-				removeSystemManagerHandlers();
 				removeContextMenuHandlers();
 		    }
             Mouse.show();
         }
-    }
-    
-    /**
-     *  @private
-     * 
-     * This assumes systemManager != null.
-     */
-    private function removeSystemManagerHandlers():void
-    {
-        if (systemManager.useSWFBridge())
-	        sandboxRoot.removeEventListener(MouseEvent.MOUSE_MOVE,
-                                          mouseMoveHandler,true);
-		else
-			systemManager.stage.removeEventListener(MouseEvent.MOUSE_MOVE,
-                                          mouseMoveHandler,true);
-        
-        sandboxRoot.removeEventListener(SandboxMouseEvent.MOUSE_MOVE_SOMEWHERE,
-                                          marshalMouseMoveHandler,false);
-
-        if (systemManager.useSWFBridge())
-	        sandboxRoot.removeEventListener(MouseEvent.MOUSE_OUT,
-                                          mouseMoveHandler,true);
-		else
-			systemManager.stage.removeEventListener(MouseEvent.MOUSE_OUT,
-                                          mouseOutHandler,true);
     }
     
     /**
@@ -749,7 +752,7 @@ public class CursorManagerImpl implements ICursorManager
         	listenForContextMenu = false; 	
         }
     }
-
+    
     /**
      *  @private
      *  Called by other components if they want to display
@@ -757,16 +760,9 @@ public class CursorManagerImpl implements ICursorManager
      */
     public function registerToUseBusyCursor(source:Object):void
     {
-        if (initialized && !cursorHolder)
-		{
-			var me:InterManagerRequest = new InterManagerRequest(InterManagerRequest.CURSOR_MANAGER_REQUEST);
-			me.name = "registerToUseBusyCursor";
-			me.value = source;
-			// trace("-->dispatched registerToUseBusyCursor for CursorManagerImpl", sm, me.value);
-			sandboxRoot.dispatchEvent(me);
-			// trace("<--dispatched registerToUseBusyCursor for CursorManagerImpl", sm, me.value);
-			return;
-		}
+        if (hasEventListener("registerToUseBusyCursor"))
+    		if (!dispatchEvent(new Request("registerToUseBusyCursor", false, true, source)))
+	    		return;
 
         if (source && source is EventDispatcher) 
         {
@@ -783,16 +779,9 @@ public class CursorManagerImpl implements ICursorManager
      */
     public function unRegisterToUseBusyCursor(source:Object):void
     {
-        if (initialized && !cursorHolder)
-		{
-			var me:InterManagerRequest = new InterManagerRequest(InterManagerRequest.CURSOR_MANAGER_REQUEST);
-			me.name = "unRegisterToUseBusyCursor";
-			me.value = source;
-			// trace("-->dispatched unRegisterToUseBusyCursor for CursorManagerImpl", sm, me.value);
-			sandboxRoot.dispatchEvent(me);
-			// trace("<--dispatched unRegisterToUseBusyCursor for CursorManagerImpl", sm, me.value);
-			return;
-		}
+        if (hasEventListener("unRegisterToUseBusyCursor"))
+    		if (!dispatchEvent(new Request("unRegisterToUseBusyCursor", false, true, source)))
+	    		return;
 
         if (source && source is EventDispatcher) 
         {
@@ -842,37 +831,13 @@ public class CursorManagerImpl implements ICursorManager
     //  Event handlers
     //
     //--------------------------------------------------------------------------
-    
-    /**
-     *  @private
-     */
-    private function marshalMouseMoveHandler(event:Event):void
-    {
-		if (cursorHolder.visible)
-		{
-			// mouse is outside our sandbox, restore it.
-			cursorHolder.visible = false;
-			var cursorRequest:SWFBridgeRequest = new SWFBridgeRequest(SWFBridgeRequest.SHOW_MOUSE_CURSOR_REQUEST);
-			var bridge:IEventDispatcher; 
-           	if (systemManager.useSWFBridge())
-			{
-				bridge = systemManager.swfBridgeGroup.parentBridge;; 
-			}
-			else
-				bridge = systemManager;
-			cursorRequest.requestor = bridge;
-			bridge.dispatchEvent(cursorRequest);
-			if (cursorRequest.data)
-				Mouse.show();
-		}
-    }
-    
+
     /**
      *  @private
      * 
      * Handles the mouse leaving the stage; hides the custom cursor and restores the system cursor.
      */
-    private function mouseOutHandler(event:MouseEvent):void
+    mx_internal function mouseOutHandler(event:MouseEvent):void
     {
         // relatedObject==null implies the mouse left the stage.
         // this also fires when you are returning from a context menu click.
@@ -894,7 +859,7 @@ public class CursorManagerImpl implements ICursorManager
     /**
      *  @private
      */
-    private function mouseMoveHandler(event:MouseEvent):void
+    mx_internal function mouseMoveHandler(event:MouseEvent):void
     {
         
 		var pt:Point = new Point(event.stageX, event.stageY);
@@ -906,15 +871,18 @@ public class CursorManagerImpl implements ICursorManager
 
         var target:Object = event.target;
         
+        var isInputTextField:Boolean = 
+            (target is TextField && target.type == TextFieldType.INPUT) ||
+                (target is ISystemCursorClient && 
+                    ISystemCursorClient(target).showSystemCursor);
+        
         // Do target test.
-        if (!overTextField &&
-            target is TextField && target.type == TextFieldType.INPUT)
+        if (!overTextField && isInputTextField)
         {   
             overTextField = true;
             showSystemCursor = true;
         } 
-        else if (overTextField &&
-                 !(target is TextField && target.type == TextFieldType.INPUT))
+        else if (overTextField && !isInputTextField)
         {
             overTextField = false;
             showCustomCursor = true;
@@ -936,16 +904,9 @@ public class CursorManagerImpl implements ICursorManager
             showCustomCursor = false;
 			cursorHolder.visible = true;
             Mouse.hide();
-			var cursorRequest:SWFBridgeRequest = new SWFBridgeRequest(SWFBridgeRequest.HIDE_MOUSE_CURSOR_REQUEST);
-			var bridge:IEventDispatcher;
-           	if (systemManager.useSWFBridge())
-			{
-				bridge = systemManager.swfBridgeGroup.parentBridge;; 
-			}
-			else
-				bridge = systemManager;
-			cursorRequest.requestor = bridge;
-			bridge.dispatchEvent(cursorRequest);
+
+            if (hasEventListener("showCustomCursor"))
+	    		dispatchEvent(new Event("showCustomCursor"));
         }
     }
     
@@ -981,120 +942,6 @@ public class CursorManagerImpl implements ICursorManager
         }
     }
 
-	/**
-	 *  Marshal cursorManager
-	 */
-	private function marshalCursorManagerHandler(event:Event):void
-	{
-		if (event is InterManagerRequest)
-			return;
-
-		var marshalEvent:Object = event;
-		switch (marshalEvent.name)
-		{
-		case "initialized":
-			// trace("--marshaled initialized for CursorManagerImpl", sm, marshalEvent.value);
-			initialized = marshalEvent.value;
-			break;
-		case "currentCursorID":
-			// trace("--marshaled currentCursorID for CursorManagerImpl", sm, marshalEvent.value);
-			_currentCursorID = marshalEvent.value;
-			break;
-		case "currentCursorXOffset":
-			// trace("--marshaled currentCursorXOffset for CursorManagerImpl", sm, marshalEvent.value);
-			_currentCursorXOffset = marshalEvent.value;
-			break;
-		case "currentCursorYOffset":
-			// trace("--marshaled currentCursorYOffset for CursorManagerImpl", sm, marshalEvent.value);
-			_currentCursorYOffset = marshalEvent.value;
-			break;
-		case "showCursor":
-			if (cursorHolder)
-			{
-				// trace("--marshaled showCursor for CursorManagerImpl", sm);
-				cursorHolder.visible = true;
-;			}
-			break;
-		case "hideCursor":
-			if (cursorHolder)
-			{
-				// trace("--marshaled hideCursor for CursorManagerImpl", sm);
-				cursorHolder.visible = false;
-;			}
-			break;
-		case "setCursor":
-			// trace("--marshaled setCursor for CursorManagerImpl", sm, marshalEvent.value);
-			if (cursorHolder)
-			{
-				marshalEvent.value = setCursor.apply(this, marshalEvent.value);
-			}
-			break;
-		case "removeCursor":
-			if (cursorHolder)	// it is our drag
-			{
-				removeCursor.apply(this, [ marshalEvent.value ]);
-				// trace("--marshaled removeCursor for CursorManagerImpl", sm, marshalEvent.value);
-			}
-			break;
-		case "removeAllCursors":
-			// trace("--marshaled removeAllCursors for CursorManagerImpl", sm);
-			if (cursorHolder)
-				removeAllCursors();
-			break;
-		case "setBusyCursor":
-			// trace("--marshaled setBusyCursor for CursorManagerImpl", sm);
-			if (cursorHolder)
-				setBusyCursor();
-			break;
-		case "removeBusyCursor":
-			// trace("--marshaled removeBusyCursor for CursorManagerImpl", sm);
-			if (cursorHolder)
-				removeBusyCursor();
-			break;
-		case "registerToUseBusyCursor":
-			// trace("--marshaled registerToUseBusyCursor for CursorManagerImpl", sm, marshalEvent.value);
-			if (cursorHolder)
-				registerToUseBusyCursor.apply(this, marshalEvent.value);
-			break;
-		case "unRegisterToUseBusyCursor":
-			// trace("--marshaled unRegisterToUseBusyCursor for CursorManagerImpl", sm, marshalEvent.value);
-			if (cursorHolder)
-				unRegisterToUseBusyCursor.apply(this, marshalEvent.value);
-			break;
-		case "update":
-			// if we own the cursorHolder, then we're first CursorManager
-			// so update the others
-			if (cursorHolder)
-			{
-				// trace("-->marshaled update for CursorManagerImpl", sm);
-				var me:InterManagerRequest = new InterManagerRequest(InterManagerRequest.CURSOR_MANAGER_REQUEST);
-				me.name = "initialized";
-				me.value = true;
-				// trace("-->dispatched initialized for CursorManagerImpl", sm, true);
-				sandboxRoot.dispatchEvent(me);
-				// trace("<--dispatched initialized for CursorManagerImpl", sm, true);
-				me = new InterManagerRequest(InterManagerRequest.CURSOR_MANAGER_REQUEST);
-				me.name = "currentCursorID";
-				me.value = currentCursorID;
-				// trace("-->dispatched currentCursorID for CursorManagerImpl", sm, true);
-				sandboxRoot.dispatchEvent(me);
-				// trace("<--dispatched currentCursorID for CursorManagerImpl", sm, true);
-				me = new InterManagerRequest(InterManagerRequest.CURSOR_MANAGER_REQUEST);
-				me.name = "currentCursorXOffset";
-				me.value = currentCursorXOffset;
-				// trace("-->dispatched currentCursorXOffset for CursorManagerImpl", sm, true);
-				sandboxRoot.dispatchEvent(me);
-				// trace("<--dispatched currentCursorXOffset for CursorManagerImpl", sm, true);
-				me = new InterManagerRequest(InterManagerRequest.CURSOR_MANAGER_REQUEST);
-				me.name = "currentCursorYOffset";
-				me.value = currentCursorYOffset;
-				// trace("-->dispatched currentCursorYOffset for CursorManagerImpl", sm, true);
-				sandboxRoot.dispatchEvent(me);
-				// trace("<--dispatched currentCursorYOffset for CursorManagerImpl", sm, true);
-				// trace("<--marshaled update for CursorManagerImpl", sm);
-			}
-		}
-	}
 }
 
 }
@@ -1124,6 +971,11 @@ class CursorQueueItem
     
     /**
      *  Constructor.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function CursorQueueItem()
     {

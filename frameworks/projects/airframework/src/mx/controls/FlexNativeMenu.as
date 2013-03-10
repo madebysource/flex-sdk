@@ -11,34 +11,39 @@
 
 package mx.controls
 {
-    import flash.display.InteractiveObject;
-    import flash.display.NativeMenu;
-    import flash.display.NativeMenuItem;
-    import flash.display.Stage;
-    import flash.events.Event;
-    import flash.events.EventDispatcher;
-    import flash.events.TimerEvent;
-    import flash.ui.Keyboard;
-    import flash.utils.Timer;
-    import flash.xml.XMLNode;
-    
-    import mx.collections.ArrayCollection;
-    import mx.collections.ICollectionView;
-    import mx.collections.XMLListCollection;
-    import mx.collections.errors.ItemPendingError;
-    import mx.controls.menuClasses.IMenuDataDescriptor;
-    import mx.controls.treeClasses.DefaultDataDescriptor;
-    import mx.core.Application;
-    import mx.core.EventPriority;
-    import mx.core.UIComponent;
-    import mx.core.UIComponentGlobals;
-    import mx.core.mx_internal;
-    import mx.events.CollectionEvent;
-    import mx.events.CollectionEventKind;
-    import mx.events.FlexNativeMenuEvent;
-    import mx.managers.ILayoutManagerClient;
-    import mx.managers.ISystemManager;
-    
+
+import flash.display.DisplayObjectContainer;
+import flash.display.InteractiveObject;
+import flash.display.NativeMenu;
+import flash.display.NativeMenuItem;
+import flash.display.Stage;
+import flash.events.Event;
+import flash.events.EventDispatcher;
+import flash.events.TimerEvent;
+import flash.ui.Keyboard;
+import flash.utils.Timer;
+import flash.xml.XMLNode;
+
+import mx.automation.IAutomationObject;
+import mx.collections.ArrayCollection;
+import mx.collections.ICollectionView;
+import mx.collections.XMLListCollection;
+import mx.collections.errors.ItemPendingError;
+import mx.controls.menuClasses.IMenuDataDescriptor;
+import mx.controls.treeClasses.DefaultDataDescriptor;
+import mx.core.Application;
+import mx.core.EventPriority;
+import mx.core.UIComponent;
+import mx.core.UIComponentGlobals;
+import mx.core.mx_internal;
+import mx.events.CollectionEvent;
+import mx.events.CollectionEventKind;
+import mx.events.FlexNativeMenuEvent;
+import mx.managers.ILayoutManagerClient;
+import mx.managers.ISystemManager;
+
+use namespace mx_internal;
+
 //--------------------------------------
 //  Events
 //--------------------------------------
@@ -47,6 +52,10 @@ package mx.controls
  *  Dispatched before a menu or submenu is displayed.
  *
  *  @eventType mx.events.FlexNativeMenuEvent.MENU_SHOW
+ *  
+ *  @langversion 3.0
+ *  @playerversion AIR 1.1
+ *  @productversion Flex 3
  */
 [Event(name="menuShow", type="mx.events.FlexNativeMenuEvent")]
 
@@ -54,6 +63,10 @@ package mx.controls
  *  Dispatched when a menu item is selected.
  *
  *  @eventType mx.events.FlexNativeMenuEvent.ITEM_CLICK
+ *  
+ *  @langversion 3.0
+ *  @playerversion AIR 1.1
+ *  @productversion Flex 3
  */
 [Event(name="itemClick", type="mx.events.FlexNativeMenuEvent")]
 
@@ -239,9 +252,12 @@ package mx.controls
  *  @see flash.display.NativeMenu
  *  @see mx.events.FlexNativeMenuEvent
  * 
+ *  @langversion 3.0
  *  @playerversion AIR 1.1
+ *  @productversion Flex 3
  */
-public class FlexNativeMenu extends EventDispatcher implements ILayoutManagerClient, IFlexContextMenu
+public class FlexNativeMenu extends EventDispatcher implements 
+    ILayoutManagerClient, IFlexContextMenu, IAutomationObject
 {
     include "../core/Version.as";
 
@@ -255,6 +271,10 @@ public class FlexNativeMenu extends EventDispatcher implements ILayoutManagerCli
      *  The character to use to indicate the mnemonic index in a label.  By
      *  default, it is the underscore character, so in "C_ut", u would become
      *  the character for the mnemonic index.
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     private static var MNEMONIC_INDEX_CHARACTER:String = "_";
 
@@ -266,6 +286,10 @@ public class FlexNativeMenu extends EventDispatcher implements ILayoutManagerCli
 
     /**
      *  Constructor.
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function FlexNativeMenu()
     {
@@ -279,6 +303,243 @@ public class FlexNativeMenu extends EventDispatcher implements ILayoutManagerCli
     //  Variables
     //
     //--------------------------------------------------------------------------
+    
+    //--------------------------------------------------------------------------
+    //
+    //  Properties: IAutomationObject
+    //
+    //--------------------------------------------------------------------------
+    
+    //----------------------------------
+    //  automationDelegate
+    //----------------------------------
+    
+    /**
+     *  @private
+     *  Storage for the <code>automationDelegate</code> property.
+     */
+    private var _automationDelegate:IAutomationObject;
+
+    /**
+     *  The delegate object that handles the automation-related functionality.
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
+     */
+    public function get automationDelegate():Object
+    {
+        return _automationDelegate;
+    }
+
+    /**
+     *  @private
+     */
+    public function set automationDelegate(value:Object):void
+    {
+        _automationDelegate = value as IAutomationObject;
+    }
+
+    //----------------------------------
+    //  automationName
+    //----------------------------------
+    
+    /**
+     *  @private
+     *  Storage for the <code>automationName</code> property.
+     */
+    private var _automationName:String = null;
+
+    /**
+     *  @inheritDoc
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
+     */
+    public function get automationName():String
+    {
+        if (_automationName)
+            return _automationName;
+        if (automationDelegate)
+           return automationDelegate.automationName;
+
+        return "";
+    }
+
+    /**
+     *  @private
+     */
+    public function set automationName(value:String):void
+    {
+        _automationName = value;
+    }
+
+    /**
+     *  @copy mx.automation.IAutomationObject#automationValue
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
+     */
+    public function get automationValue():Array
+    {
+        if (automationDelegate)
+           return automationDelegate.automationValue;
+
+        return [];
+    }
+    
+    /**
+     *  @inheritDoc
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
+     */
+    public function get numAutomationChildren():int
+    {
+        if (automationDelegate)
+            return automationDelegate.numAutomationChildren;
+        return 0;
+    }
+    
+    /**
+     *  @inheritDoc
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
+     */
+    public function get automationTabularData():Object
+    {
+        if (automationDelegate)
+            return automationDelegate.automationTabularData;
+        return null;
+    }
+    
+    //----------------------------------
+    //  automationOwner
+    //----------------------------------
+    
+    /**
+     *  @private
+     */
+    private var _automationOwner:DisplayObjectContainer;
+    
+    /**
+     *  @inheritDoc
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
+     */
+    public function get automationOwner():DisplayObjectContainer
+    {
+        return _automationOwner ? _automationOwner : automationParent;
+    }
+    
+    /**
+     *  @private
+     */
+    public function set automationOwner(value:DisplayObjectContainer):void
+    {
+        _automationOwner = value;
+    }
+    
+    //----------------------------------
+    //  automationParent
+    //----------------------------------
+    
+    /**
+     *  @private
+     */
+    private var _automationParent:DisplayObjectContainer;
+    
+    /**
+     *  @inheritDoc
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
+     */
+    public function get automationParent():DisplayObjectContainer
+    {
+        return _automationParent;
+    }
+    
+    /**
+     *  @private
+     */
+    public function set automationParent(value:DisplayObjectContainer):void
+    {
+        _automationParent = value;
+    }
+    
+    //----------------------------------
+    //  automationEnabled
+    //----------------------------------
+    
+    /**
+     *  @inheritDoc
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
+     */
+    public function get automationEnabled():Boolean
+    {
+        // this is always enabled
+        return true;
+    }
+    
+    //----------------------------------
+    //  automationVisible
+    //----------------------------------
+    
+    /**
+     *  @inheritDoc
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
+     */
+    public function get automationVisible():Boolean
+    {
+        // this is always "visible" (may be a context menu and hidden at the time, but 
+        // in terms of automation, this is always visible)
+        return true;
+    }
+
+    //----------------------------------
+    //  showInAutomationHierarchy
+    //----------------------------------
+    
+    /**
+     *  @private
+     *  Storage for the <code>showInAutomationHierarchy</code> property.
+     */
+    private var _showInAutomationHierarchy:Boolean = true;
+
+    /**
+     *  @inheritDoc
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
+     */
+    public function get showInAutomationHierarchy():Boolean
+    {
+        return _showInAutomationHierarchy;
+    }
+
+    /**
+     *  @private
+     */
+    public function set showInAutomationHierarchy(value:Boolean):void
+    {
+        _showInAutomationHierarchy = value;
+    }
 
     //--------------------------------------------------------------------------
     //
@@ -298,6 +559,10 @@ public class FlexNativeMenu extends EventDispatcher implements ILayoutManagerCli
 
     /**
      *  @copy mx.core.UIComponent#initialized
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get initialized():Boolean
     {
@@ -328,6 +593,10 @@ public class FlexNativeMenu extends EventDispatcher implements ILayoutManagerCli
 
     /**
      *  @copy mx.core.UIComponent#nestLevel
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get nestLevel():int
     {
@@ -358,6 +627,10 @@ public class FlexNativeMenu extends EventDispatcher implements ILayoutManagerCli
 
     /**
      *  @copy mx.core.UIComponent#processedDescriptors
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get processedDescriptors():Boolean
     {
@@ -385,6 +658,10 @@ public class FlexNativeMenu extends EventDispatcher implements ILayoutManagerCli
     /**
      *  A flag that determines if an object has been through all three phases
      *  of layout validation (provided that any were required).
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get updateCompletePendingFlag():Boolean
     {
@@ -430,6 +707,10 @@ public class FlexNativeMenu extends EventDispatcher implements ILayoutManagerCli
       *  Any changes made directly to the underlying NativeMenu instance
       *  may be lost when changes are made to the menu or the underlying
       *  data provider.
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
       */
     public function get nativeMenu() : NativeMenu
     {
@@ -477,6 +758,10 @@ public class FlexNativeMenu extends EventDispatcher implements ILayoutManagerCli
      *
      *  <p>The default value is an internal instance of the
      *  DefaultDataDescriptor class.</p>
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get dataDescriptor():IMenuDataDescriptor
     {
@@ -530,12 +815,16 @@ public class FlexNativeMenu extends EventDispatcher implements ILayoutManagerCli
      *  </ul>
      *
      *  @default "undefined"
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get dataProvider():Object
     {
-        if (mx_internal::_rootModel)
+        if (_rootModel)
         {
-            return mx_internal::_rootModel;
+            return _rootModel;
         }
         else return null;
     }
@@ -545,9 +834,9 @@ public class FlexNativeMenu extends EventDispatcher implements ILayoutManagerCli
      */
     public function set dataProvider(value:Object):void
     {
-        if (mx_internal::_rootModel)
+        if (_rootModel)
         {
-            mx_internal::_rootModel.removeEventListener(CollectionEvent.COLLECTION_CHANGE,
+            _rootModel.removeEventListener(CollectionEvent.COLLECTION_CHANGE,
                                            collectionChangeHandler);
         }
 
@@ -564,18 +853,18 @@ public class FlexNativeMenu extends EventDispatcher implements ILayoutManagerCli
             _hasRoot = true;
             var xl:XMLList = new XMLList();
             xl += value;
-            mx_internal::_rootModel = new XMLListCollection(xl);
+            _rootModel = new XMLListCollection(xl);
         }
         //if already a collection dont make new one
         else if (value is ICollectionView)
         {
-            mx_internal::_rootModel = ICollectionView(value);
-            if (mx_internal::_rootModel.length == 1)
+            _rootModel = ICollectionView(value);
+            if (_rootModel.length == 1)
                 _hasRoot = true;
         }
         else if (value is Array)
         {
-            mx_internal::_rootModel = new ArrayCollection(value as Array);
+            _rootModel = new ArrayCollection(value as Array);
         }
         //all other types get wrapped in an ArrayCollection
         else if (value is Object)
@@ -584,14 +873,14 @@ public class FlexNativeMenu extends EventDispatcher implements ILayoutManagerCli
             // convert to an array containing this one item
             var tmp:Array = [];
             tmp.push(value);
-            mx_internal::_rootModel = new ArrayCollection(tmp);
+            _rootModel = new ArrayCollection(tmp);
         }
         else
         {
-            mx_internal::_rootModel = new ArrayCollection();
+            _rootModel = new ArrayCollection();
         }
         //add listeners as weak references
-        mx_internal::_rootModel.addEventListener(CollectionEvent.COLLECTION_CHANGE,
+        _rootModel.addEventListener(CollectionEvent.COLLECTION_CHANGE,
                                     collectionChangeHandler, false, 0, true);
         //flag for processing in commitProps
         dataProviderChanged = true;
@@ -615,6 +904,10 @@ public class FlexNativeMenu extends EventDispatcher implements ILayoutManagerCli
 
     /**
      *  @copy mx.controls.Menu#hasRoot
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get hasRoot():Boolean
     {
@@ -648,6 +941,10 @@ public class FlexNativeMenu extends EventDispatcher implements ILayoutManagerCli
      *
      *  @default "keyEquivalent"
      *  @see flash.ui.Keyboard
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get keyEquivalentField():String
     {
@@ -699,6 +996,10 @@ public class FlexNativeMenu extends EventDispatcher implements ILayoutManagerCli
      *
      *  @default "undefined"
      *  @see flash.ui.Keyboard
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get keyEquivalentFunction():Function
     {
@@ -800,6 +1101,10 @@ public class FlexNativeMenu extends EventDispatcher implements ILayoutManagerCli
      *  <pre><code>myKeyEquivalentModifiersFunction(item:Object):Array</code></pre>
      *
      *  @default "undefined"
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get keyEquivalentModifiersFunction():Function
     {
@@ -861,6 +1166,10 @@ public class FlexNativeMenu extends EventDispatcher implements ILayoutManagerCli
      *  <p>Setting the <code>labelFunction</code> property causes this property to be ignored.</p>
      *
      *  @default "label"
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get labelField():String
     {
@@ -914,6 +1223,10 @@ public class FlexNativeMenu extends EventDispatcher implements ILayoutManagerCli
      *  <pre><code>myLabelFunction(item:Object):String</code></pre>
      *
      *  @default "undefined"
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get labelFunction():Function
     {
@@ -967,6 +1280,10 @@ public class FlexNativeMenu extends EventDispatcher implements ILayoutManagerCli
      *  @default "mnemonicIndex"
      *
      *  @see #labelField
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get mnemonicIndexField():String
     {
@@ -1022,6 +1339,10 @@ public class FlexNativeMenu extends EventDispatcher implements ILayoutManagerCli
      *  <pre><code>myMnemonicIndexFunction(item:Object):int</code></pre>
      *
      *  @default "undefined"
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get mnemonicIndexFunction():Function
     {
@@ -1074,6 +1395,10 @@ public class FlexNativeMenu extends EventDispatcher implements ILayoutManagerCli
      *
      *  @default true
      *  @see #hasRoot
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get showRoot():Boolean
     {
@@ -1098,9 +1423,13 @@ public class FlexNativeMenu extends EventDispatcher implements ILayoutManagerCli
     //  Methods
     //
     //--------------------------------------------------------------------------
-    
+       
     /**
      *  @copy mx.core.UIComponent#invalidateProperties()
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function invalidateProperties():void
     {
@@ -1110,8 +1439,8 @@ public class FlexNativeMenu extends EventDispatcher implements ILayoutManagerCli
         if (!invalidatePropertiesFlag && nestLevel > 0)
         {
             invalidatePropertiesFlag = true;
-            if (UIComponentGlobals.mx_internal::layoutManager)
-                UIComponentGlobals.mx_internal::layoutManager.invalidateProperties(this);
+            if (UIComponentGlobals.layoutManager)
+                UIComponentGlobals.layoutManager.invalidateProperties(this);
             else
             {
                 var myTimer:Timer = new Timer(100, 1);
@@ -1131,6 +1460,10 @@ public class FlexNativeMenu extends EventDispatcher implements ILayoutManagerCli
 
     /**
      *  @inheritDoc
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function validateProperties():void
     {
@@ -1144,6 +1477,10 @@ public class FlexNativeMenu extends EventDispatcher implements ILayoutManagerCli
 
     /**
      *  @inheritDoc
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function validateSize(recursive:Boolean = false):void
     {
@@ -1151,6 +1488,10 @@ public class FlexNativeMenu extends EventDispatcher implements ILayoutManagerCli
 
     /**
      *  @inheritDoc
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function validateDisplayList():void
     {
@@ -1159,6 +1500,10 @@ public class FlexNativeMenu extends EventDispatcher implements ILayoutManagerCli
     /**
      *  Validates and updates the properties and layout of this object
      *  and redraws it, if necessary.
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function validateNow():void
     {
@@ -1170,6 +1515,12 @@ public class FlexNativeMenu extends EventDispatcher implements ILayoutManagerCli
 
     /**
      *  Sets the context menu of the InteractiveObject to the underlying native menu.
+     *
+     *  @param data The interactive object.
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function setContextMenu(component:InteractiveObject):void
     {
@@ -1182,21 +1533,41 @@ public class FlexNativeMenu extends EventDispatcher implements ILayoutManagerCli
             if (systemManager is InteractiveObject)
                 InteractiveObject(systemManager).contextMenu = nativeMenu;
         }
+        
+        automationParent = component as DisplayObjectContainer;
+        automationOwner = component as DisplayObjectContainer;
+        
+        component.dispatchEvent(new Event("flexContextMenuChanged"));
     }
     
     /**
      *  Unsets the context menu of the InteractiveObject that has been set to
      *  the underlying native menu.
+     *
+     *  @param data The interactive object.
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function unsetContextMenu(component:InteractiveObject):void
     {
         component.contextMenu = null;
+        
+        automationParent = null;
+        automationOwner = null;
+        
+        component.dispatchEvent(new Event("flexContextMenuChanged"));
     }
 
     /**
      *  Processes the properties set on the component.
      *
      *  @see mx.core.UIComponent#commitProperties()
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     protected function commitProperties():void
     {
@@ -1218,16 +1589,16 @@ public class FlexNativeMenu extends EventDispatcher implements ILayoutManagerCli
             dataDescriptorChanged = false;
 
             // are we swallowing the root?
-            if (mx_internal::_rootModel && !_showRoot && _hasRoot)
+            if (_rootModel && !_showRoot && _hasRoot)
             {
-                var rootItem:* = mx_internal::_rootModel.createCursor().current;
+                var rootItem:* = _rootModel.createCursor().current;
                 if (rootItem != null &&
-                    _dataDescriptor.isBranch(rootItem, mx_internal::_rootModel) &&
-                    _dataDescriptor.hasChildren(rootItem, mx_internal::_rootModel))
+                    _dataDescriptor.isBranch(rootItem, _rootModel) &&
+                    _dataDescriptor.hasChildren(rootItem, _rootModel))
                 {
                     // then get rootItem children
                     tmpCollection =
-                        _dataDescriptor.getChildren(rootItem, mx_internal::_rootModel);
+                        _dataDescriptor.getChildren(rootItem, _rootModel);
                 }
             }
 
@@ -1236,10 +1607,10 @@ public class FlexNativeMenu extends EventDispatcher implements ILayoutManagerCli
             clearMenu(_nativeMenu);
 
             // make top level items
-            if (mx_internal::_rootModel)
+            if (_rootModel)
             {
                 if (!tmpCollection)
-                    tmpCollection = mx_internal::_rootModel;
+                    tmpCollection = _rootModel;
                 // not really a default handler, but we need to
                 // be later than the wrapper
                 tmpCollection.addEventListener(CollectionEvent.COLLECTION_CHANGE,
@@ -1247,7 +1618,7 @@ public class FlexNativeMenu extends EventDispatcher implements ILayoutManagerCli
                                                false,
                                                EventPriority.DEFAULT_HANDLER, true);
 
-                populateMenu(_nativeMenu, tmpCollection);
+                 populateMenu(_nativeMenu, tmpCollection);
             }
 
             dispatchEvent(new Event("nativeMenuChange"));
@@ -1258,6 +1629,10 @@ public class FlexNativeMenu extends EventDispatcher implements ILayoutManagerCli
      *  Creates a menu and adds appropriate listeners
      *
      *  @private
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     private function createMenu():NativeMenu
     {
@@ -1334,7 +1709,7 @@ public class FlexNativeMenu extends EventDispatcher implements ILayoutManagerCli
             nativeMenuItem.checked = type == "check" && dataDescriptor.isToggled(data);
             
             // data
-            nativeMenuItem.data = dataDescriptor.getData(data, mx_internal::_rootModel);
+            nativeMenuItem.data = dataDescriptor.getData(data, _rootModel);
             
             // key equivalent
             nativeMenuItem.keyEquivalent = itemToKeyEquivalent(data);
@@ -1361,12 +1736,12 @@ public class FlexNativeMenu extends EventDispatcher implements ILayoutManagerCli
             nativeMenuItem.addEventListener(flash.events.Event.SELECT, itemSelectHandler, false, 0, true);
             
             // recursive
-            if (dataDescriptor.isBranch(data, mx_internal::_rootModel) &&
-                dataDescriptor.hasChildren(data, mx_internal::_rootModel))
+            if (dataDescriptor.isBranch(data, _rootModel) &&
+                dataDescriptor.hasChildren(data, _rootModel))
             {
                 nativeMenuItem.submenu = createMenu();
                 populateMenu(nativeMenuItem.submenu,
-                    dataDescriptor.getChildren(data, mx_internal::_rootModel));
+                    dataDescriptor.getChildren(data, _rootModel));
             }
         }
         
@@ -1384,10 +1759,14 @@ public class FlexNativeMenu extends EventDispatcher implements ILayoutManagerCli
      * 
      *  @param y The number of vertical pixels, relative to the origin of stage, 
      *  at which to display this menu. 
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
      public function display(stage:Stage, x:int, y:int):void
      {
-        nativeMenu.display(stage, x, y);        
+         nativeMenu.display(stage, x, y);         
      }
 
     /**
@@ -1399,6 +1778,10 @@ public class FlexNativeMenu extends EventDispatcher implements ILayoutManagerCli
      *  @param data Object to be displayed.
      *
      *  @return The key equivalent based on the data.
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     protected function itemToKeyEquivalent(data:Object):String
     {
@@ -1453,7 +1836,11 @@ public class FlexNativeMenu extends EventDispatcher implements ILayoutManagerCli
      *
      *  @param data Object to be displayed.
      *
-     *  @return The array of key equivalent modifiers based on the data
+     *  @return The array of key equivalent modifiers based on the data.
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     protected function itemToKeyEquivalentModifiers(data:Object):Array
     {
@@ -1476,6 +1863,10 @@ public class FlexNativeMenu extends EventDispatcher implements ILayoutManagerCli
      *  @param data Object to be displayed.
      *
      *  @return The string to be displayed based on the data.
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     protected function itemToLabel(data:Object):String
     {
@@ -1534,6 +1925,10 @@ public class FlexNativeMenu extends EventDispatcher implements ILayoutManagerCli
      *  @param data Object to be displayed.
      *
      *  @return The mnemonic index based on the data.
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     protected function itemToMnemonicIndex(data:Object):int
     {
@@ -1586,6 +1981,14 @@ public class FlexNativeMenu extends EventDispatcher implements ILayoutManagerCli
      *  Determines the actual label to be used for the NativeMenuItem
      *  by removing underscore characters and converting escaped underscore
      *  characters, if there are any.
+     *
+     *  @param data The data to parse for the label.
+     *
+     *  @return The label.
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     protected function parseLabelToString(data:String):String
     {
@@ -1608,6 +2011,14 @@ public class FlexNativeMenu extends EventDispatcher implements ILayoutManagerCli
      *  Extracts the mnemonic index from a label based on the presence of
      *  an underscore character. It finds the leading underscore character if
      *  there is one and uses that as the index.
+     *
+     *  @param data The data to parse for the index.
+     *
+     *  @return The index.
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     protected function parseLabelToMnemonicIndex(data:String):int
     {
@@ -1630,14 +2041,105 @@ public class FlexNativeMenu extends EventDispatcher implements ILayoutManagerCli
         
         return -1;
     }
+    
+    //--------------------------------------------------------------------------
+    //
+    //  Methods: IAutomationObject
+    //
+    //--------------------------------------------------------------------------
+    
+    /**
+     *  @inheritDoc
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
+     */
+    public function createAutomationIDPart(child:IAutomationObject):Object
+    {
+        if (automationDelegate)
+            return automationDelegate.createAutomationIDPart(child);
+        return null;
+    }
+    
+    /**
+     *  @inheritDoc
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
+     */
+    public function createAutomationIDPartWithRequiredProperties(child:IAutomationObject, 
+                                                                 properties:Array):Object
+    {
+        if (automationDelegate)
+            return automationDelegate.createAutomationIDPartWithRequiredProperties(child, properties);
+        return null;
+    }
+    
+    /**
+     *  @inheritDoc
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
+     */
+    public function resolveAutomationIDPart(criteria:Object):Array
+    {
+        if (automationDelegate)
+            return automationDelegate.resolveAutomationIDPart(criteria);
+        return [];
+    }
+    
+    /**
+     *  @inheritDoc
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
+     */
+    public function getAutomationChildAt(index:int):IAutomationObject
+    {
+        if (automationDelegate)
+            return automationDelegate.getAutomationChildAt(index);
+        return null;
+    }
+    
+    /**
+     *  @inheritDoc
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
+     */
+    public function getAutomationChildren():Array
+    {
+        if (automationDelegate)
+            return automationDelegate.getAutomationChildren();
+        return null;
+    }
+    
+    /**
+     *  @inheritDoc
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
+     */
+    public function replayAutomatableEvent(event:Event):Boolean
+    {
+        if (automationDelegate)
+            return automationDelegate.replayAutomatableEvent(event);
+        return false;
+    }
 
     //--------------------------------------------------------------------------
     //
     //  Event handlers
     //
     //--------------------------------------------------------------------------
-    
-    /**
+     
+     /**
      *  @private
      */
     private function itemSelectHandler(event:Event):void
@@ -1674,8 +2176,8 @@ public class FlexNativeMenu extends EventDispatcher implements ILayoutManagerCli
         menuEvent.nativeMenu = nativeMenu;
         dispatchEvent(menuEvent);
     }
-    
-    /**
+     
+     /**
      *  @private
      */
     private function collectionChangeHandler(ce:CollectionEvent):void

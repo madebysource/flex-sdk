@@ -12,12 +12,31 @@
 package mx.utils
 {
 
+import flash.display.DisplayObject;
 import flash.display.LoaderInfo;
-import flash.system.Security;
+import flash.events.IEventDispatcher;
+import flash.system.Capabilities;
+import flash.utils.Dictionary;
 
-    /**
-     *  The LoaderUtil class defines a utility method for use with Flex RSLs.
-     */
+import mx.core.ApplicationDomainTarget;
+import mx.core.IFlexModuleFactory;
+import mx.core.mx_internal;
+import mx.core.RSLData;
+import mx.events.Request;
+import mx.managers.SystemManagerGlobals;
+import flash.display.Loader;
+
+use namespace mx_internal;
+
+  /**
+   *  The LoaderUtil class defines utility methods for use with Flex RSLs and
+   *  generic Loader instances.
+   *  
+   *  @langversion 3.0
+   *  @playerversion Flash 9
+   *  @playerversion AIR 1.1
+   *  @productversion Flex 3
+   */
     public class LoaderUtil
     {
         
@@ -74,10 +93,18 @@ import flash.system.Security;
      *  to remove the appended text, if present. 
      *  Classes accessing <code>LoaderInfo.url</code> should call this method 
      *  to normalize the URL before using it.
+     *  This method also encodes the url by calling the encodeURI() method
+     *  on it. If you want the unencoded url, you must call unencodeURI() on
+     *  the results.
      *
      *  @param loaderInfo A LoaderInfo instance.
      *
      *  @return A normalized <code>LoaderInfo.url</code> property.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public static function normalizeURL(loaderInfo:LoaderInfo):String
     {
@@ -85,17 +112,23 @@ import flash.system.Security;
         var index:int;
         var searchString:String;
         var urlFilter:Function;
-        var n:uint = LoaderUtil.mx_internal::urlFilters.length;
+        var n:uint = LoaderUtil.urlFilters.length;
         
         for (var i:uint = 0; i < n; i++)
         {
-            searchString = LoaderUtil.mx_internal::urlFilters[i].searchString;
+            searchString = LoaderUtil.urlFilters[i].searchString;
             if ((index = url.indexOf(searchString)) != -1)
             {
-                urlFilter = LoaderUtil.mx_internal::urlFilters[i].filterFunction;
+                urlFilter = LoaderUtil.urlFilters[i].filterFunction;
                 url = urlFilter(url, index);
             }
         }
+        
+        // On the mac, the player doesn't like filenames with high-ascii
+        // characters. Calling encodeURI fixes this problem. We restrict
+        // this call to mac-only since it causes problems on Windows.
+        if (isMac())
+            return encodeURI(url);
         
         return url;
     }
@@ -167,6 +200,433 @@ import flash.system.Security;
 
         return absoluteURL;
     }
+    
+    /**
+     *  @private
+     * 
+     *  Takes a list of required rsls and determines:
+     *       - which RSLs have not been loaded
+     *       - the application domain and IModuleFactory where the
+     *         RSL should be loaded
+     * 
+     *  @param moduleFactory The module factory of the application or module 
+     *  to get load information for. If the moduleFactory has not loaded the 
+     *  module, then its parent is asked for load information. Each successive
+     *  parent is asked until the load information is found or there are no
+     *  more parents to ask. Only parents in parent ApplicationDomains are 
+     *  searched. Applications in different security domains or sibling
+     *  ApplicationDomains do not share RSLs.
+     *  
+     *  @param rsls An array of RSLs that are required for 
+     *  <code>moduleFactory</code>. Each RSL is in an array of RSLData where
+     *  the first element is the primary RSL and the remaining elements are 
+     *  failover RSLs.
+     *  @return Array of RSLData that represents the RSLs to load. RSLs that are
+     *  already loaded are not in the listed. 
+     */
+    mx_internal static function processRequiredRSLs(moduleFactory:IFlexModuleFactory, 
+                                                    rsls:Array):Array
+    {
+        var rslsToLoad:Array = [];  // of Array, where each element is an array 
+                                    // of RSLData (primary and failover), return value
+        var topLevelModuleFactory:IFlexModuleFactory = SystemManagerGlobals.topLevelSystemManagers[0];
+        var currentModuleFactory:IFlexModuleFactory = topLevelModuleFactory;
+        var parentModuleFactory:IFlexModuleFactory = null;
+        var loaded:Dictionary = new Dictionary();   // contains rsls that are loaded
+        var loadedLength:int = 0;
+        var resolved:Dictionary = new Dictionary(); // contains rsls that have the app domain resolved
+        var resolvedLength:int = 0;
+        var moduleFactories:Array = null;
+        
+        // Start at the top level module factory and work our way down the 
+        // module factory chain checking if the any of the rsls are loaded 
+        // and resolving application domain targets.
+        // We start at the top level module factory because the default rsls
+        // will all be loaded here and we won't often have to check other 
+        // module factories.
+        while (currentModuleFactory != moduleFactory)
+        {
+            // Need to loop over all the rsls, to see which one are loaded
+            // and resolve application domains.
+            var n:int = rsls.length;
+            for (var i:int = 0; i < n; i++)
+            {
+                var rsl:Array = rsls[i];
+
+                // Check if the RSL has already been loaded.
+                if (!loaded[rsl])
+                {
+                    if (isRSLLoaded(currentModuleFactory, rsl[0].digest))
+                    {
+                        loaded[rsl] = 1;
+                        loadedLength++;
+                        
+                        // We may find an rsl loaded in a module factory as we work
+                        // our way down the module factory list. If we find one then 
+                        // remove it.
+                        if (currentModuleFactory != topLevelModuleFactory)
+                        {
+                            var index:int = rslsToLoad.indexOf(rsl); 
+                            if (index != -1)
+                                rslsToLoad.splice(index, 1);                        
+                        }
+                    }
+                    else if (rslsToLoad.indexOf(rsl) == -1)
+                    {
+                        rslsToLoad.push(rsl);   // assume we have to load it
+                    }
+                } 
+
+                // If the rsl is already loaded or already resolved then
+                // skip resolving it.
+                if (!loaded[rsl] && resolved[rsl] == null)
+                {
+                    // Get the parent module factory if we are going to need to 
+                    // resolve the application domain target.
+                    if (!parentModuleFactory && 
+                        RSLData(rsl[0]).applicationDomainTarget == ApplicationDomainTarget.PARENT)
+                    {
+                        parentModuleFactory = getParentModuleFactory(moduleFactory);           
+                    }
+                    
+                    // Resolve the application domain target.
+                    if (resolveApplicationDomainTarget(rsl,
+                            moduleFactory,
+                            currentModuleFactory,
+                            parentModuleFactory,
+                            topLevelModuleFactory))
+                    {
+                        resolved[rsl] = 1;
+                        resolvedLength++;                        
+                    }
+                }
+            }
+            
+            // If process all rsls then get out.
+            if (loadedLength + resolvedLength >= rsls.length)
+                break;
+                
+             // If we didn't find everything in the top level module factory then work
+            // down towards the rsl's owning module factory. 
+            // Build up the module factory parent chain so we can traverse it.
+            if (!moduleFactories)
+            {
+                moduleFactories = [moduleFactory];
+                currentModuleFactory = moduleFactory;
+                while (currentModuleFactory != topLevelModuleFactory)
+                {
+
+                    currentModuleFactory = getParentModuleFactory(currentModuleFactory);
+                    
+                    // If we couldn't get the parent module factory, then we 
+                    // will have to load into the highest application domain
+                    // that is available. We won't be able to get a parent 
+                    // if a module was loaded without specifying a parent 
+                    // module factory.
+                    if (!currentModuleFactory)
+                        break;
+                    
+                    if (currentModuleFactory != topLevelModuleFactory)
+                        moduleFactories.push(currentModuleFactory);
+                    
+                    if (!parentModuleFactory)
+                        parentModuleFactory = currentModuleFactory;
+                }
+            }
+
+            currentModuleFactory = moduleFactories.pop();
+        }
+        
+        return rslsToLoad;
+    }
+    
+    /**
+     * @private
+     * Test whether a url is on the local filesystem. We can only
+     * really tell this with URLs that begin with "file:" or a
+     * Windows-style drive notation such as "C:". This fails some
+     * cases like the "/" notation on Mac/Unix.
+     * 
+     * @param url
+     * the url to check against
+     * 
+     * @return
+     * true if url is local, false if not or unable to determine
+     **/
+    mx_internal static function isLocal(url:String):Boolean 
+    {
+        return (url.indexOf("file:") == 0 || url.indexOf(":") == 1);
+    }
+    
+    /**
+     * @private
+     * Currently (FP 10.x) the ActiveX player (Explorer on Windows) does not
+     * handle encoded URIs containing UTF-8 on the local filesystem, but
+     * it does handle those same URIs unencoded. The plug-in requires
+     * encoded URIs.
+     * 
+     * @param url
+     * url to properly encode, may be fully or partially encoded with encodeURI
+     * 
+     * @param local
+     * true indicates the url is on the local filesystem
+     * 
+     * @return
+     * encoded url that may be loaded with a URLRequest
+     **/
+    mx_internal static function OSToPlayerURI(url:String, local:Boolean):String 
+    {
+        
+        // First strip off the search string and any url fragments so
+        // they will not be decoded/encoded.
+        // Next decode the url.
+        // Before returning the decoded or encoded string add the search
+        // string and url fragment back.
+        var searchStringIndex:int;
+        var fragmentUrlIndex:int;
+        var decoded:String = url;
+        
+        if ((searchStringIndex = decoded.indexOf("?")) != -1 )
+        {
+            decoded = decoded.substring(0, searchStringIndex);
+        }
+        
+        if ((fragmentUrlIndex = decoded.indexOf("#")) != -1 )
+            decoded = decoded.substring(0, fragmentUrlIndex);
+        
+        try
+        {
+            // decode the url
+            decoded = decodeURI(decoded);
+        }
+        catch (e:Error)
+        {
+            // malformed url, but some are legal on the file system
+        }
+        
+        // create the string to hold the the search string url fragments.
+        var extraString:String = null;
+        if (searchStringIndex != -1 || fragmentUrlIndex != -1)
+        {
+            var index:int = searchStringIndex;
+            
+            if (searchStringIndex == -1 || 
+                (fragmentUrlIndex != -1 && fragmentUrlIndex < searchStringIndex))
+            {
+                index = fragmentUrlIndex;
+            }
+            
+            extraString = url.substr(index);
+        }
+        
+        if (local && flash.system.Capabilities.playerType == "ActiveX")
+        {
+            if (extraString)
+                return decoded + extraString;
+            else 
+                return decoded;
+        }
+        
+        if (extraString)
+            return encodeURI(decoded) + extraString;
+        else
+            return encodeURI(decoded);            
+    }
+
+    /**
+     *  @private
+     *  Get the parent module factory. 
+     * 
+     *  @param moduleFactory The module factory to get the parent of.
+     * 
+     *  @return the parent module factory if available, null otherwise. 
+     */
+    private static function getParentModuleFactory(moduleFactory:IFlexModuleFactory):IFlexModuleFactory    
+    {
+        var request:Request = new Request(Request.GET_PARENT_FLEX_MODULE_FACTORY_REQUEST);
+        DisplayObject(moduleFactory).dispatchEvent(request); 
+        return request.value as IFlexModuleFactory;
+    }
+    
+    /**
+     *  @private
+     *  Resolve the application domain target. 
+     * 
+     *  @param rsl to resolve.
+     *  @param moduleFactory The module factory loading the RSLs.
+     *  @param currentModuleFactory The module factory to search for placeholders.
+     *  @param parentModuleFactory The rsl's parent module factory.
+     *  @param topLevelModuleFactory The top-level module factory.
+     * 
+     *  @return true if the application domain target was resolved, 
+     *  false otherwise.
+     */
+    private static function resolveApplicationDomainTarget(rsl:Array, 
+                                    moduleFactory:IFlexModuleFactory, 
+                                    currentModuleFactory:IFlexModuleFactory, 
+                                    parentModuleFactory:IFlexModuleFactory, 
+                                    topLevelModuleFactory:IFlexModuleFactory):Boolean 
+    {
+        var resolvedRSL:Boolean = false;
+        var targetModuleFactory:IFlexModuleFactory = null;
+        
+        var applicationDomainTarget:String = rsl[0].applicationDomainTarget;
+        if (isLoadedIntoTopLevelApplicationDomain(moduleFactory))
+        {
+            targetModuleFactory = topLevelModuleFactory;
+        }
+        else if (applicationDomainTarget == ApplicationDomainTarget.DEFAULT)
+        {
+            if (hasPlaceholderRSL(currentModuleFactory, rsl[0].digest))
+            {
+                targetModuleFactory = currentModuleFactory;
+            }
+        }
+        else if (applicationDomainTarget == ApplicationDomainTarget.TOP_LEVEL)
+        {
+            targetModuleFactory = topLevelModuleFactory;
+        }
+        else if (applicationDomainTarget == ApplicationDomainTarget.CURRENT)
+        {
+            resolvedRSL = true;
+        }
+        else if (applicationDomainTarget == ApplicationDomainTarget.PARENT)
+        {
+            // If there is no parent, ignore the target and load into the current
+            // app domain. 
+            targetModuleFactory = parentModuleFactory;
+        }
+        else
+        {
+            resolvedRSL = true; // bogus target, load into current application domain
+        }
+        
+        if (resolvedRSL || targetModuleFactory)
+        {
+            if (targetModuleFactory)
+                updateRSLModuleFactory(rsl, targetModuleFactory);
+            return true;
+        }
+        
+        return false;
+    }
+    
+    /**
+     *  @private
+     *  Determine if the moduleFactory has loaded an rsl that matches the 
+     *  specified digest.
+     * 
+     *  @param moduleFactory The module factory to search.
+     *  @param digest The digest to search for.
+     *  @return true if a loaded rsl matching the digest was found.
+     */
+    private static function isRSLLoaded(moduleFactory:IFlexModuleFactory, digest:String):Boolean
+    {
+        var preloadedRSLs:Dictionary = moduleFactory.preloadedRSLs;
+        
+        if (preloadedRSLs)
+        {
+            // loop over the rsls to find a matching digest
+            for each (var rsl:Vector.<RSLData> in preloadedRSLs)
+            {
+                var n:int = rsl.length;
+                for (var i:int = 0; i < n; i++)
+                {
+                    if (rsl[i].digest == digest)
+                    {
+                        return true;
+                    }
+                }
+            }
+        }
+        
+        return false;
+    }
+    
+    /**
+     *  @private
+     * 
+     *  Determine if the moduleFactory has a placeholder rsl that matches the 
+     *  specified digest.
+     * 
+     *  @param moduleFactory The module factory to search.
+     *  @param digest The digest to search for.
+     *  @return true if a placeholder rsl matching the digest was found.
+     */
+    private static function hasPlaceholderRSL(moduleFactory:IFlexModuleFactory, digest:String):Boolean
+    {
+        var phRSLs:Array = moduleFactory.info()["placeholderRsls"];
+        
+        if (phRSLs)
+        {
+            // loop over the rsls to find a matching digest
+            var n:int = phRSLs.length;
+            for (var i:int = 0; i < n; i++)
+            {
+                var rsl:Object = phRSLs[i];
+                var m:int = rsl.length;
+                for (var j:int = 0; j < m; j++)
+                {
+                    if (rsl[j].digest == digest)
+                    {
+                        return true;
+                    }
+                }
+            }
+        }
+        
+        return false;
+    }
+ 
+    /**
+     *  @private
+     *  Test if a module factory has been loaded into the top-level application domain.
+     * 
+     *  @return true if loaded into the top-level application domain, false otherwise.
+     */ 
+    private static function isLoadedIntoTopLevelApplicationDomain(moduleFactory:IFlexModuleFactory):Boolean
+    {
+        if (moduleFactory is DisplayObject)
+        {
+            var displayObject:DisplayObject = DisplayObject(moduleFactory);
+            var loaderInfo:LoaderInfo = displayObject.loaderInfo;
+            if (loaderInfo && loaderInfo.applicationDomain &&
+                loaderInfo.applicationDomain.parentDomain == null)
+            {
+                return true;
+            }
+        }
+        
+        return false;        
+    }
+    
+    /**
+     *  @private
+     * 
+     *  Update the module factory of an rsl, both the primary rsl and all 
+     *  failover rsls.
+     * 
+     *  @param rsl One RSL represented by an array of RSLData. The 
+     *  first element in the array is the primary rsl, the others are failovers.
+     *  @param moduleFactory  The moduleFactory to set in the primary and 
+     *  failover rsls.
+     */
+    private static function updateRSLModuleFactory(rsl:Array, moduleFactory:IFlexModuleFactory):void
+    {
+        var n:int = rsl.length;
+        for (var i:int = 0; i < n; i++)
+        {
+            rsl[i].moduleFactory = moduleFactory;
+        }
+    }
+    
+    /**
+     *  @private
+     */
+    private static function isMac():Boolean
+    {
+        return Capabilities.os.substring(0, 3) == "Mac";
+    }
 
     /**
      *  @private
@@ -188,6 +648,6 @@ import flash.system.Security;
         var protocolIndex:int = url.indexOf("://");
         return url.substring(0,protocolIndex + 3) + url.substring(index + 12);
     }
-
+    
     }
 }

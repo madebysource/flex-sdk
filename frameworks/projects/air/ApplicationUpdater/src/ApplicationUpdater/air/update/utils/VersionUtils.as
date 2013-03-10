@@ -29,7 +29,7 @@ package air.update.utils
 		{
 			var v1:String = currentVersion.replace(/[+\-_ ]/g, ".").replace(/\.(\.)+/g, ".").replace(/([^\d\.])([^\D\.])/g, "$1.$2").replace(/([^\D\.])([^\d\.])/g, "$1.$2");
 			var v2:String = newVersion.replace(/[+\-_ ]/g, ".").replace(/\.(\.)+/g, ".").replace(/([^\d\.])([^\D\.])/g, "$1.$2").replace(/([^\D\.])([^\d\.])/g, "$1.$2");
-			
+		
 			var parts1:Array = v1.split(".");
 			var parts2:Array = v2.split(".");
 			
@@ -102,12 +102,19 @@ package air.update.utils
 		{
 			var appXML:XML = NativeApplication.nativeApplication.applicationDescriptor;
 			var ns:Namespace = appXML.namespace();
-			return appXML.ns::version;			
+			return ((appXML.ns::version == undefined) ? (appXML.ns::versionNumber) : (appXML.ns::version));
 		}
 		
 		public static function getApplicationID():String
 		{
 			return NativeApplication.nativeApplication.applicationID;
+		}
+		
+		public static function applicationHasVersionNumber():Boolean
+		{
+			var appXML:XML = NativeApplication.nativeApplication.applicationDescriptor;
+			var ns:Namespace = appXML.namespace();
+			return appXML.ns::versionNumber != undefined;
 		}
 	}
 }

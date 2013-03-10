@@ -25,7 +25,7 @@ package air.update.descriptors {
 	 */
 	[ExcludeClass]
 	public class ApplicationDescriptor {
-        
+
 		public function ApplicationDescriptor( xml:XML) {
 		    m_xml = xml;
 			m_defaultNs = m_xml.namespace();
@@ -52,7 +52,28 @@ package air.update.descriptors {
 		public function get version():String
 		{
 			default xml namespace = m_defaultNs;
+			
+			// until 2.5 we had version, after 2.5 we had versionNumber
+			if (m_xml.version == undefined && m_xml.versionNumber == undefined)
+				throw new Error( "cannot get version (backwards incompatible application namespace change?)" );
+
+			if (m_xml.version == undefined) 
+				return m_xml.versionNumber.toString();
+			
 			return m_xml.version.toString();
+		}
+
+		public function get versionLabel():String
+		{
+			//default xml namespace = m_defaultNs;
+			// until 2.5 we had version, after 2.5 we had versionNumber
+			if (m_xml.nsversion == undefined && m_xml.versionNumber == undefined)
+				throw new Error( "cannot get version (backwards incompatible application namespace change?)" );
+
+			if (m_xml.version != undefined)
+				return m_xml.version.toString();
+				
+			return (m_xml.versionLabel == undefined) ?  m_xml.versionNumber.toString() : m_xml.versionLabel.toString();
 		}
 
 		public function get filename():String
@@ -277,7 +298,22 @@ package air.update.descriptors {
 			if( filename == "" ) {
 				throw new Error( "application filename must have a non-empty value." );
             }
-            
+			// check for the 2.5 change (versionNumber instead of version)
+			if (m_xml.versionNumber != undefined) {
+				if( version == "") {
+					throw new Error( "versionNumber must have a non-empty value." );
+				}
+				// version has to be of format <0-999>.<0-999>.<0-999>
+				if( !(/^[0-9]{1,3}(\.[0-9]{1,3}){0,2}$/.test( version ) ) ) {
+					throw new Error( "versionNumber contains an invalid value." );
+				}
+			}
+			else {
+				if( version == "") {
+					throw new Error( "version must have a non-empty value." );
+				}
+			}
+
             // The application cannot begin with a ' ' (space), have any of these characters: *"/:<>?\|, and end with a . (dot) or ' ' (space).
     		if( !( /^([^\*\"\/:<>\?\\\|\. ]|[^\*\"\/:<>\?\\\| ][^\*\"\/:<>\?\\\|]*[^\*\"\/:<>\?\\\|\. ])$/.test( filename ))) {
 				throw new Error( "invalid application filename" );

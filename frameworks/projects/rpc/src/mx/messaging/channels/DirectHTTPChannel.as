@@ -56,6 +56,12 @@ public class DirectHTTPChannel extends Channel
     /**
     *  Constructs an instance of a DirectHTTPChannel.
     *  The parameters are not used.
+    *  
+    *  @langversion 3.0
+    *  @playerversion Flash 9
+    *  @playerversion AIR 1.1
+    *  @productversion BlazeDS 4
+    *  @productversion LCDS 3 
     */
     public function DirectHTTPChannel(id:String, uri:String="")
     {
@@ -84,6 +90,12 @@ public class DirectHTTPChannel extends Channel
 
     /**
      *  Indicates if this channel is connected.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion BlazeDS 4
+     *  @productversion LCDS 3 
      */
     override public function get connected():Boolean
     {
@@ -92,6 +104,12 @@ public class DirectHTTPChannel extends Channel
     
     /**
      *  Indicates the protocol used by this channel.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion BlazeDS 4
+     *  @productversion LCDS 3 
      */
     override public function get protocol():String
     {
@@ -129,6 +147,12 @@ public class DirectHTTPChannel extends Channel
      *  @param message The IMessage to send.
      * 
      *  @return The MessageResponder to handle the send result or fault.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion BlazeDS 4
+     *  @productversion LCDS 3 
      */
     override protected function getMessageResponder(agent:MessageAgent, 
                                             message:IMessage):MessageResponder
@@ -181,6 +205,11 @@ public class DirectHTTPChannel extends Channel
         var url:String = httpMsg.url;
         var params:String = null;
 
+        // Propagate our requestTimeout for those platforms
+        // supporting the idleTimeout property on URLRequest.
+        if ("idleTimeout" in result && requestTimeout > 0)
+            result["idleTimeout"] = requestTimeout * 1000;
+        
         result.contentType = httpMsg.contentType;
         
         var contentTypeIsXML:Boolean = 
@@ -235,9 +264,10 @@ public class DirectHTTPChannel extends Channel
             }
         }
         result.url = url;
+
         if (NetworkMonitor.isMonitoring())
-	{
-	    NetworkMonitor.adjustURLRequest(result, LoaderConfig.url, message.messageId);
+        {
+            NetworkMonitor.adjustURLRequest(result, LoaderConfig.url, message.messageId);
         }
 
         return result;
@@ -294,6 +324,12 @@ class DirectHTTPMessageResponder extends MessageResponder
     
     /**
      *  Constructs a DirectHTTPMessageResponder.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion BlazeDS 4
+     *  @productversion LCDS 3 
      */
     public function DirectHTTPMessageResponder(agent:MessageAgent, msg:IMessage, 
                                         channel:DirectHTTPChannel, urlLoader:URLLoader)
@@ -326,6 +362,12 @@ class DirectHTTPMessageResponder extends MessageResponder
 
     /**
      *  The URLLoader associated with this responder.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion BlazeDS 4
+     *  @productversion LCDS 3 
      */
     public var urlLoader:URLLoader;
 
@@ -420,6 +462,12 @@ class DirectHTTPMessageResponder extends MessageResponder
     /**
      *  Handle a request timeout by closing our associated URLLoader and
      *  faulting the message to the agent.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion BlazeDS 4
+     *  @productversion LCDS 3 
      */
     override protected function requestTimedOut():void
     {

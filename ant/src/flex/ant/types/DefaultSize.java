@@ -18,7 +18,7 @@ import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.types.Commandline;
 
 /**
- *
+ * Implements &lt;default-size&gt;.
  */
 public class DefaultSize implements OptionSource
 {

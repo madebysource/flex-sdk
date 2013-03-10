@@ -13,17 +13,22 @@ package mx.styles
 {
 
 import mx.core.mx_internal;
-import mx.core.FlexVersion;
 
 use namespace mx_internal;
 
 /**
- *  Wraps an object that implements the IStyleClient interface. This interface
- *  supports a <code>filterMap</code> property that contains style-source/style-destination pairs.
+ *  Wraps an object that implements the IAdvancedStyleClient interface. This
+ *  interface supports a <code>filterMap</code> property that contains
+ *  style-source/style-destination pairs.
  * 
- *  @see mx.styles.IStyleClient
+ *  @see mx.styles.IAdvancedStyleClient
+ *  
+ *  @langversion 3.0
+ *  @playerversion Flash 9
+ *  @playerversion AIR 1.1
+ *  @productversion Flex 3
  */
-public class StyleProxy implements IStyleClient
+public class StyleProxy implements IAdvancedStyleClient
 {
     include "../core/Version.as";
 
@@ -38,6 +43,11 @@ public class StyleProxy implements IStyleClient
      *  
      *  @param source The object that implements the IStyleClient interface.
      *  @param filterMap The set of styles to pass from the source to the subcomponent.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function StyleProxy(source:IStyleClient, filterMap:Object)
     {
@@ -46,25 +56,13 @@ public class StyleProxy implements IStyleClient
         this.filterMap = filterMap;
         this.source = source;
     }
-    
+
     //--------------------------------------------------------------------------
     //
     //  Properties
     //
     //--------------------------------------------------------------------------
 
-    //----------------------------------
-    //  className
-    //----------------------------------
-
-    /**
-     *  @copy mx.styles.IStyleClient#className
-     */
-    public function get className():String
-    {
-        return _source.className;
-    }
-    
     //----------------------------------
     //  filterMap
     //----------------------------------
@@ -82,12 +80,15 @@ public class StyleProxy implements IStyleClient
      *  to a different style in the subcomponent. This is useful if both the parent 
      *  component and the subcomponent share the same style, but you want to be able to 
      *  control the values seperately.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get filterMap():Object
     {
-        return FlexVersion.compatibilityVersion < FlexVersion.VERSION_3_0 ?
-               null :
-               _filterMap;
+        return _filterMap;
     }
     
     /**
@@ -97,13 +98,79 @@ public class StyleProxy implements IStyleClient
     {
         _filterMap = value;
     }
-    
+
+    //----------------------------------
+    //  source
+    //----------------------------------
+
+    /**
+     *  @private
+     *  Storage for the source property.
+     */
+    private var _source:IStyleClient;
+
+    /**
+     *  @private
+     */ 
+    private var _advancedSource:IAdvancedStyleClient;
+
+    /**
+     *  The object that implements the IStyleClient interface. This is the object
+     *  that is being proxied.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
+     */
+    public function get source():IStyleClient
+    {
+        return _source;
+    }
+
+    /**
+     *  @private
+     */
+    public function set source(value:IStyleClient):void
+    {
+        _source = value;
+        _advancedSource = value as IAdvancedStyleClient;
+    }
+
+    //--------------------------------------------------------------------------
+    //
+    //  Properties - IStyleClient
+    //
+    //--------------------------------------------------------------------------
+
+    //----------------------------------
+    //  className
+    //----------------------------------
+
+    /**
+     *  @copy mx.styles.IStyleClient#className
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
+     */
+    public function get className():String
+    {
+        return _source.className;
+    }
+
     //----------------------------------
     //  inheritingStyles
     //----------------------------------
 
     /**
      *  @copy mx.styles.IStyleClient#inheritingStyles
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get inheritingStyles():Object
     {
@@ -117,21 +184,24 @@ public class StyleProxy implements IStyleClient
     {
         // This should never happen 
     }
-    
+
     //----------------------------------
     //  nonInheritingStyles
     //----------------------------------
 
     /**
      *  @copy mx.styles.IStyleClient#nonInheritingStyles
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get nonInheritingStyles():Object
     {
-        return FlexVersion.compatibilityVersion < FlexVersion.VERSION_3_0 ?
-               _source.nonInheritingStyles :
-               null; // This will always need to get reconstructed
+        return null; // This will always need to get reconstructed
     }
-    
+
     /**
      *  @private
      */
@@ -139,46 +209,24 @@ public class StyleProxy implements IStyleClient
     {
         // This should never happen
     }
-    
-    //----------------------------------
-    //  source
-    //----------------------------------
 
-    /**
-     *  @private
-     *  Storage for the filterMap property.
-     */
-    private var _source:IStyleClient;
-    
-    /**
-     *  The object that implements the IStyleClient interface. This is the object
-     *  that is being proxied.
-     */
-    public function get source():IStyleClient
-    {
-        return _source;
-    }
-    
-    /**
-     *  @private
-     */
-    public function set source(value:IStyleClient):void
-    {
-        _source = value;
-    }
-    
     //----------------------------------
     //  styleDeclaration
     //----------------------------------
 
     /**
      *  @copy mx.styles.IStyleClient#styleDeclaration
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get styleDeclaration():CSSStyleDeclaration
     {
         return _source.styleDeclaration;
     }
-    
+
     /**
      *  @private
      */
@@ -186,13 +234,18 @@ public class StyleProxy implements IStyleClient
     {
         _source.styleDeclaration = styleDeclaration;
     }
-    
+
     //----------------------------------
     //  styleName
     //----------------------------------
 
     /**
      *  @copy mx.styles.ISimpleStyleClient#styleName
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get styleName():Object
     {
@@ -201,7 +254,7 @@ public class StyleProxy implements IStyleClient
         else
             return _source.styleName;
     }
-    
+
     /**
      *  @private
      */
@@ -209,78 +262,223 @@ public class StyleProxy implements IStyleClient
     {
         _source.styleName = value;
     }
-    
+
     //--------------------------------------------------------------------------
     //
-    //  Methods
+    //  Properties - IAdvancedStyleClient
+    //
+    //--------------------------------------------------------------------------
+
+    //----------------------------------
+    //  id
+    //----------------------------------
+
+    /**
+     *  @copy mx.styles.IAdvancedStyleClient#id
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 10
+     *  @playerversion AIR 1.5
+     *  @productversion Flex 4
+     */ 
+    public function get id():String
+    {
+        return _advancedSource ? _advancedSource.id : null;
+    }
+
+    //----------------------------------
+    //  styleParent
+    //----------------------------------
+
+    /**
+     *  @copy mx.styles.IAdvancedStyleClient#styleParent
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 10
+     *  @playerversion AIR 1.5
+     *  @productversion Flex 4
+     */ 
+    public function get styleParent():IAdvancedStyleClient
+    {
+        return _advancedSource ? _advancedSource.styleParent : null;
+    }
+
+	public function set styleParent(parent:IAdvancedStyleClient):void
+	{
+		
+	}
+    //--------------------------------------------------------------------------
+    //
+    //  Methods - ISimpleStyleClient and IStyleClient
     //
     //--------------------------------------------------------------------------
 
     /**
      *  @copy mx.styles.ISimpleStyleClient#styleChanged()
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function styleChanged(styleProp:String):void
     {
         return _source.styleChanged(styleProp);
     }
-    
+
     /**
      *  @copy mx.styles.IStyleClient#getStyle()
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function getStyle(styleProp:String):*
     {
         return _source.getStyle(styleProp);
     }
-    
+
     /**
      *  @copy mx.styles.IStyleClient#setStyle()
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function setStyle(styleProp:String, newValue:*):void
     {
         _source.setStyle(styleProp, newValue);
     }
-    
+
     /**
      *  @copy mx.styles.IStyleClient#clearStyle()
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function clearStyle(styleProp:String):void
     {
         _source.clearStyle(styleProp);
     }
-    
+
     /**
      *  @copy mx.styles.IStyleClient#getClassStyleDeclarations()
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function getClassStyleDeclarations():Array
     {
         return _source.getClassStyleDeclarations();
     }
-    
+
     /**
      *  @copy mx.styles.IStyleClient#notifyStyleChangeInChildren()
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function notifyStyleChangeInChildren(styleProp:String,
                                                 recursive:Boolean):void
     {
         return _source.notifyStyleChangeInChildren(styleProp, recursive);
     }
-    
+
     /**
      *  @copy mx.styles.IStyleClient#regenerateStyleCache()
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function regenerateStyleCache(recursive:Boolean):void
     {
         _source.regenerateStyleCache(recursive);
         return;
     }
-    
+
     /**
      *  @copy mx.styles.IStyleClient#registerEffects()
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function registerEffects(effects:Array):void
     {
         return _source.registerEffects(effects);
     }
+
+    //--------------------------------------------------------------------------
+    //
+    //  Methods - IAdvancedStyleClient
+    //
+    //--------------------------------------------------------------------------
+
+	/**
+	 *  @copy mx.styles.IAdvancedStyleClient#stylesInitialized()
+	 *  
+	 *  @langversion 3.0
+	 *  @playerversion Flash 10
+	 *  @playerversion AIR 1.5
+	 *  @productversion Flex 4
+	 */
+	public function stylesInitialized():void
+	{
+		if (_advancedSource)
+			_advancedSource.stylesInitialized();
+	}
+	
+	/**
+     *  @copy mx.styles.IAdvancedStyleClient#matchesCSSState()
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 10
+     *  @playerversion AIR 1.5
+     *  @productversion Flex 4
+     */
+    public function matchesCSSState(cssState:String):Boolean
+    {
+        return _advancedSource ? _advancedSource.matchesCSSState(cssState) : false;
+    }
+
+    /**
+     *  @copy mx.styles.IAdvancedStyleClient#matchesCSSType()
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 10
+     *  @playerversion AIR 1.5
+     *  @productversion Flex 4
+     */ 
+    public function matchesCSSType(cssType:String):Boolean
+    {
+        return _advancedSource ? _advancedSource.matchesCSSType(cssType) : false;
+    }
+
+    /**
+     *  @inheritDoc
+     *
+     *  @langversion 3.0
+     *  @playerversion Flash 10
+     *  @playerversion AIR 2.5
+     *  @productversion Flex 4.6
+     */
+    
+    public function hasCSSState():Boolean
+    {
+        return _advancedSource ? _advancedSource.hasCSSState() : false;
+    }    
+
 }
 
 }

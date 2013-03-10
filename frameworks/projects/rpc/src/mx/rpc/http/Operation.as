@@ -35,6 +35,11 @@ use namespace mx_internal;
  * 
  * <p>The exact way in which the HTTP operation arguments is put into the HTTP body is determined
  * by the serializationFilter used.</p>
+ *  
+ *  @langversion 3.0
+ *  @playerversion Flash 9
+ *  @playerversion AIR 1.1
+ *  @productversion Flex 3
  */
 public class Operation extends AbstractOperation
 {
@@ -43,6 +48,17 @@ public class Operation extends AbstractOperation
     //---------------------------------
 
     /**
+     *  Creates a new Operation. 
+     *
+     *  @param service The HTTPMultiService object defining the service.
+     *
+     *  @param name The name of the service.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
+
      *  Creates a new Operation. 
      *
      *  @param service The HTTPMultiService object defining the service.
@@ -63,6 +79,11 @@ public class Operation extends AbstractOperation
     
     /**
      * Stores the parent service which controls this operation.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     private var _multiService:HTTPMultiService;
 
@@ -119,12 +140,22 @@ public class Operation extends AbstractOperation
     /**
      * Keep track of whether or not this has been set explicitly on the
      * operation.  If not, we'll inherit this value from the service level.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     private var _makeObjectsBindableSet:Boolean;
 
     [Inspectable(defaultValue="true", category="General")]
     /**
      * When this value is true, anonymous objects returned are forced to bindable objects.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     override public function get makeObjectsBindable():Boolean
     {
@@ -196,6 +227,11 @@ public class Operation extends AbstractOperation
      * directly whereas rootURL specifies the name of a file whose directory name is
      * prepended.  If neither rootURL nor baseURL are set explicitly, the directory name
      * of the .swf file is prepended to relative paths.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     override public function get rootURL():String
     {
@@ -278,6 +314,11 @@ public class Operation extends AbstractOperation
      * @return AsyncToken Call using the asynchronous completion token pattern.
      * The same object is available in the <code>result</code> and
      * <code>fault</code> events from the <code>token</code> property.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     override public function send(... args:Array):AsyncToken
     {
@@ -385,6 +426,11 @@ public class Operation extends AbstractOperation
 
     /**
      * Use the asyncRequest from the parent service
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     override mx_internal function get asyncRequest():AsyncRequest
     {

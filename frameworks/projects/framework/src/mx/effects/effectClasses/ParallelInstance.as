@@ -11,13 +11,16 @@
 
 package mx.effects.effectClasses
 {
-
 import flash.events.TimerEvent;
+import flash.system.ApplicationDomain;
 import flash.utils.Timer;
+
+import mx.core.FlexVersion;
 import mx.core.UIComponent;
 import mx.core.mx_internal;
-import mx.effects.IEffectInstance;
 import mx.effects.EffectInstance;
+import mx.effects.IEffectInstance;
+import mx.effects.Parallel;
 
 use namespace mx_internal;
 
@@ -28,6 +31,11 @@ use namespace mx_internal;
  *  you do not create one yourself.
  *
  *  @see mx.effects.Parallel
+ *  
+ *  @langversion 3.0
+ *  @playerversion Flash 9
+ *  @playerversion AIR 1.1
+ *  @productversion Flex 3
  */  
 public class ParallelInstance extends CompositeEffectInstance
 {
@@ -44,6 +52,11 @@ public class ParallelInstance extends CompositeEffectInstance
 	 *
 	 *  @param target This argument is ignored for Parallel effects.
 	 *  It is included only for consistency with other types of effects.
+	 *  
+	 *  @langversion 3.0
+	 *  @playerversion Flash 9
+	 *  @playerversion AIR 1.1
+	 *  @productversion Flex 3
 	 */
 	public function ParallelInstance(target:Object)
 	{
@@ -91,27 +104,126 @@ public class ParallelInstance extends CompositeEffectInstance
 	/**
 	 *  @private
 	 */
-	override mx_internal function get durationWithoutRepeat():Number
-	{
-		var _duration:Number = 0;
-		
-		// Get the largest actualDuration of all of our children
-		var n:int = childSets.length;
-		for (var i:int = 0; i < n; i++)
-		{
-			var instances:Array = childSets[i];
-			_duration = Math.max(instances[0].actualDuration, _duration);
-		}
-		
-		return _duration;
-	}
+    override mx_internal function get durationWithoutRepeat():Number
+    {
+        var _duration:Number = 0;
+        
+        // Get the largest actualDuration of all of our children
+        var n:int = childSets.length;
+        for (var i:int = 0; i < n; i++)
+        {
+            var instances:Array = childSets[i];
+            _duration = Math.max(instances[0].actualDuration, _duration);
+        }
+        
+        return _duration;
+    }
 	
+
+    //----------------------------------
+    //  playheadTime
+    //----------------------------------
+
+    /**
+     * @inheritDoc
+     * 
+     * In a Parallel effect, setting <code>playheadTime</code> 
+     * will cause all child effects to go to that same
+     * <code>playheadTime</code>. This may cause child effects to 
+     * lessen their <code>startDelay</code> (if they are currently 
+     * waiting to be played), start playing (if the 
+     * <code>playheadTime</code> is greater than their 
+     * <code>startDelay</code>), or end (if the <code>playheadTime</code> 
+     * is greater than their <code>startDelay</code> plus
+     * their <code>duration</code>).
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
+     */
+    override public function set playheadTime(value:Number):void
+    {        
+        // This will seek in the Parallel's instance
+        super.playheadTime = value;
+
+        var compositeDur:Number = Parallel(effect).compositeDuration;
+        var firstCycleDur:Number = compositeDur + startDelay + repeatDelay;
+        var laterCycleDur:Number = compositeDur + repeatDelay;
+        // totalDur is only sensible/used when repeatCount != 0
+        var totalDur:Number = firstCycleDur + laterCycleDur * (repeatCount - 1);
+        var childPlayheadTime:Number;
+        if (value <= firstCycleDur) {
+            childPlayheadTime = Math.min(value - startDelay, compositeDur);
+            playCount = 1;
+        }
+        else
+        {
+            if (value >= totalDur && repeatCount != 0)
+            {
+                childPlayheadTime = compositeDur;
+                playCount = repeatCount;
+            }
+            else
+            {
+                var valueAfterFirstCycle:Number = value - firstCycleDur;
+                childPlayheadTime = Math.min(childPlayheadTime, compositeDur);
+                childPlayheadTime = valueAfterFirstCycle % laterCycleDur;
+                playCount = 1 + valueAfterFirstCycle / laterCycleDur;
+            }
+        }
+
+        // Tell all of our children to set their playheadTime
+        for (var i:int = 0; i < childSets.length; i++)
+        {
+            var instances:Array = childSets[i];            
+            var m:int = instances.length;
+            for (var j:int = 0; j < m; j++)
+                instances[j].playheadTime = playReversed ?
+                    Math.max(0, (childPlayheadTime - 
+                                 (durationWithoutRepeat - instances[j].actualDuration))) :
+                    childPlayheadTime;
+        }
+
+        // Add any effects waiting on the replayQueue, which holds the
+        // effects waiting to be played at the right time when reversing
+        if (playReversed && replayEffectQueue != null && replayEffectQueue.length > 0)
+        {
+            var position:Number = durationWithoutRepeat - playheadTime;
+            var numDone:int = replayEffectQueue.length;	        
+            for (i = numDone - 1; i >= 0; i--)
+            {
+                var childEffect:EffectInstance = replayEffectQueue[i];
+                
+                // If the position is less than the child duration, then
+                // we must be either in or past the child effect, so we 
+                // should start that effect
+                if (position <= childEffect.actualDuration)
+                {
+                    // Move the effect from the done queue back onto the active one
+                    if (activeEffectQueue == null)
+                        activeEffectQueue = [];
+                    activeEffectQueue.push(childEffect);
+                    replayEffectQueue.splice(i,1);
+                    
+                    childEffect.playReversed = playReversed;
+                    childEffect.startEffect();
+                    // Note that we've already set the playheadTime on these
+                    // queued effects in the previous loop on childSets
+                }
+            }
+        }
+        
+    }
+
 	//--------------------------------------------------------------------------
 	//
 	//  Overridden methods
 	//
 	//--------------------------------------------------------------------------
-	
+
+    private static var resizeEffectType:Class;
+    private static var resizeEffectLoaded:Boolean = false;
 	/**
 	 *  @private
 	 */
@@ -119,17 +231,51 @@ public class ParallelInstance extends CompositeEffectInstance
 	{
 		super.addChildSet(childSet);
 		
-		// Make sure that the Rotate is in the beginning of the array because it needs to be 
-		// before any Move effects
-		if (childSet.length > 0)
+		// Make sure that spark Resize and mx Rotate are in the beginning of the 
+        // array because they need to be before any Move effects
+        // TODO: There is logic at the Animation level to handle processing 
+        // width/height values before any others for any animation frame. We
+        // maybe be able to remove this Resize-reordering logic altogether.
+		if (childSets.length > 1 && childSet.length > 0)
 		{
 			var compChild:CompositeEffectInstance = childSet[0] as CompositeEffectInstance;
 			
+            // Resize effects must run before Move effects for autoCenterTransform to 
+            // work correctly
+            if (!resizeEffectLoaded)
+            {
+                resizeEffectLoaded = true;
+                if (ApplicationDomain.currentDomain.hasDefinition("spark.effects.supportClasses.ResizeInstance"))
+                    resizeEffectType = Class(ApplicationDomain.currentDomain.
+                        getDefinition("spark.effects.supportClasses.ResizeInstance"));
+            }
+            if (resizeEffectType && (childSet[0] is resizeEffectType ||
+                (compChild != null && compChild.hasResizeInstance())))
+            {
+                // Remove item we just added to the end and place it at the beginning,
+                // but after any other Resize effects
+                
+                var resizeChildSet:Array = childSets.pop();
+                var insertionIndex:int = 0;
+                for (var i:int = 0; i < childSets.length; ++i)
+                {
+                    var currentChildSet:Array = childSets[i];
+                    var currentChildSetComposite:CompositeEffectInstance = 
+                        currentChildSet[0] as CompositeEffectInstance;
+                    if (!(currentChildSet[0] is resizeEffectType) &&
+                        (!currentChildSetComposite || !currentChildSetComposite.hasResizeInstance()))
+                    {
+                        break;
+                    }
+                    ++insertionIndex;
+                }
+                childSets.splice(insertionIndex, 0, resizeChildSet);
+            }
 			// Check if the child is a Rotate and also check if it is a composite effect that has a Rotate
-			if (childSet[0] is RotateInstance || (compChild != null && compChild.hasRotateInstance()))
+            else if (childSet[0] is RotateInstance || (compChild != null && compChild.hasRotateInstance()))
 			{
-				childSets.pop();
-				childSets.unshift(childSet);
+                // Remove item we just added to the end and place it at the beginning
+                childSets.unshift(childSets.pop());
 			}
 		}
 	}
@@ -209,11 +355,14 @@ public class ParallelInstance extends CompositeEffectInstance
 		super.pause();
 		
 		// Pause every currently playing effect instance.
-		var n:int = activeEffectQueue.length;
-		for (var i:int = 0; i < n; i++)
-		{
-			activeEffectQueue[i].pause();
-		}
+        if (activeEffectQueue)
+        {
+    		var n:int = activeEffectQueue.length;
+    		for (var i:int = 0; i < n; i++)
+    		{
+    			activeEffectQueue[i].pause();
+    		}
+        }
 	}
 
 	/**
@@ -246,11 +395,14 @@ public class ParallelInstance extends CompositeEffectInstance
 		super.resume();
 	
 		// Resume every currently playing effect instance.
-		var n:int = activeEffectQueue.length;
-		for (var i:int = 0; i < n; i++)
-		{
-			activeEffectQueue[i].resume();
-		}
+        if (activeEffectQueue)
+        {
+    		var n:int = activeEffectQueue.length;
+    		for (var i:int = 0; i < n; i++)
+    		{
+    			activeEffectQueue[i].resume();
+    		}
+        }
 	}
 		
 	/**
@@ -298,6 +450,11 @@ public class ParallelInstance extends CompositeEffectInstance
 	 *  Interrupts any effects that are currently playing, skips over
 	 *  any effects that haven't started playing, and jumps immediately
 	 *  to the end of the composite effect.
+	 *  
+	 *  @langversion 3.0
+	 *  @playerversion Flash 9
+	 *  @playerversion AIR 1.1
+	 *  @productversion Flex 3
 	 */
 	override public function end():void
 	{
@@ -328,6 +485,11 @@ public class ParallelInstance extends CompositeEffectInstance
 	 *  If you create a subclass of CompositeEffect, you must implement this method.
          *
          * @param childEffect A child effect that has finished. 
+	 *  
+	 *  @langversion 3.0
+	 *  @playerversion Flash 9
+	 *  @playerversion AIR 1.1
+	 *  @productversion Flex 3
 	 */
 	override protected function onEffectEnd(childEffect:IEffectInstance):void
 	{
@@ -418,6 +580,8 @@ public class ParallelInstance extends CompositeEffectInstance
 			if (position <= childEffect.actualDuration)
 			{
 				// Move the effect from the done queue back onto the active one
+                if (activeEffectQueue == null)
+                    activeEffectQueue = [];
 				activeEffectQueue.push(childEffect);
 				replayEffectQueue.splice(i,1);
 				
@@ -428,6 +592,7 @@ public class ParallelInstance extends CompositeEffectInstance
 		}
 		
 	}
+
 }
 
 }

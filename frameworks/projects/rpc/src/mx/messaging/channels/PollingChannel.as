@@ -38,9 +38,31 @@ use namespace mx_internal;
 /**
  *  The PollingChannel class provides the polling behavior that all polling channels in the messaging
  *  system require.
+ *  
+ *  @langversion 3.0
+ *  @playerversion Flash 9
+ *  @playerversion AIR 1.1
+ *  @productversion BlazeDS 4
+ *  @productversion LCDS 3 
  */
 public class PollingChannel extends Channel
 {
+    //--------------------------------------------------------------------------
+    //
+    // Protected Static Constants
+    //
+    //--------------------------------------------------------------------------
+
+    /**
+     *  @private
+     *  Channel config parsing constants. 
+     */
+    protected static const POLLING_ENABLED:String = "polling-enabled";
+    protected static const POLLING_INTERVAL_MILLIS:String = "polling-interval-millis";
+    protected static const POLLING_INTERVAL_LEGACY:String = "polling-interval-seconds";
+    protected static const PIGGYBACKING_ENABLED:String = "piggybacking-enabled";
+    protected static const LOGIN_AFTER_DISCONNECT:String = "login-after-disconnect";
+
     //--------------------------------------------------------------------------
     //
     // Constructor
@@ -53,12 +75,18 @@ public class PollingChannel extends Channel
      *  by default.
      *
      *  <p><b>Note</b>: The PollingChannel type should not be constructed directly. Instead
-     *  create instances of protocol specific subclasses such as HTTPChannel or
+	 *  create instances of protocol specific subclasses such as HTTPChannel or
      *  AMFChannel that extend it.</p>
      *
-     *  @param id The id of this Channel.
+	 *  @param id The id of this Channel.
+	 *  
+	 *  @param uri The uri for this Channel.
      *  
-     *  @param uri The uri for this Channel.
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion BlazeDS 4
+     *  @productversion LCDS 3 
      */
     public function PollingChannel(id:String = null, uri:String = null)
     {
@@ -122,8 +150,7 @@ public class PollingChannel extends Channel
     /**
      *  @private
      */
-    private var resourceManager:IResourceManager =
-                                    ResourceManager.getInstance();
+    private var resourceManager:IResourceManager = ResourceManager.getInstance();
 
     //--------------------------------------------------------------------------
     //
@@ -162,11 +189,25 @@ public class PollingChannel extends Channel
             super.setConnected(value);
         }
     }        
-       
+
+    //----------------------------------
+    //  loginAfterDisconnect
+    //----------------------------------
+    
+    /**
+     *  @private
+     */
+    protected var _loginAfterDisconnect:Boolean;
+
+    mx_internal function get loginAfterDisconnect():Boolean
+    {
+        return _loginAfterDisconnect;
+    }
+
     //----------------------------------
     //  piggybackingEnabled
-    //----------------------------------   
-      
+    //----------------------------------
+
     /**
      *  @private
      */
@@ -189,9 +230,9 @@ public class PollingChannel extends Channel
     }
        
     //----------------------------------
-    //  pollingEnabled
-    //----------------------------------
-    
+	//  pollingEnabled
+	//----------------------------------
+	
     /**
      *  @private
      */
@@ -225,9 +266,9 @@ public class PollingChannel extends Channel
         }
     }
 
-    //----------------------------------
-    //  pollingInterval
-    //----------------------------------
+	//----------------------------------
+	//  pollingInterval
+	//----------------------------------
 
     /**
      *  @private
@@ -272,15 +313,15 @@ public class PollingChannel extends Channel
         }
         else
         {
-            var message:String = resourceManager.getString(
-                "messaging", "pollingIntervalNonPositive");
+			var message:String = resourceManager.getString(
+				"messaging", "pollingIntervalNonPositive");
             throw new ArgumentError(message);
         }
     }
 
-    //----------------------------------
-    //  realtime
-    //----------------------------------
+	//----------------------------------
+	//  realtime
+	//----------------------------------
     
     /**
      *  @private
@@ -293,9 +334,9 @@ public class PollingChannel extends Channel
         return _pollingEnabled;
     }    
 
-    //----------------------------------
-    //  timerRunning
-    //----------------------------------
+	//----------------------------------
+	//  timerRunning
+	//----------------------------------
     
     /**
      *  @private
@@ -312,46 +353,52 @@ public class PollingChannel extends Channel
     //--------------------------------------------------------------------------
 
     /**
-     *  Sends the specified message to its target destination.
-     *  Subclasses must override the <code>internalSend()</code> method to
-     *  perform the actual send.
-     *  <code>PollingChannel</code> will wrap outbound messages in poll requests if a poll
-     *  is not currently outstanding.
+	 *  Sends the specified message to its target destination.
+	 *  Subclasses must override the <code>internalSend()</code> method to
+	 *  perform the actual send.
+	 *  <code>PollingChannel</code> will wrap outbound messages in poll requests if a poll
+	 *  is not currently outstanding.
      *
-     *  @param agent The MessageAgent that is sending the message.
-     * 
-     *  @param message The Message to send.
-     * 
-     *  @throws mx.messaging.errors.InvalidDestinationError If neither the MessageAgent nor the
-     *                                  message specify a destination.
-     */
-    override public function send(agent:MessageAgent, message:IMessage):void
-    {    
-        var piggyback:Boolean = false;
-        if (!pollOutstanding && _piggybackingEnabled && !(message is CommandMessage))
-        {
-            if (_shouldPoll)
-            {
-                piggyback = true;
-            }
-            else
-            {
-                var consumerDispatcher:ConsumerMessageDispatcher = ConsumerMessageDispatcher.getInstance();
-                if (consumerDispatcher.isChannelUsedForSubscriptions(this))
-                    piggyback = true;
-            }
-        }
-        if (piggyback)
-            internalPoll();
-        
-        super.send(agent, message);
-        
-        if (piggyback)
-        {
-            // Manually build and send a terminal poll message to return any pushed messages
-            // that may result from the sent message above. Invoking internalPoll() again would 
-            // be a no-op because we now have the initial poll outstanding.
-            var msg:CommandMessage = new CommandMessage();
+	 *  @param agent The MessageAgent that is sending the message.
+	 * 
+	 *  @param message The Message to send.
+	 * 
+	 *  @throws mx.messaging.errors.InvalidDestinationError If neither the MessageAgent nor the
+	 *                                  message specify a destination.
+	 *  
+	 *  @langversion 3.0
+	 *  @playerversion Flash 9
+	 *  @playerversion AIR 1.1
+	 *  @productversion BlazeDS 4
+	 *  @productversion LCDS 3 
+	 */
+	override public function send(agent:MessageAgent, message:IMessage):void
+	{    
+	    var piggyback:Boolean = false;
+	    if (!pollOutstanding && _piggybackingEnabled && !(message is CommandMessage))
+	    {
+	        if (_shouldPoll)
+	        {
+	            piggyback = true;
+	        }
+	        else
+	        {
+	            var consumerDispatcher:ConsumerMessageDispatcher = ConsumerMessageDispatcher.getInstance();
+	            if (consumerDispatcher.isChannelUsedForSubscriptions(this))
+	                piggyback = true;
+	        }
+	    }
+	    if (piggyback)
+	        internalPoll();
+	    
+	    super.send(agent, message);
+	    
+	    if (piggyback)
+	    {
+    	    // Manually build and send a terminal poll message to return any pushed messages
+    	    // that may result from the sent message above. Invoking internalPoll() again would 
+    	    // be a no-op because we now have the initial poll outstanding.
+    	    var msg:CommandMessage = new CommandMessage();
             msg.operation = CommandMessage.POLL_OPERATION;
 
             if (Log.isDebug())
@@ -367,8 +414,8 @@ public class PollingChannel extends Channel
                 stopPolling();
                 throw e;
             }
-        }       
-    }
+        }	    
+	}
 
     //--------------------------------------------------------------------------
     //
@@ -382,11 +429,11 @@ public class PollingChannel extends Channel
      * 
      *  @param event The ChannelFaultEvent.
      */
-    override protected function connectFailed(event:ChannelFaultEvent):void
-    {
-         stopPolling();
-         super.connectFailed(event);   
-    }
+	override protected function connectFailed(event:ChannelFaultEvent):void
+	{
+	     stopPolling();
+	     super.connectFailed(event);   
+	}
 
     /**
      *  @private
@@ -441,10 +488,16 @@ public class PollingChannel extends Channel
      *  polling the channel will poll the server on behalf of connected MessageAgents.
      *  <p>Invoked automatically based upon subscribing or unsubscribing from a remote
      *  destination over a PollingChannel.</p>
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion BlazeDS 4
+     *  @productversion LCDS 3 
      */
     public function enablePolling():void
     {
-        _pollingRef++;
+    	_pollingRef++;
         if (_pollingRef == 0)
             startPolling();
     }
@@ -455,10 +508,16 @@ public class PollingChannel extends Channel
      *  polling the channel stops polling.
      *  <p>Invoked automatically based upon subscribing or unsubscribing from a remote
      *  destination over a PollingChannel.</p>
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion BlazeDS 4
+     *  @productversion LCDS 3 
      */
     public function disablePolling():void
     {
-        _pollingRef--;
+    	_pollingRef--;
         if (_pollingRef < 0)
             stopPolling();
     }
@@ -468,6 +527,12 @@ public class PollingChannel extends Channel
      *  and polling is enabled for this channel.
      *
      *  Note that this method will not start a new poll if one is currently in progress.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion BlazeDS 4
+     *  @productversion LCDS 3 
      */
     public function poll():void
     {
@@ -529,22 +594,20 @@ public class PollingChannel extends Channel
      */
     protected function applyPollingSettings(settings:XML):void
     {
-        if (settings.properties.length())
-        {
-            var props:XML = settings.properties[0];
-            if (props["polling-enabled"].length())
-                internalPollingEnabled = props["polling-enabled"].toString()=="true";
-            if (props["polling-interval-millis"].length())
-                internalPollingInterval = parseInt(props["polling-interval-millis"].toString());
-            else if (props["polling-interval-seconds"].length()) // deprecated
-                internalPollingInterval = parseInt(props["polling-interval-seconds"].toString()) * 1000;
-            
-            if (props["piggybacking-enabled"].length())
-                internalPiggybackingEnabled = props["piggybacking-enabled"].toString()=="true";
-            
-            if (props["login-after-disconnect"].length())
-                _loginAfterDisconnect = props["login-after-disconnect"].toString()=="true";             
-        }
+        if (settings.properties.length() == 0)
+            return;
+
+        var props:XML = settings.properties[0];
+        if (props[POLLING_ENABLED].length() != 0)
+            internalPollingEnabled = props[POLLING_ENABLED].toString() == TRUE;
+        if (props[POLLING_INTERVAL_MILLIS].length() !=0)
+            internalPollingInterval = parseInt(props[POLLING_INTERVAL_MILLIS].toString());
+        else if (props[POLLING_INTERVAL_LEGACY].length() != 0)
+            internalPollingInterval = parseInt(props[POLLING_INTERVAL_LEGACY].toString()) * 1000;
+        if (props[PIGGYBACKING_ENABLED].length() != 0)
+            internalPiggybackingEnabled = props[PIGGYBACKING_ENABLED].toString() == TRUE;
+        if (props[LOGIN_AFTER_DISCONNECT].length() != 0)
+            _loginAfterDisconnect = props[LOGIN_AFTER_DISCONNECT].toString() == TRUE;
     }
 
     /**
@@ -566,8 +629,8 @@ public class PollingChannel extends Channel
         if (!pollOutstanding)
         {
             if (Log.isInfo())
-                _log.info("'{0}' channel requesting queued messages.", id);
-                
+            	_log.info("'{0}' channel requesting queued messages.", id);
+            	
             // If this poll is triggered via a direct invocation make sure no
             // concurrent poll Timer is running.
             if (timerRunning)
@@ -614,7 +677,7 @@ public class PollingChannel extends Channel
 
             _shouldPoll = true;
 
-            poll(); // Poll immediately. Once a result is returned we schedule the next poll invocation.
+		    poll(); // Poll immediately. Once a result is returned we schedule the next poll invocation.
         }
         // If polling is not enabled, this is a no-op.
     }
@@ -636,6 +699,12 @@ public class PollingChannel extends Channel
 
     /**
     * Define the default Polling Interval as 3000ms
+    *  
+    *  @langversion 3.0
+    *  @playerversion Flash 9
+    *  @playerversion AIR 1.1
+    *  @productversion BlazeDS 4
+    *  @productversion LCDS 3 
     */
     private static const DEFAULT_POLLING_INTERVAL:int = 3000;
 }
@@ -701,11 +770,11 @@ class PollCommandMessageResponder extends MessageResponder
         channel.addEventListener(PropertyChangeEvent.PROPERTY_CHANGE, channelPropertyChangeHandler);
     }
 
-    //--------------------------------------------------------------------------
-    //
-    // Variables
-    // 
-    //--------------------------------------------------------------------------
+	//--------------------------------------------------------------------------
+	//
+	// Variables
+	// 
+	//--------------------------------------------------------------------------
     
     /**
      *  @private
@@ -717,12 +786,12 @@ class PollCommandMessageResponder extends MessageResponder
      *  @private
      */
     private var resourceManager:IResourceManager =
-                                    ResourceManager.getInstance();
-                                    
-    /**
-     *  @private
-     */                             
-    private var suppressHandlers:Boolean;                                   
+									ResourceManager.getInstance();
+									
+	/**
+	 *  @private
+	 */								
+    private var suppressHandlers:Boolean;									
 
     //--------------------------------------------------------------------------
     //
@@ -741,7 +810,8 @@ class PollCommandMessageResponder extends MessageResponder
     override protected function resultHandler(msg:IMessage):void
     {      
         var pollingChannel:PollingChannel = channel as PollingChannel;        
-        
+        channel.removeEventListener(PropertyChangeEvent.PROPERTY_CHANGE, channelPropertyChangeHandler);
+
         if (suppressHandlers)
         {
             if (Log.isDebug())
@@ -760,7 +830,7 @@ class PollCommandMessageResponder extends MessageResponder
             // Return early if the response is tagged as a no-op poll.
             if (msg.headers[CommandMessage.NO_OP_POLL_HEADER] == true)
                 return;
-                            
+                        	
             if (msg.body != null)
             {
                 var messageList:Array = msg.body as Array;
@@ -794,22 +864,22 @@ class PollCommandMessageResponder extends MessageResponder
         }
         else // Generally, the result of a connection failure while the poll was on the network.
         {
-            var errMsg:ErrorMessage = new ErrorMessage();
-            errMsg.faultDetail = resourceManager.getString(
-                "messaging", "receivedNull");
-            status(errMsg);
-            return;
-        }
-        
-        // If no errors, continue the polling interval.
-        if (msg.headers[CommandMessage.POLL_WAIT_HEADER] != null)
-        {
-            doPoll(msg.headers[CommandMessage.POLL_WAIT_HEADER]); 
-        }
-        else
-        {
-            doPoll();
-        }
+        	var errMsg:ErrorMessage = new ErrorMessage();
+        	errMsg.faultDetail = resourceManager.getString(
+				"messaging", "receivedNull");
+        	status(errMsg);
+        	return;
+       	}
+       	
+       	// If no errors, continue the polling interval.
+       	if (msg.headers[CommandMessage.POLL_WAIT_HEADER] != null)
+       	{
+       	    doPoll(msg.headers[CommandMessage.POLL_WAIT_HEADER]); 
+       	}
+       	else
+       	{
+       	    doPoll();
+       	}
     }
 
     /**
@@ -820,6 +890,8 @@ class PollCommandMessageResponder extends MessageResponder
      */ 
     override protected function statusHandler(msg:IMessage):void
     {        
+        channel.removeEventListener(PropertyChangeEvent.PROPERTY_CHANGE, channelPropertyChangeHandler);
+
         if (suppressHandlers)
         {
             if (Log.isDebug())
@@ -842,11 +914,11 @@ class PollCommandMessageResponder extends MessageResponder
         // Reject this channel if the server does not support polling
         if (errMsg != null && errMsg.faultCode == "Server.PollNotSupported")
         {
-            pollingChannel.pollFailed(true);
+        	pollingChannel.pollFailed(true);
         }
         else
         {
-            pollingChannel.pollFailed(false);
+        	pollingChannel.pollFailed(false);
         }
     }
     

@@ -37,18 +37,23 @@ import mx.utils.Base64Encoder;
  *  that implements <code>flash.display.IBitmapDrawable</code>,
  *  including Flex UIComponents.
  *
- *  <p>An instance of this class can be sent via RemoteObject
- *  to Adobe's LiveCycle Data Services in order to generate
+ *  <p>An instance of this class can be sent as a RemoteObject
+ *  to Adobe's LiveCycle Data Services to generate
  *  a PDF file of a client-side image.
  *  If you need to specify additional properties of the image
  *  beyond its <code>contentType</code>, <code>width</code>,
- *  and <code>height</code>, you should set name/value pairs
+ *  and <code>height</code> properties, you should set name/value pairs
  *  on the <code>properties</code> object.</p>
  *
  *  <p>In earlier versions of Flex, you set these additional
  *  properties on the ImageSnapshot instance itself.
  *  This class is still dynamic in order to allow that,
- *  but in a future version of Flex it may no longer be dynamic.</p>
+ *  but in a future version of Flex it might no longer be dynamic.</p>
+ *  
+ *  @langversion 3.0
+ *  @playerversion Flash 9
+ *  @playerversion AIR 1.1
+ *  @productversion Flex 3
  */
 public dynamic class ImageSnapshot
 {
@@ -62,6 +67,11 @@ public dynamic class ImageSnapshot
 
     /**
      *  The maximum width and height of a Bitmap.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public static const MAX_BITMAP_DIMENSION:int = 2880;
     
@@ -75,6 +85,11 @@ public dynamic class ImageSnapshot
      *  The default <code>mx.graphics.codec.IImageEncoder</code> implementation
      *  used to capture images. The two implementations are PNGEncoder and 
      *  JPEGEncoder. The default encoder uses the PNG format.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public static var defaultEncoder:Class = PNGEncoder;
 
@@ -112,7 +127,13 @@ public dynamic class ImageSnapshot
      *  @param smoothing A Boolean value that determines whether a 
      *  BitmapData object is smoothed when scaled.
      *
-     *  @return A BitmapData object representing the captured snapshot.
+     *  @return A BitmapData object representing the captured snapshot or null if 
+     *  the source has no visible bounds.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public static function captureBitmapData(
                                 source:IBitmapDrawable, matrix:Matrix = null,
@@ -187,6 +208,10 @@ public dynamic class ImageSnapshot
             data.draw(source, matrix, colorTransform,
                       blendMode, clipRect, smoothing);
         }
+        catch(e:Error)
+        {
+            data = null;
+        }
         finally
         {
             if (source is IUIComponent)
@@ -220,6 +245,11 @@ public dynamic class ImageSnapshot
      *
      *  @return An ImageSnapshot holding an encoded captured snapshot
      *  and associated image metadata.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public static function captureImage(
                                 source:IBitmapDrawable, dpi:Number = 0,
@@ -316,6 +346,11 @@ public dynamic class ImageSnapshot
      *  @return A string representing the base64 encoded snapshot.
      * 
      *  @see #captureImage
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public static function encodeImageAsBase64(snapshot:ImageSnapshot):String
     {
@@ -563,6 +598,11 @@ public dynamic class ImageSnapshot
      *
      *  @param contentType The encoder format type for the image, 
      *  either PNGEncoder or JPEGEncoder.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function ImageSnapshot(width:int = 0, height:int = 0,
                                   data:ByteArray = null,
@@ -600,6 +640,11 @@ public dynamic class ImageSnapshot
      *  that was used to capture this snapshot. For PNG format
      *  images, the MIME type is "image/png". For JPG or JPEG 
      *  images, the MIME type is "image/jpeg"
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get contentType():String
     {
@@ -628,6 +673,11 @@ public dynamic class ImageSnapshot
     
     /**
      *  The encoded data representing the image snapshot.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get data():ByteArray
     {
@@ -656,6 +706,11 @@ public dynamic class ImageSnapshot
     
     /**
      *  The image height in pixels.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get height():int
     {
@@ -693,6 +748,11 @@ public dynamic class ImageSnapshot
      *  on the pre-existing empty Object.</p>
      *
      *  @default {}
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get properties():Object
     {
@@ -721,6 +781,11 @@ public dynamic class ImageSnapshot
 
     /**
      * The image width in pixels.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get width():int
     {

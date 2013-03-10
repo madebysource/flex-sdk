@@ -16,6 +16,11 @@ import flash.events.IEventDispatcher;
 
 /**
  *  All loggers within the logging framework must implement this interface.
+ *  
+ *  @langversion 3.0
+ *  @playerversion Flash 9
+ *  @playerversion AIR 1.1
+ *  @productversion Flex 3
  */
 public interface ILogger extends IEventDispatcher
 {
@@ -33,6 +38,11 @@ public interface ILogger extends IEventDispatcher
      *  The category value for the logger.
      *
      *  @return String containing the category for this logger.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     function get category():String;
 
@@ -71,9 +81,6 @@ public interface ILogger extends IEventDispatcher
      *    <li><code>LogEventLevel.DEBUG</code> designates informational
      *    level messages that are fine grained and most helpful when
      *    debugging an application.</li>
-     *
-     *    <li><code>LogEventLevel.ALL</code> intended to force a target to
-     *    process all messages.</li>
      *  </ul>
      *
      *  @param message The information to log.
@@ -97,6 +104,11 @@ public interface ILogger extends IEventDispatcher
      *  //   "here is some channel info 15.4 and true"
      *  </pre>
      *
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     function log(level:int, message:String, ... rest):void;
 
@@ -134,6 +146,11 @@ public interface ILogger extends IEventDispatcher
      *  // This will log the following String:
      *  //   "here is some channel info 15.4 and true"
      *  </pre>
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     function debug(message:String, ... rest):void;
 
@@ -170,6 +187,11 @@ public interface ILogger extends IEventDispatcher
      *  // This will log the following String:
      *  //   "here is some channel info 15.4 and true"
      *  </pre>
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     function error(message:String, ... rest):void;
 
@@ -206,6 +228,11 @@ public interface ILogger extends IEventDispatcher
      *  // This will log the following String:
      *  //   "here is some channel info 15.4 and true"
      *  </pre>
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     function fatal(message:String, ... rest):void;
 
@@ -241,6 +268,11 @@ public interface ILogger extends IEventDispatcher
      *  // This will log the following String:
      *  //   "here is some channel info 15.4 and true"
      *  </pre>
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     function info(message:String, ... rest):void;
 
@@ -276,6 +308,11 @@ public interface ILogger extends IEventDispatcher
      *  // This will log the following String:
      *  //   "here is some channel info 15.4 and true"
      *  </pre>
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     function warn(message:String, ... rest):void;
 }

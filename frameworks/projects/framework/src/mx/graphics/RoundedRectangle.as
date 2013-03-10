@@ -11,11 +11,18 @@
 
 package mx.graphics
 {
+	
+[Deprecated(replacement="mx.geom.RoundedRectangle", since="4.0")] 
 
 import flash.geom.Rectangle;
 
 /**
  *  RoundedRectangle represents a Rectangle with curved corners
+ *  
+ *  @langversion 3.0
+ *  @playerversion Flash 9
+ *  @playerversion AIR 1.1
+ *  @productversion Flex 3
  */
 public class RoundedRectangle extends Rectangle
 {	
@@ -39,6 +46,11 @@ public class RoundedRectangle extends Rectangle
 	 *  @param height The height of the rectangle, in pixels.
 	 *
 	 *  @param cornerRadius The radius of each corner, in pixels.
+	 *  
+	 *  @langversion 3.0
+	 *  @playerversion Flash 9
+	 *  @playerversion AIR 1.1
+	 *  @productversion Flex 3
 	 */
 	public function RoundedRectangle(x:Number = 0, y:Number = 0,
 									 width:Number = 0, height:Number = 0,
@@ -65,6 +77,11 @@ public class RoundedRectangle extends Rectangle
 	 *  The radius of each corner (in pixels).
 	 *  
 	 *  @default 0
+	 *  
+	 *  @langversion 3.0
+	 *  @playerversion Flash 9
+	 *  @playerversion AIR 1.1
+	 *  @productversion Flex 3
 	 */
 	public var cornerRadius:Number = 0;
 }

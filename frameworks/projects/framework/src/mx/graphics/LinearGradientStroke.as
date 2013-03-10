@@ -11,10 +11,18 @@
 
 package mx.graphics
 {
-
+ 
 import flash.display.GradientType;
 import flash.display.Graphics;
+import flash.display.GraphicsGradientFill;
+import flash.display.GraphicsStroke;
+import flash.geom.Matrix;
+import flash.geom.Point;
+import flash.geom.Rectangle;
+
 import mx.core.mx_internal;
+
+use namespace mx_internal; 
 
 /**
  *  The LinearGradientStroke class lets you specify a gradient filled stroke.
@@ -25,8 +33,13 @@ import mx.core.mx_internal;
  *  @see mx.graphics.GradientEntry
  *  @see mx.graphics.RadialGradient 
  *  @see flash.display.Graphics
+ *  
+ *  @langversion 3.0
+ *  @playerversion Flash 9
+ *  @playerversion AIR 1.1
+ *  @productversion Flex 3
  */
-public class LinearGradientStroke extends GradientBase implements IStroke
+public class LinearGradientStroke extends GradientStroke
 {
     include "../core/Version.as";
 
@@ -41,7 +54,7 @@ public class LinearGradientStroke extends GradientBase implements IStroke
      *
      *  @param weight Specifies the line weight, in pixels.
      *  This parameter is optional,
-     *  with a default value of <code>0</code>. 
+     *  with a default value of <code>1</code>. 
      *
      *  @param pixelHinting A Boolean value that specifies
      *  whether to hint strokes to full pixels.
@@ -60,7 +73,7 @@ public class LinearGradientStroke extends GradientBase implements IStroke
      *  <code>LineScaleMode.NONE</code>, <code>LineScaleMode.NORMAL</code>,
      *  and <code>LineScaleMode.VERTICAL</code>.
      *  This parameter is optional,
-     *  with a default value of <code>LineScaleMode.NORMAL</code>. 
+     *  with a default value of <code>LineScaleMode.NONE</code>. 
      *
      *  @param caps A value from the CapsStyle class
      *  that specifies the type of caps at the end of lines.
@@ -69,16 +82,16 @@ public class LinearGradientStroke extends GradientBase implements IStroke
      *  A <code>null</code> value is equivalent to
      *  <code>CapsStyle.ROUND</code>.
      *  This parameter is optional,
-     *  with a default value of <code>null</code>. 
+     *  with a default value of <code>CapsStyle.ROUND</code>. 
      *
      *  @param joints A value from the JointStyle class
      *  that specifies the type of joint appearance used at angles.
      *  Valid values are <code>JointStyle.BEVEL</code>,
      *  <code>JointStyle.MITER</code>, and <code>JointStyle.ROUND</code>.
      *  A <code>null</code> value is equivalent to
-     *  <code>JoinStyle.ROUND</code>.
+     *  <code>JointStyle.ROUND</code>.
      *  This parameter is optional,
-     *  with a default value of <code>null</code>. 
+     *  with a default value of <code>JointStyle.ROUND</code>. 
      *
      *  @param miterLimit A number that indicates the limit
      *  at which a miter is cut off. 
@@ -92,435 +105,91 @@ public class LinearGradientStroke extends GradientBase implements IStroke
      *  For example, with a <code>miterLimit</code> factor of 2.5 and a 
      *  <code>thickness</code> of 10 pixels, the miter is cut off at 25 pixels. 
      *  This parameter is optional,
-     *  with a default value of <code>0</code>.
+     *  with a default value of <code>3</code>.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
-    public function LinearGradientStroke(weight:Number = 0,
+    public function LinearGradientStroke(weight:Number = 1,
                                          pixelHinting:Boolean = false,
                                          scaleMode:String = "normal",
-                                         caps:String = null,
-                                         joints:String = null,
-                                         miterLimit:Number = 0)
+                                         caps:String = "round",
+                                         joints:String = "round",
+                                         miterLimit:Number = 3)
     {
-        super();
-
-        this.weight = weight;
-        this.pixelHinting = pixelHinting;
-        this.scaleMode = scaleMode;
-        this.caps = caps;
-        this.joints = joints;
-        this.miterLimit = miterLimit;
+        super(weight, pixelHinting, scaleMode, caps, joints, miterLimit);
     }
+
+    /**
+     *  @private
+     */
+    private static var commonMatrix:Matrix = new Matrix();
     
     //--------------------------------------------------------------------------
     //
     //  Properties
     //
     //--------------------------------------------------------------------------
-    
+
     //----------------------------------
-    //  angle
+    //  matrix
     //----------------------------------
     
     /**
      *  @private
-     *  Storage for the angle property.
      */
-    private var _rotation:Number = 0.0;
-    
-    [Inspectable(category="General")]
-
-    /**
-     *  By default, the LinearGradientStroke defines a transition
-     *  from left to right across the control. 
-     *  Use the <code>angle</code> property to control the transition direction. 
-     *  For example, a value of 180.0 causes the transition
-     *  to occur from right to left, rather than from left to right.
-     *
-     *  @default 0.0
-     */
-    public function get angle():Number
+    override public function set matrix(value:Matrix):void
     {
-        return _rotation / Math.PI * 180;
-    }
-
-    /**
-     *  @private
-     */
-    public function set angle(value:Number):void
-    {
-        var oldValue:Number = _rotation;
-        _rotation = value / 180 * Math.PI;
-        
-        mx_internal::dispatchGradientChangedEvent(
-                            "angle", oldValue, _rotation);
+        scaleX = NaN;
+        super.matrix = value;
     }
 
     //----------------------------------
-    //  caps
+    //  scaleX
     //----------------------------------
-
-    /**
-     *  @private
-     *  Storage for the caps property.
-     */
-    private var _caps:String = null;
     
-    [Bindable("propertyChange")]
-    [Inspectable(category="General", enumeration="round,square,none", defaultValue="round")]
-
-    /**
-     *  A value from the CapsStyle class
-     *  that specifies the type of caps at the end of lines.
-     *
-     *  <p>Valid values are <code>CapsStyle.NONE</code>,
-     *  <code>CapsStyle.ROUND</code>, and <code>CapsStyle.SQUARE</code>.
-     *  A <code>null</code> value is equivalent to
-     *  <code>CapsStyle.ROUND</code>.</p>
-     *
-     *  @default null
-     */
-    public function get caps():String
-    {
-        return _caps;
-    }
-    
-    /**
-     *  @private
-     */
-    public function set caps(value:String):void
-    {
-        var oldValue:String = _caps;
-        if (value != oldValue)
-        {
-            _caps = value;
-            
-            mx_internal::dispatchGradientChangedEvent(
-                                "caps", oldValue, value);
-        }
-    }
-    
-    //----------------------------------
-    //  interpolationMethod
-    //----------------------------------
-
-    /**
-     *  @private
-     *  Storage for the interpolationMethod property.
-     */
-    private var _interpolationMethod:String = "rgb";
-    
-    [Inspectable(category="General", enumeration="rgb,linearRGB", defaultValue="rgb")]
-
-    /**
-     *  A value from the InterpolationMethod class
-     *  that specifies which interpolation method to use.
-     *
-     *  <p>Valid values are <code>InterpolationMethod.LINEAR_RGB</code>
-     *  and <code>InterpolationMethod.RGB</code>.</p>
-     *  
-     *  @default InterpolationMethod.RGB
-     */
-    public function get interpolationMethod():String
-    {
-        return _interpolationMethod;
-    }
-    
-    /**
-     *  @private
-     */
-    public function set interpolationMethod(value:String):void
-    {
-        var oldValue:String = _interpolationMethod;
-        if (value != oldValue)
-        {
-            _interpolationMethod = value;
-            
-            mx_internal::dispatchGradientChangedEvent(
-                                "interpolationMethod", oldValue, value);
-        }
-    }
-    
-    //----------------------------------
-    //  joints
-    //----------------------------------
-
-    /**
-     *  @private
-     *  Storage for the joints property.
-     */
-    private var _joints:String = null;
-    
-    [Bindable("propertyChange")]
-    [Inspectable(category="General", enumeration="round,bevel,miter", defaultValue="round")]
-
-    /**
-     *  A value from the JointStyle class that specifies the type
-     *  of joint appearance used at angles.
-     *
-     *  <p>Valid values are <code>JointStyle.BEVEL</code>,
-     *  <code>JointStyle.MITER</code>, and <code>JointStyle.ROUND</code>.
-     *  A <code>null</code> value is equivalent to
-     *  <code>JoinStyle.ROUND</code>.</p>
-     *  
-     *  @default null
-     */
-    public function get joints():String
-    {
-        return _joints;
-    }
-    
-    /**
-     *  @private
-     */
-    public function set joints(value:String):void
-    {
-        var oldValue:String = _joints;
-        if (value != oldValue)
-        {
-            _joints = value;
-            
-            mx_internal::dispatchGradientChangedEvent(
-                                "joints", oldValue, value);
-        }
-    }
-    
-    //----------------------------------
-    //  miterLimit
-    //----------------------------------
-
-    /**
-     *  @private
-     *  Storage for the miterLimit property.
-     */
-    private var _miterLimit:Number = 0;
+    private var _scaleX:Number;
     
     [Bindable("propertyChange")]
     [Inspectable(category="General")]
     
     /**
-     *  A number that indicates the limit at which a miter is cut off. 
-     *
-     *  <p>Valid values range from 0 to 255
-     *  (and values outside of that range are rounded to 0 or 255).</p>
-     *
-     *  <p>This value is only used if the <code>jointStyle</code> 
-     *  is set to <code>JointStyle.MITER</code>.</p>
-     *
-     *  <p>The <code>miterLimit</code> value represents the length that a miter
-     *  can extend beyond the point at which the lines meet to form a joint.
-     *  The value expresses a factor of the line <code>thickness</code>.
-     *  For example, with a <code>miterLimit</code> factor of 2.5
-     *  and a <code>thickness</code> of 10 pixels,
-     *  the miter is cut off at 25 pixels.</p>
+     *  The horizontal scale of the gradient transform, which defines the width of the (unrotated) gradient
      *  
-     *  @default 0
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
-    public function get miterLimit():Number
+    public function get scaleX():Number
     {
-        return _miterLimit;
+        return compoundTransform ? compoundTransform.scaleX : _scaleX;
     }
     
     /**
      *  @private
      */
-    public function set miterLimit(value:Number):void
+    public function set scaleX(value:Number):void
     {
-        var oldValue:Number = _miterLimit;
-        if (value != oldValue)
+        if (value != scaleX)
         {
-            _miterLimit = value;
+            var oldValue:Number = scaleX;
             
-            mx_internal::dispatchGradientChangedEvent(
-                                "miterLimit", oldValue, value);
+            if (compoundTransform)
+            {
+                // If we have a compoundTransform, only non-NaN values are allowed
+                if (!isNaN(value))
+                    compoundTransform.scaleX = value;
+            }
+            else
+            {
+                _scaleX = value;
+            }
+            dispatchGradientChangedEvent("scaleX", oldValue, value);
         }
-    }
-
-    //----------------------------------
-    //  pixelHinting
-    //----------------------------------
-
-    /**
-     *  @private
-     *  Storage for the pixelHinting property.
-     */
-    private var _pixelHinting:Boolean = false;
-    
-    [Bindable("propertyChange")]
-    [Inspectable(category="General")]
-    
-    /**
-     *  A Boolean value that specifies whether to hint strokes to full pixels.
-     *
-     *  <p>This affects both the position of anchors of a curve
-     *  and the line stroke size itself.</p>
-     *
-     *  <p>With <code>pixelHinting</code> set to <code>true</code>,
-     *  Flash Player and AIR hint line widths to full pixel widths.
-     *  With <code>pixelHinting</code> set to <code>false</code>,
-     *  disjoints can appear for curves and straight lines.</p>
-     *  
-     *  @default false
-     */
-    public function get pixelHinting():Boolean
-    {
-        return _pixelHinting;
-    }
-    
-    /**
-     *  @private
-     */
-    public function set pixelHinting(value:Boolean):void
-    {
-        var oldValue:Boolean = _pixelHinting;
-        if (value != oldValue)
-        {
-            _pixelHinting = value;
-            
-            mx_internal::dispatchGradientChangedEvent(
-                                "pixelHinting", oldValue, value);
-        }
-    }
-    
-    //----------------------------------
-    //  scaleMode
-    //----------------------------------
-
-    /**
-     *  @private
-     *  Storage for the scaleMode property.
-     */
-    private var _scaleMode:String = "normal";
-    
-    [Bindable("propertyChange")]
-    [Inspectable(category="General", enumeration="normal,vertical,horizontal,none", defaultValue="normal")]
-
-    /**
-     *  A value from the LineScaleMode class
-     *  that  specifies which scale mode to use.
-     *  Value valids are:
-     * 
-     *  <ul>
-     *  <li>
-     *  <code>LineScaleMode.NORMAL</code>&#151;
-     *  Always scale the line thickness when the object is scaled  (the default).
-     *  </li>
-     *  <li>
-     *  <code>LineScaleMode.NONE</code>&#151;
-     *  Never scale the line thickness.
-     *  </li>
-     *  <li>
-     *  <code>LineScaleMode.VERTICAL</code>&#151;
-     *  Do not scale the line thickness if the object is scaled vertically 
-     *  <em>only</em>. 
-     *  </li>
-     *  <li>
-     *  <code>LineScaleMode.HORIZONTAL</code>&#151;
-     *  Do not scale the line thickness if the object is scaled horizontally 
-     *  <em>only</em>. 
-     *  </li>
-     *  </ul>
-     * 
-     *  @default LineScaleMode.NORMAL
-     */
-    public function get scaleMode():String
-    {
-        return _scaleMode;
-    }
-    
-    /**
-     *  @private
-     */
-    public function set scaleMode(value:String):void
-    {
-        var oldValue:String = _scaleMode;
-        if (value != oldValue)
-        {
-            _scaleMode = value;
-            
-            mx_internal::dispatchGradientChangedEvent(
-                                "scaleMode", oldValue, value);
-        }
-    }
-
-    //----------------------------------
-    //  spreadMethod
-    //----------------------------------
-
-    /**
-     *  @private
-     *  Storage for the spreadMethod property.
-     */
-    private var _spreadMethod:String = "pad";
-    
-    [Bindable("propertyChange")]
-    [Inspectable(category="General", enumeration="pad,reflect,repeat", defaultValue="pad")]
-
-    /**
-     *  A value from the SpreadMethod class
-     *  that specifies which spread method to use.
-     *
-     *  <p>Value values are <code>SpreadMethod.PAD</code>, 
-     *  <code>SpreadMethod.REFLECT</code>,
-     *  and <code>SpreadMethod.REPEAT</code>.</p>
-     *  
-     *  @default SpreadMethod.PAD
-     */
-    public function get spreadMethod():String
-    {
-        return _spreadMethod;
-    }
-    
-    /**
-     *  @private
-     */
-    public function set spreadMethod(value:String):void
-    {
-        var oldValue:String = _spreadMethod;
-        if (value != oldValue)
-        {
-            _spreadMethod = value;
-            
-            mx_internal::dispatchGradientChangedEvent(
-                                "spreadMethod", oldValue, value);
-        }
-    }
-
-    //----------------------------------
-    //  weight
-    //----------------------------------
-
-    /**
-     *  @private
-     *  Storage for the weight property.
-     */
-    private var _weight:Number;
-
-    [Bindable("propertyChange")]
-    [Inspectable(category="General")]
-
-    /**
-     *  The line weight, in pixels.
-     *  For many charts, the default value is 1 pixel.
-     */
-    public function get weight():Number
-    {
-        return _weight;
-    }
-    
-    /**
-     *  @private
-     */
-    public function set weight(value:Number):void
-    {
-        var oldValue:Number = _weight;
-        if (value != oldValue)
-        {
-            _weight = value;
-            
-            mx_internal::dispatchGradientChangedEvent(
-                                "weight", oldValue, value);
-        }
-    }
+    }     
     
     //--------------------------------------------------------------------------
     //
@@ -529,21 +198,146 @@ public class LinearGradientStroke extends GradientBase implements IStroke
     //--------------------------------------------------------------------------
 
     /**
-     *  Applies the properties to the specified Graphics object.
+     *  @inheritDoc
      *  
-     *  @param g The Graphics object to which the LinearGradientStroke styles
-     *  are applied.
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
-    public function apply(g:Graphics):void
+    override public function apply(graphics:Graphics, targetBounds:Rectangle, targetOrigin:Point):void
     {
-        g.lineStyle(weight, 0, 1, pixelHinting, scaleMode,
+        commonMatrix.identity();
+        
+        graphics.lineStyle(weight, 0, 1, pixelHinting, scaleMode,
                     caps, joints, miterLimit);
         
-        g.lineGradientStyle(GradientType.LINEAR, mx_internal::colors,
-                            mx_internal::alphas, mx_internal::ratios,
-                            null /* matrix */, spreadMethod,
-                            interpolationMethod);
+        if (targetBounds)
+            calculateTransformationMatrix(targetBounds, commonMatrix, targetOrigin); 
+        
+        graphics.lineGradientStyle(GradientType.LINEAR, colors,
+                            alphas, ratios,
+                            commonMatrix, spreadMethod,
+                            interpolationMethod);                        
     }
+    
+    /**
+     *  @private
+     */
+    override public function createGraphicsStroke(targetBounds:Rectangle, targetOrigin:Point):GraphicsStroke
+    {
+        // The parent class sets the gradient stroke properties common to 
+        // LinearGradientStroke and RadialGradientStroke 
+        var graphicsStroke:GraphicsStroke = super.createGraphicsStroke(targetBounds, targetOrigin); 
+        
+        if (graphicsStroke)
+        {
+            // Set other properties specific to this LinearGradientStroke  
+            GraphicsGradientFill(graphicsStroke.fill).type = GradientType.LINEAR; 
+            calculateTransformationMatrix(targetBounds, commonMatrix, targetOrigin);
+            GraphicsGradientFill(graphicsStroke.fill).matrix = commonMatrix; 
+        }
+        
+        return graphicsStroke; 
+    }
+    
+    /**
+     *  @private
+     *  Calculates this LinearGradientStroke's transformation matrix.  
+     */
+    private function calculateTransformationMatrix(targetBounds:Rectangle, matrix:Matrix, targetOrigin:Point):void
+    {        
+        matrix.identity();
+        
+        if (!compoundTransform)
+        {
+            var tx:Number = x;
+            var ty:Number = y;
+            var length:Number = scaleX;
+            
+            if (isNaN(length))
+            {
+                // Figure out the two sides
+                if (rotation % 90 != 0)
+                {           
+                    // Normalize angles with absolute value > 360 
+                    var normalizedAngle:Number = rotation % 360;
+                    // Normalize negative angles
+                    if (normalizedAngle < 0)
+                        normalizedAngle += 360;
+                    
+                    // Angles wrap at 180
+                    normalizedAngle %= 180;
+                    
+                    // Angles > 90 get mirrored
+                    if (normalizedAngle > 90)
+                        normalizedAngle = 180 - normalizedAngle;
+                    
+                    var side:Number = targetBounds.width;
+                    // Get the hypotenuse of the largest triangle that can fit in the bounds
+                    var hypotenuse:Number = Math.sqrt(targetBounds.width * targetBounds.width + targetBounds.height * targetBounds.height);
+                    // Get the angle of that largest triangle
+                    var hypotenuseAngle:Number =  Math.acos(targetBounds.width / hypotenuse) * 180 / Math.PI;
+                    
+                    // If the angle is larger than the hypotenuse angle, then use the height 
+                    // as the adjacent side of the triangle
+                    if (normalizedAngle > hypotenuseAngle)
+                    {
+                        normalizedAngle = 90 - normalizedAngle;
+                        side = targetBounds.height;
+                    }
+                    
+                    // Solve for the hypotenuse given an adjacent side and an angle. 
+                    length = side / Math.cos(normalizedAngle / 180 * Math.PI);
+                }
+                else 
+                {
+                    // Use either width or height based on the rotation
+                    length = (rotation % 180) == 0 ? targetBounds.width : targetBounds.height;
+                }
+            }
+            
+            // If only x or y is defined, force the other to be set to 0
+            if (!isNaN(tx) && isNaN(ty))
+                ty = 0;
+            else if (isNaN(tx) && !isNaN(ty))
+                tx = 0;
+            
+            // If x and y are specified, then move the gradient so that the
+            // top left corner is at 0,0
+            if (!isNaN(tx) && !isNaN(ty))
+                matrix.translate(GRADIENT_DIMENSION / 2, GRADIENT_DIMENSION / 2); // 1638.4 / 2
+            
+            // Force the length to a absolute minimum of 2. Values of 0, 1, or -1 have undesired behavior   
+            if (length >= 0 && length < 2)
+                length = 2;
+            else if (length < 0 && length > -2)
+                length = -2;
+            
+            // Scale the gradient in the x direction. The natural size is 1638.4px. No need
+            // to scale the y direction because it is infinite
+            matrix.scale (length / GRADIENT_DIMENSION, 1 / GRADIENT_DIMENSION);
+            
+            matrix.rotate (!isNaN(_angle) ? _angle : rotationInRadians);
+            if (isNaN(tx))
+                tx = targetBounds.left + targetBounds.width / 2;
+            else
+                tx += targetOrigin.x;
+            if (isNaN(ty))
+                ty = targetBounds.top + targetBounds.height / 2;
+            else
+                ty += targetOrigin.y;
+            matrix.translate(tx, ty);   
+        }
+        else
+        {
+            matrix.translate(GRADIENT_DIMENSION / 2, GRADIENT_DIMENSION / 2);
+            matrix.scale(1 / GRADIENT_DIMENSION, 1 / GRADIENT_DIMENSION);
+            matrix.concat(compoundTransform.matrix);
+            matrix.translate(targetOrigin.x, targetOrigin.y);
+        }               
+    }
+    
 }
 
 }

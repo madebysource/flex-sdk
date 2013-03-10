@@ -16,8 +16,11 @@ import mx.core.mx_internal;
 import mx.managers.ISystemManager;
 import mx.managers.SystemManager;
 
+use namespace mx_internal;
+
 [ResourceBundle("SharedResources")]
 
+[Alternative(replacement="spark.formatters.DateTimeFormatter", since="4.5")]
 /**
  *  The DateFormatter class uses a format String to return a formatted date and time String
  *  from an input String or a Date object.
@@ -58,6 +61,11 @@ import mx.managers.SystemManager;
  *  @includeExample examples/DateFormatterExample.mxml
  *  
  *  @see mx.formatters.DateBase
+ *  
+ *  @langversion 3.0
+ *  @playerversion Flash 9
+ *  @playerversion AIR 1.1
+ *  @productversion Flex 3
  */
 public class DateFormatter extends Formatter
 {
@@ -83,12 +91,24 @@ public class DateFormatter extends Formatter
     /**
      *  Converts a date that is formatted as a String into a Date object.
      *  Month and day names must match the names in mx.formatters.DateBase.
+     *
+     *  The hour value in the String must be between 0 and 23, inclusive. 
+     *  The minutes and seconds value must be between 0 and 59, inclusive.
+     *  The following example uses this method to create a Date object:
+     *
+     *  <pre>
+     *  var myDate:Date = DateFormatter.parseDateString("2009-12-02 23:45:30"); </pre>
      *  
      *  @see mx.formatters.DateBase
      * 
      *  @param str Date that is formatted as a String. 
      *
      *  @return Date object.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public static function parseDateString (str:String):Date
     {
@@ -153,10 +173,10 @@ public class DateFormatter extends Formatter
 
                 // Allow for an exact match
                 // or a match to the first 3 letters as a prefix.
-                var n:int = DateBase.mx_internal::defaultStringKey.length;
+                var n:int = DateBase.defaultStringKey.length;
                 for (var i:int = 0; i < n; i++)
                 {
-                    var s:String = String(DateBase.mx_internal::defaultStringKey[i]);
+                    var s:String = String(DateBase.defaultStringKey[i]);
                     if (s.toLowerCase() == word.toLowerCase() ||
                         s.toLowerCase().substr(0,3) == word.toLowerCase())
                     {
@@ -311,6 +331,11 @@ public class DateFormatter extends Formatter
 
     /**
      *  Constructor.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function DateFormatter()
     {
@@ -484,6 +509,11 @@ public class DateFormatter extends Formatter
      *  </table>
      *
      *  @default "MM/DD/YYYY"
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get formatString():String
     {
@@ -531,6 +561,11 @@ public class DateFormatter extends Formatter
      *
      *  @return Formatted String. Empty if an error occurs. A description 
      *  of the error condition is written to the <code>error</code> property.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     override public function format(value:Object):String
     {       
@@ -600,7 +635,7 @@ public class DateFormatter extends Formatter
 
         var dataFormatter:StringFormatter = new StringFormatter(
             formatString, VALID_PATTERN_CHARS,
-            DateBase.mx_internal::extractTokenDate);
+            DateBase.extractTokenDate);
 
         return dataFormatter.formatValue(value);
     }

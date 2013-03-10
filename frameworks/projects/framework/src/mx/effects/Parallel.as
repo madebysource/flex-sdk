@@ -71,6 +71,11 @@ import mx.effects.effectClasses.ParallelInstance;
  *  @see mx.effects.effectClasses.ParallelInstance
  *  
  *  @includeExample examples/ParallelEffectExample.mxml
+ *  
+ *  @langversion 3.0
+ *  @playerversion Flash 9
+ *  @playerversion AIR 1.1
+ *  @productversion Flex 3
  */
 public class Parallel extends CompositeEffect
 {
@@ -87,6 +92,11 @@ public class Parallel extends CompositeEffect
 	 *
 	 *  @param target This argument is ignored for Parallel effects.
 	 *  It is included only for consistency with other types of effects.
+	 *  
+	 *  @langversion 3.0
+	 *  @playerversion Flash 9
+	 *  @playerversion AIR 1.1
+	 *  @productversion Flex 3
 	 */
 	public function Parallel(target:Object = null)
 	{
@@ -94,6 +104,41 @@ public class Parallel extends CompositeEffect
 
 		instanceClass = ParallelInstance;
 	}
+
+    /**
+     * @inheritDoc
+     * 
+     * Parallel calculates this number to be the duration of each
+     * child effect played at the same time, so the compositeDuration
+     * will be equal to the duration of the child effect with the
+     * longest duration (including the startDelay and repetition data 
+     * of that effect).
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
+     */
+    override public function get compositeDuration():Number
+    {
+        var parallelDuration:Number = 0;
+        for (var i:int = 0; i < children.length; ++i)
+        {
+            var childDuration:Number;
+            var child:Effect = Effect(children[i]);
+            if (child is CompositeEffect)
+                childDuration = CompositeEffect(child).compositeDuration;
+            else
+                childDuration = child.duration;
+            childDuration = 
+                childDuration * child.repeatCount +
+                (child.repeatDelay * (child.repeatCount - 1)) +
+                child.startDelay;
+            parallelDuration = Math.max(parallelDuration, childDuration);
+        }
+        return parallelDuration;
+    }
+
 }
 
 }

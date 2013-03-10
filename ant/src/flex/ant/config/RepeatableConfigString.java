@@ -17,7 +17,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 /**
- *
+ * Extends RepeatableConfigVariable by overriding addToCommandline().
  */
 public class RepeatableConfigString extends RepeatableConfigVariable
 {

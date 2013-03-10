@@ -24,6 +24,11 @@ import mx.managers.ISystemManager;
  *
  *  @see mx.resources.IResourceBundle
  *  @see mx.resources.IResourceManager
+ *  
+ *  @langversion 3.0
+ *  @playerversion Flash 9
+ *  @playerversion AIR 1.1
+ *  @productversion Flex 3
  */
 public class Locale
 {
@@ -39,43 +44,6 @@ public class Locale
      *  @private
      */
     private static var currentLocale:Locale;
-
-    //--------------------------------------------------------------------------
-    //
-    //  Class methods
-    //
-    //--------------------------------------------------------------------------
-
-    [Deprecated(replacement="ResourceManager.localeChain", since="3.0")]
-    
-    /**
-     *  Returns a Locale object, if you compiled your application 
-     *  for a single locale. Otherwise, it returns <code>null</code>.
-     *  
-     *  <p>This method has been deprecated because the Flex framework
-     *  now supports having resource bundles for multiple locales
-     *  in the same application.
-     *  You can use the <code>getLocale()</code> method of IResourceManager
-     *  to find out which locales the ResourceManager has resource bundles for.
-     *  You can use the <code>localeChain</code> property of IResourceManager
-     *  to determine which locales the ResourceManager searches for
-     *  resources.</p>
-     * 
-     *  @param sm The current SystemManager.
-     *
-     *  @return Returns a Locale object.
-     */
-    public static function getCurrent(sm:ISystemManager):Locale
-    {
-        if (!currentLocale)
-        {
-            var compiledLocales:Array = sm.info()["compiledLocales"];
-            if (compiledLocales != null && compiledLocales.length == 1)
-                currentLocale = new Locale(compiledLocales[0]);
-        }
-
-        return currentLocale;
-    }
 
     //--------------------------------------------------------------------------
     //
@@ -97,6 +65,11 @@ public class Locale
      *  to optionally distinguish multiple locales for the same language and country.
      *  It is sometimes used to indicate the operating system
      *  that the locale should be used with, such as <code>"MAC"</code>, <code>"WIN"</code>, or <code>"UNIX"</code>.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function Locale(localeString:String)
     {
@@ -152,6 +125,11 @@ public class Locale
      *  var locale:Locale = new Locale("en_US_MAC");
      *  trace(locale.language); // outputs "en"
      *  </pre>
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */      
     public function get language():String
     {
@@ -177,6 +155,11 @@ public class Locale
      *  var locale:Locale = new Locale("en_US_MAC");
      *  trace(locale.country); // outputs "US"
      *  </pre>
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */      
     public function get country():String
     {
@@ -202,6 +185,11 @@ public class Locale
      *  var locale:Locale = new Locale("en_US_MAC");
      *  trace(locale.variant); // outputs "MAC"
      *  </pre>
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */      
     public function get variant():String
     {
@@ -225,6 +213,11 @@ public class Locale
      *
      *  @return Returns the locale String that was used to
      *  construct this Locale instance.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */   
     public function toString():String
     {

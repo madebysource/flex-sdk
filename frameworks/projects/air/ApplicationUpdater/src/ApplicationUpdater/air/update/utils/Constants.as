@@ -66,7 +66,10 @@ package air.update.utils
 		// ApplicationUpdate
 		public static const ERROR_APPLICATION_UPDATE:int 			= ERROR_EXTERNAL + 28;
 		public static const ERROR_APPLICATION_UPDATE_NO_FILE:int 	= ERROR_EXTERNAL + 29;
-		
+
+		public static const ERROR_VERSION_INVALID:int			= ERROR_EXTERNAL + 30;
+		public static const ERROR_INCOMPATIBLE_NAMESPACE:int		= ERROR_EXTERNAL + 31;
+
 	// Internal errors
 		// StateDescriptor (not visible)
 		public static const ERROR_STATE_UNKNOWN:int 				= ERROR_INTERNAL;

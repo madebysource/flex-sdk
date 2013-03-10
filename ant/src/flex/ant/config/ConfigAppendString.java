@@ -14,7 +14,9 @@ package flex.ant.config;
 import org.apache.tools.ant.types.Commandline;
 
 /**
- *
+ * Extends ConfigString by overriding addToCommandline to use +foo=bar
+ * syntax to support appending the configuration option to any
+ * existing values.
  */
 public class ConfigAppendString extends ConfigString
 {

@@ -38,6 +38,11 @@ use namespace mx_internal;
 /**
 * An Operation used specifically by WebServices. An Operation is an individual method on a service. An Operation can be called either by invoking the function of the same name on the service or by accessing the Operation
 * as a property on the service and calling the <code>send()</code> method.
+*  
+*  @langversion 3.0
+*  @playerversion Flash 9
+*  @playerversion AIR 1.1
+*  @productversion Flex 3
 */
 public class Operation extends mx.rpc.soap.Operation implements IMXMLSupport
 {
@@ -53,6 +58,11 @@ public class Operation extends mx.rpc.soap.Operation implements IMXMLSupport
       * @param webService The web service upon which this Operation is invoked.
       *
       * @param name The name of this Operation.
+      *  
+      *  @langversion 3.0
+      *  @playerversion Flash 9
+      *  @playerversion AIR 1.1
+      *  @productversion Flex 3
       */
    public function Operation(webService:mx.rpc.soap.WebService = null, name:String = null)
     {
@@ -71,7 +81,7 @@ public class Operation extends mx.rpc.soap.Operation implements IMXMLSupport
      *  @private
      */
     private var resourceManager:IResourceManager =
-									ResourceManager.getInstance();
+                                    ResourceManager.getInstance();
 
     //--------------------------------------------------------------------------
     //
@@ -83,6 +93,11 @@ public class Operation extends mx.rpc.soap.Operation implements IMXMLSupport
     /**
      * The concurrency for this Operation.  If it has not been explicitly set the setting from the WebService
      * will be used.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get concurrency():String
     {
@@ -115,6 +130,11 @@ public class Operation extends mx.rpc.soap.Operation implements IMXMLSupport
      * Whether this operation should show the busy cursor while it is executing.
      * If it has not been explicitly set the setting from the WebService
      * will be used.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get showBusyCursor():Boolean
     {
@@ -141,6 +161,11 @@ public class Operation extends mx.rpc.soap.Operation implements IMXMLSupport
 
     /**
      * @inheritDoc
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     override public function cancel(id:String = null) : AsyncToken
     {
@@ -159,8 +184,8 @@ public class Operation extends mx.rpc.soap.Operation implements IMXMLSupport
         if (Concurrency.SINGLE == concurrency && (hasPendingInvocations() || activeCalls.hasActiveCalls()))
         {
             var token:AsyncToken = new AsyncToken(null);
-			var message:String = resourceManager.getString(
-				"rpc", "pendingCallExists");
+            var message:String = resourceManager.getString(
+                "rpc", "pendingCallExists");
             var fault:Fault = new Fault("ConcurrencyError", message);
             var faultEvent:FaultEvent = FaultEvent.createEvent(fault, token);
             new AsyncDispatcher(dispatchRpcEvent, [faultEvent], 10);
@@ -227,13 +252,13 @@ public class Operation extends mx.rpc.soap.Operation implements IMXMLSupport
 
     private var _concurrency:String;
     
-	private var _concurrencySet:Boolean;
+    private var _concurrencySet:Boolean;
     
-	private var webService:mx.rpc.soap.mxml.WebService;
+    private var webService:mx.rpc.soap.mxml.WebService;
     
-	private var _showBusyCursor:Boolean;
+    private var _showBusyCursor:Boolean;
     
-	private var _showBusyCursorSet:Boolean;
+    private var _showBusyCursorSet:Boolean;
 }
 
 }

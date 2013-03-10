@@ -14,8 +14,9 @@ package mx.messaging.channels.amfx
 
 import flash.net.getClassByAlias;
 import flash.utils.ByteArray;
-import flash.utils.getDefinitionByName;
+import flash.utils.Dictionary;
 import flash.utils.IExternalizable;
+import flash.utils.getDefinitionByName;
 
 import mx.logging.Log;
 import mx.messaging.errors.ChannelError;
@@ -88,6 +89,7 @@ public class AMFXDecoder
         {
             var context:AMFXContext = new AMFXContext();
             context.log = Log.getLogger("mx.messaging.channels.amfx.AMFXDecoder");
+            XML.ignoreWhitespace = false;
             return decodePacket(xml, context);
         }
         else
@@ -233,6 +235,10 @@ public class AMFXDecoder
         {
             result = decodeRef(xml, context);
         }
+        else if (name == "dictionary")
+        {
+            result = decodeDictionary(xml, context);
+        }
         else if (name == "double")
         {
             var n:String = xml.text().toString();
@@ -303,6 +309,28 @@ public class AMFXDecoder
         }
 
         return array;
+    }
+
+    private static function decodeDictionary(xml:XML, context:AMFXContext):Dictionary
+    {
+        var dictionary:Dictionary = new Dictionary();
+
+        context.addObject(dictionary); // Remember the dictionary.
+
+        var entries:XMLList = xml.*;
+        if (entries == null)
+            return dictionary;
+
+        for (var i:uint = 0; i < entries.length(); i = i + 2)
+        {
+            var keyXml:XML = entries[i];
+            var valueXml:XML = entries[i + 1];
+            var key:Object= decodeValue(keyXml, context);
+            var value:Object = decodeValue(valueXml, context);
+            dictionary[key] = value;
+        }
+
+        return dictionary;
     }
 
     private static function decodeByteArray(xml:XML):ByteArray

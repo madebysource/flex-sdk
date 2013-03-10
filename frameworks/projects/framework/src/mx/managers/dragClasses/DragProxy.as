@@ -15,30 +15,34 @@ package mx.managers.dragClasses
 import flash.display.DisplayObject;
 import flash.display.DisplayObjectContainer;
 import flash.display.InteractiveObject;
-import flash.events.IEventDispatcher;
 import flash.events.Event;
+import flash.events.IEventDispatcher;
 import flash.events.KeyboardEvent;
 import flash.events.MouseEvent;
 import flash.geom.Point;
 import flash.system.ApplicationDomain;
 import flash.utils.getQualifiedClassName;
+
 import mx.core.DragSource;
+import mx.core.IFlexModule;
 import mx.core.IUIComponent;
-import mx.core.mx_internal;
 import mx.core.UIComponent;
+import mx.core.mx_internal;
 import mx.effects.EffectInstance;
 import mx.effects.Move;
 import mx.effects.Zoom;
 import mx.events.DragEvent;
 import mx.events.EffectEvent;
 import mx.events.InterDragManagerEvent;
-import mx.events.SandboxMouseEvent;
 import mx.events.InterManagerRequest;
+import mx.events.SandboxMouseEvent;
 import mx.managers.CursorManager;
 import mx.managers.DragManager;
 import mx.managers.ISystemManager;
 import mx.managers.SystemManager;
+import mx.modules.ModuleManager;
 import mx.styles.CSSStyleDeclaration;
+import mx.styles.IStyleManager2;
 import mx.styles.StyleManager;
 
 use namespace mx_internal;
@@ -61,6 +65,11 @@ public class DragProxy extends UIComponent
 
     /**
      *  Constructor.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function DragProxy(dragInitiator:IUIComponent,
 							  dragSource:DragSource)
@@ -111,6 +120,21 @@ public class DragProxy extends UIComponent
 			setFocus();
 	}
 
+    /**
+     *  @private
+     */
+    override public function get styleManager():IStyleManager2
+    {
+        // If the dragInitiator has a styleManager, use that one.
+        // In a situation where a main application that loads a module with drag initiator,
+        // the main application may not link in the DragManager and appropriate styles.
+        // We want to use the styles of the module of the dragInitiator. See SDK-24324.
+        if (this.dragInitiator is IFlexModule)
+            return StyleManager.getStyleManager(IFlexModule(dragInitiator).moduleFactory);
+        
+        return super.styleManager;
+    }
+    
     //--------------------------------------------------------------------------
     //
     //  Variables
@@ -213,7 +237,7 @@ public class DragProxy extends UIComponent
     {
         var newCursorClass:Class = cursorClass;
 		var styleSheet:CSSStyleDeclaration =
-						StyleManager.getStyleDeclaration("DragManager");
+						styleManager.getMergedStyleDeclaration("mx.managers.DragManager");
 
         if (action == DragManager.COPY)
             newCursorClass = styleSheet.getStyle("copyCursor");
@@ -383,6 +407,9 @@ public class DragProxy extends UIComponent
 		if (swfRoot)
 			return true;
 
+        if (ModuleManager.getAssociatedFactory(target))
+            return true;
+        
 		var me:InterManagerRequest = new InterManagerRequest(InterManagerRequest.SYSTEM_MANAGER_REQUEST);
 		me.name = "hasSWFBridges";
 		sandboxRoot.dispatchEvent(me);
@@ -422,19 +449,9 @@ public class DragProxy extends UIComponent
 
 		// trace("===>DragProxy:mouseMove");
 		var targetList:Array; /* of DisplayObject */
-		var tlr:IEventDispatcher = systemManager.getTopLevelRoot();
-/*		having trouble with getObjectsUnderPoint.  Some things seem to get in list
-		like cursors that shouldn't.  We roll our own for sandboxed apps and it works
-		better for now.
-		if (tlr)
-			targetList = DisplayObjectContainer(tlr).
-							getObjectsUnderPoint(stagePoint);
-		else
-		{
-*/			targetList = [];
-			DragProxy.getObjectsUnderPoint(DisplayObject(sandboxRoot), stagePoint, targetList);
-/*		}
-*/
+		targetList = [];
+		DragProxy.getObjectsUnderPoint(DisplayObject(sandboxRoot), stagePoint, targetList);
+
 		var newTarget:DisplayObject = null;
 		// trace("   ", targetList.length, "objects under point");
 		
@@ -619,7 +636,7 @@ public class DragProxy extends UIComponent
             var m:Move = new Move(this);
             m.addEventListener(EffectEvent.EFFECT_END, effectEndHandler);
             m.xFrom = x;
-            m.yFrom = this.y;
+            m.yFrom = y;
             m.xTo = parent.mouseX;
             m.yTo = parent.mouseY;
             m.duration = 200;
@@ -656,6 +673,11 @@ public class DragProxy extends UIComponent
 
 	/**
 	 *  Player doesn't handle this correctly so we have to do it ourselves
+	 *  
+	 *  @langversion 3.0
+	 *  @playerversion Flash 9
+	 *  @playerversion AIR 1.1
+	 *  @productversion Flex 3
 	 */
 	private static function getObjectsUnderPoint(obj:DisplayObject, pt:Point, arr:Array):void
 	{

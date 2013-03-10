@@ -12,9 +12,12 @@
 package mx.effects
 {
 
+import mx.core.mx_internal;
 import mx.effects.effectClasses.DissolveInstance;
-import mx.graphics.RoundedRectangle;
+import mx.geom.RoundedRectangle;
 import mx.styles.StyleManager;
+
+use namespace mx_internal;
 
 /**
  *  Animate the component from transparent to opaque,
@@ -69,6 +72,11 @@ import mx.styles.StyleManager;
  *  @see mx.effects.TweenEffect
  *
  *  @includeExample examples/DissolveEffectExample.mxml
+ *  
+ *  @langversion 3.0
+ *  @playerversion Flash 9
+ *  @playerversion AIR 1.1
+ *  @productversion Flex 3
  */
 public class Dissolve extends TweenEffect
 {
@@ -95,6 +103,11 @@ public class Dissolve extends TweenEffect
 	 *  Constructor.
 	 *
 	 *  @param target The Object to animate with this effect.
+	 *  
+	 *  @langversion 3.0
+	 *  @playerversion Flash 9
+	 *  @playerversion AIR 1.1
+	 *  @productversion Flex 3
 	 */
 	public function Dissolve(target:Object = null)
 	{
@@ -124,6 +137,11 @@ public class Dissolve extends TweenEffect
 	 *  value is the current value of the target's <code>alpha</code> property.
 	 *  If the effect causes the target component to appear, the default 
 	 *  value is 0.0.</p>
+	 *  
+	 *  @langversion 3.0
+	 *  @playerversion Flash 9
+	 *  @playerversion AIR 1.1
+	 *  @productversion Flex 3
 	 */
 	public var alphaFrom:Number;
 	
@@ -141,6 +159,11 @@ public class Dissolve extends TweenEffect
 	 *  value is 0.0.
 	 *  If the effect causes the target component to appear, the default 
 	 *  value is the current value of the target's <code>alpha</code> property.</p>
+	 *  
+	 *  @langversion 3.0
+	 *  @playerversion Flash 9
+	 *  @playerversion AIR 1.1
+	 *  @productversion Flex 3
 	 */
 	public var alphaTo:Number;
 	
@@ -157,6 +180,11 @@ public class Dissolve extends TweenEffect
 	 *  The default value is the color specified by the target component's
 	 *  <code>backgroundColor</code> style property, or 0xFFFFFF, if 
 	 *  <code>backgroundColor</code> is not set.
+	 *  
+	 *  @langversion 3.0
+	 *  @playerversion Flash 9
+	 *  @playerversion AIR 1.1
+	 *  @productversion Flex 3
 	 */
 	public var color:uint = StyleManager.NOT_A_COLOR;
 	
@@ -171,6 +199,11 @@ public class Dissolve extends TweenEffect
 	 *  when the effect finishes. If false, it is removed.
 	 *
 	 *  @default true
+	 *  
+	 *  @langversion 3.0
+	 *  @playerversion Flash 9
+	 *  @playerversion AIR 1.1
+	 *  @productversion Flex 3
 	 */
 	mx_internal var persistAfterEnd:Boolean = false;
 
@@ -186,6 +219,11 @@ public class Dissolve extends TweenEffect
 	 *  but not their chrome. 
 	 *
 	 *  @default null
+	 *  
+	 *  @langversion 3.0
+	 *  @playerversion Flash 9
+	 *  @playerversion AIR 1.1
+	 *  @productversion Flex 3
 	 */
 	public var targetArea:RoundedRectangle;
 	
@@ -215,7 +253,7 @@ public class Dissolve extends TweenEffect
 		dissolveInstance.alphaFrom = alphaFrom;
 		dissolveInstance.alphaTo = alphaTo;
 		dissolveInstance.color = color;
-		dissolveInstance.mx_internal::persistAfterEnd = mx_internal::persistAfterEnd;
+		dissolveInstance.persistAfterEnd = persistAfterEnd;
 		dissolveInstance.targetArea = targetArea;
 	}
 }

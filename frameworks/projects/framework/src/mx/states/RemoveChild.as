@@ -14,8 +14,11 @@ package mx.states
 
 import flash.display.DisplayObject;
 import flash.display.DisplayObjectContainer;
-import mx.core.mx_internal;
+
 import mx.core.UIComponent;
+import mx.core.mx_internal;
+
+use namespace mx_internal;
 
 /**
  *
@@ -42,10 +45,15 @@ import mx.core.UIComponent;
  *  @see mx.effects.RemoveChildAction
  *
  *  @includeExample examples/StatesExample.mxml
+ *  
+ *  @langversion 3.0
+ *  @playerversion Flash 9
+ *  @playerversion AIR 1.1
+ *  @productversion Flex 3
  */
-public class RemoveChild implements IOverride
+public class RemoveChild extends OverrideBase 
 {
-	include "../core/Version.as";
+    include "../core/Version.as";
 
     //--------------------------------------------------------------------------
     //
@@ -55,15 +63,20 @@ public class RemoveChild implements IOverride
 
     /**
      *  Constructor.
-	 *
-	 *  @param target The child to remove from the view.
+     *
+     *  @param target The child to remove from the view.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
-	public function RemoveChild(target:DisplayObject = null)
-	{
-		super();
+    public function RemoveChild(target:DisplayObject = null)
+    {
+        super();
 
-		this.target = target;
-	}
+        this.target = target;
+    }
 
     //--------------------------------------------------------------------------
     //
@@ -75,18 +88,18 @@ public class RemoveChild implements IOverride
      *  @private
      *  Parent of the removed child.
      */
-	private var oldParent:DisplayObjectContainer;
+    private var oldParent:DisplayObjectContainer;
 
     /**
      *  @private
      *  Index of the removed child.
      */
-	private var oldIndex:int;
-	
-	/**
-	 *  @private
-	 */
-	private var removed:Boolean;
+    private var oldIndex:int;
+    
+    /**
+     *  @private
+     */
+    private var removed:Boolean;
 
     //--------------------------------------------------------------------------
     //
@@ -95,15 +108,20 @@ public class RemoveChild implements IOverride
     //--------------------------------------------------------------------------
 
     //----------------------------------
-	//  target
+    //  target
     //----------------------------------
 
-	[Inspectable(category="General")]
+    [Inspectable(category="General")]
 
-	/**
-	 *  The child to remove from the view.
-	 */
-	public var target:DisplayObject;
+    /**
+     *  The child to remove from the view.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
+     */
+    public var target:Object;
 
     //--------------------------------------------------------------------------
     //
@@ -112,47 +130,74 @@ public class RemoveChild implements IOverride
     //--------------------------------------------------------------------------
 
     /**
-     *  IOverride interface method; this class implements it as an empty method.
-	 * 
-	 *  @copy IOverride#initialize()
+     *  @inheritDoc
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
-    public function initialize():void
+    override public function apply(parent:UIComponent):void
     {
+        parentContext = parent;
+        removed = false;
+        
+        var obj:* = getOverrideContext(target, parent);
+        if ((obj is DisplayObject) && obj.parent)
+        {
+            oldParent = obj.parent;
+            oldIndex = oldParent.getChildIndex(obj);
+            oldParent.removeChild(obj);
+            removed = true;
+        }
+        else if (obj == null && !applied)
+        {
+            // Our target context is unavailable so we attempt to register
+            // a listener on our parent document to detect when/if it becomes
+            // valid.
+            addContextListener(target); 
+        }
+        
+        // Save state in case our value or target is changed while applied. This
+        // can occur when our value property is databound or when a target is 
+        // deferred instantiated.
+        applied = true;
     }
 
     /**
      *  @inheritDoc
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
-	public function apply(parent:UIComponent):void
-	{
-		removed = false;
-		
-		if (target.parent)
-		{
-			oldParent = target.parent;
-			oldIndex = oldParent.getChildIndex(target);
-			oldParent.removeChild(target);
-			removed = true;
-		}
-	}
+    override public function remove(parent:UIComponent):void
+    {        
+        var obj:* = getOverrideContext(target, parent);     
+        if (removed && (obj is DisplayObject))
+        {
+            oldParent.addChildAt(obj, oldIndex);
 
-	/**
-     *  @inheritDoc
-	 */
-	public function remove(parent:UIComponent):void
-	{
-		if (removed)
-		{
-			oldParent.addChildAt(target, oldIndex);
+            // Make sure any changes made while the child was removed are reflected
+            // properly.
+            if (obj is UIComponent)
+                UIComponent(target).updateCallbacks();
 
-			// Make sure any changes made while the child was removed are reflected
-			// properly.
-			if (target is UIComponent)
-				UIComponent(target).mx_internal::updateCallbacks();
-
-			removed = false;
-		}
-	}
+            removed = false;
+        }
+        else if (obj == null)
+        {
+            // It seems our override is no longer active, but we were never
+            // able to successfully apply ourselves, so remove our context
+            // listener if applicable.
+            removeContextListener();
+        }
+        
+        // Clear our flags and override context.
+        applied = false;
+        parentContext = null;
+    }
 }
 
 }

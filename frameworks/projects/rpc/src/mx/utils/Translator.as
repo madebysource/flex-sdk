@@ -13,10 +13,13 @@ package mx.utils
 {
 
 import flash.utils.getQualifiedClassName;
-import mx.resources.ResourceBundle;
+import mx.resources.IResourceManager;
+import mx.resources.ResourceManager;
 import mx.utils.StringUtil;
 
 [ExcludeClass]
+[ResourceBundle("messaging")]
+[ResourceBundle("rpc")]
 
 /**
  *  @private
@@ -40,20 +43,7 @@ public class Translator
     //
     //--------------------------------------------------------------------------
 
-    [ResourceBundle("messaging")]
     
-	/**
-	 *  @private
-	 */
-	private static var messagingBundle:ResourceBundle;    
-
-    [ResourceBundle("rpc")]
-    
-	/**
-	 *  @private
-	 */
-	private static var rpcBundle:ResourceBundle;    
-
     //--------------------------------------------------------------------------
     //
     //  Class methods
@@ -63,6 +53,11 @@ public class Translator
     /**
      *  Assumes the bundle name is the name of the second package
 	 *  (e.g foo in mx.foo).
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public static function getDefaultInstanceFor(source:Class):Translator
     {
@@ -107,6 +102,11 @@ public class Translator
 
 	/**
 	 *  Constructor
+	 *  
+	 *  @langversion 3.0
+	 *  @playerversion Flash 9
+	 *  @playerversion AIR 1.1
+	 *  @productversion Flex 3
 	 */
     public function Translator(bundleName:String)
     {
@@ -114,6 +114,16 @@ public class Translator
 
         this.bundleName = bundleName;
     }
+
+    //----------------------------------
+    //  resourceManager
+    //----------------------------------
+
+    /**
+     *  @private
+     *  Storage for the resourceManager instance.
+     */
+    private var _resourceManager:IResourceManager = ResourceManager.getInstance();
 
     //--------------------------------------------------------------------------
     //
@@ -126,11 +136,6 @@ public class Translator
 	 */
     private var bundleName:String;
     
-	/**
-	 *  @private
-	 */
-	private var bundle:ResourceBundle = null;
-
     //--------------------------------------------------------------------------
     //
     //  Methods
@@ -142,19 +147,7 @@ public class Translator
 	 */
     public function textOf(key:String, ... rest):String
     {
-        if (!bundle)
-        {
-            if (bundleName == "messaging")
-                bundle = messagingBundle;
-            else if (bundleName == "rpc")
-                bundle = rpcBundle;
-        }
-
-		// Note: Writing bundle["getString"](key) instead of
-		// bundle.getString(key) avoids a deprecation warning.
-        return bundle ?
-			   StringUtil.substitute(bundle["getString"](key), rest) :
-			   "Key " + key + " was not found in resource bundle " + bundleName;
+        return _resourceManager.getString(bundleName, key, rest);
     }
 }
 

@@ -14,6 +14,7 @@ package mx.managers
 
 import flash.display.DisplayObject;
 import mx.core.IFlexDisplayObject;
+import mx.core.IFlexModuleFactory;
 import mx.core.Singleton;
 
 /**
@@ -29,6 +30,11 @@ import mx.core.Singleton;
  *  the window or warn the user.</p>
  * 
  *  @see PopUpManagerChildList
+ *  
+ *  @langversion 3.0
+ *  @playerversion Flash 9
+ *  @playerversion AIR 1.1
+ *  @productversion Flex 3
  */
 public class PopUpManager
 {
@@ -112,16 +118,25 @@ public class PopUpManager
      *  <code>PopUpManagerChildList.POPUP</code>, 
      *  or <code>PopUpManagerChildList.PARENT</code> (default).
      *
+     *  @param moduleFactory The moduleFactory where this pop-up should look for
+     *  its embedded fonts and style manager.
+     *
      *  @return Reference to new top-level window.
      *
      *  @see PopUpManagerChildList
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public static function createPopUp(parent:DisplayObject,
                                        className:Class,
                                        modal:Boolean = false,
-                                       childList:String = null):IFlexDisplayObject
+                                       childList:String = null,
+                                       moduleFactory:IFlexModuleFactory = null):IFlexDisplayObject
     {   
-		return impl.createPopUp(parent, className, modal, childList);
+		return impl.createPopUp(parent, className, modal, childList, moduleFactory);
     }
     
     /**
@@ -134,7 +149,7 @@ public class PopUpManager
      *
      *  <p><b>Example</b></p> 
      *
-     *  <pre>var tw = new TitleWindow();
+     *  <pre>var tw:TitleWindow = new TitleWindow();
      *    tw.title = "My Title";
      *    mx.managers.PopUpManager.addPopUp(tw, pnl, false);</pre>
      *
@@ -159,14 +174,23 @@ public class PopUpManager
      *  <code>PopUpManagerChildList.POPUP</code>, 
      *  or <code>PopUpManagerChildList.PARENT</code> (default).
      *
+     *  @param moduleFactory The moduleFactory where this pop-up should look for
+     *  its embedded fonts and style manager.
+     * 
      *  @see PopUpManagerChildList
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public static function addPopUp(window:IFlexDisplayObject,
                     parent:DisplayObject,
                     modal:Boolean = false,
-                    childList:String = null):void
+                    childList:String = null,
+                    moduleFactory:IFlexModuleFactory = null):void
     {
-		impl.addPopUp(window, parent, modal, childList);
+		impl.addPopUp(window, parent, modal, childList, moduleFactory);
     }
 
     /**
@@ -178,6 +202,11 @@ public class PopUpManager
      *  popup window before centering it.</p>
      *
      *  @param The IFlexDisplayObject representing the popup.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public static function centerPopUp(popUp:IFlexDisplayObject):void
     {
@@ -190,6 +219,11 @@ public class PopUpManager
      *  the <code>createPopUp()</code> or <code>addPopUp()</code> method.
      *  
      *  @param window The IFlexDisplayObject representing the popup window.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public static function removePopUp(popUp:IFlexDisplayObject):void
     {
@@ -203,6 +237,11 @@ public class PopUpManager
      *  but otherwise you have to take care of this yourself.
      *
      *  @param The IFlexDisplayObject representing the popup.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public static function bringToFront(popUp:IFlexDisplayObject):void
     {

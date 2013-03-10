@@ -10,55 +10,23 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 /**
- *  Alpha level of the color defined by the <code>backgroundColor</code>
- *  property, of the image or SWF file defined by the <code>backgroundImage</code>
- *  style.
- *  Valid values range from 0.0 to 1.0. For most controls, the default value is 1.0, 
- *  but for ToolTip controls, the default value is 0.95 and for Alert controls, the default value is 0.9.
- *  
- *  @default 1.0
- */
-[Style(name="backgroundAlpha", type="Number", inherit="no")]
-
-/**
- *  Background color of a component.
- *  You can have both a <code>backgroundColor</code> and a
- *  <code>backgroundImage</code> set.
- *  Some components do not have a background.
- *  The DataGrid control ignores this style.
- *  The default value is <code>undefined</code>, which means it is not set.
- *  If both this style and the <code>backgroundImage</code> style
- *  are <code>undefined</code>, the component has a transparent background.
- *
- *  <p>For the Application container, this style specifies the background color
- *  while the application loads, and a background gradient while it is running. 
- *  Flex calculates the gradient pattern between a color slightly darker than 
- *  the specified color, and a color slightly lighter than the specified color.</p>
- * 
- *  <p>The default skins of most Flex controls are partially transparent. As a result, the background color of 
- *  a container partially "bleeds through" to controls that are in that container. You can avoid this by setting the 
- *  alpha values of the control's <code>fillAlphas</code> property to 1, as the following example shows:
- *  <pre>
- *  &lt;mx:<i>Container</i> backgroundColor="0x66CC66"/&gt;
- *      &lt;mx:<i>ControlName</i> ... fillAlphas="[1,1]"/&gt;
- *  &lt;/mx:<i>Container</i>&gt;</pre>
- *  </p>
- */
-[Style(name="backgroundColor", type="uint", format="Color", inherit="no")]
-
-/**
  *  Background color of the component when it is disabled.
  *  The global default value is <code>undefined</code>.
  *  The default value for List controls is <code>0xDDDDDD</code> (light gray).
  *  If a container is disabled, the background is dimmed, and the degree of
  *  dimming is controlled by the <code>disabledOverlayAlpha</code> style.
+ *  
+ *  @langversion 3.0
+ *  @playerversion Flash 9
+ *  @playerversion AIR 1.1
+ *  @productversion Flex 3
  */
-[Style(name="backgroundDisabledColor", type="uint", format="Color", inherit="yes")]
+[Style(name="backgroundDisabledColor", type="uint", format="Color", inherit="yes", theme="halo")]
 
 /**
  *  Background image of a component.  This can be an absolute or relative
- *  URL or class.  You can either have both a <code>backgroundColor</code> and a
- *  <code>backgroundImage</code> set at the same time. The background image is displayed
+ *  URL or class.  You can set either the <code>backgroundColor</code> or the
+ *  <code>backgroundImage</code>. The background image is displayed
  *  on top of the background color.
  *  The default value is <code>undefined</code>, meaning "not set".
  *  If this style and the <code>backgroundColor</code> style are undefined,
@@ -72,8 +40,13 @@
  *      &lt;mx:<i>ControlName</i> ... fillAlphas="[1,1]"/&gt;
  *  &lt;/mx:<i>Container</i>&gt;</pre>
  *  </p>
+ *  
+ *  @langversion 3.0
+ *  @playerversion Flash 9
+ *  @playerversion AIR 1.1
+ *  @productversion Flex 3
  */
-[Style(name="backgroundImage", type="Object", format="File", inherit="no")]
+[Style(name="backgroundImage", type="Object", format="File", inherit="no", theme="halo")]
 
 /**
  *  Scales the image specified by <code>backgroundImage</code>
@@ -84,15 +57,37 @@
  *  The default for the Application container is <code>100%</code>.
  *  The default value for all other containers is <code>auto</code>, which maintains
  *  the original size of the image.
+ *  
+ *  @langversion 3.0
+ *  @playerversion Flash 9
+ *  @playerversion AIR 1.1
+ *  @productversion Flex 3
  */
-[Style(name="backgroundSize", type="String", inherit="no")]
+[Style(name="backgroundSize", type="String", inherit="no", theme="halo")]
+
+/**
+ *  Alpha of the border.
+ *  @default 1
+ *  
+ *  @langversion 3.0
+ *  @playerversion Flash 10
+ *  @playerversion AIR 1.5
+ *  @productversion Flex 4
+ */
+[Style(name="borderAlpha", type="Number", inherit="no", theme="spark")]
 
 /**
  *  Color of the border.
  *  The default value depends on the component class;
- *  if not overridden for the class, the default value is <code>0xB7BABC</code>.
+ *  if not overridden for the class, the default value is <code>0xB7BABC</code>
+ *  for the Halo theme and <code>0x696969</code> for the Spark theme.
+ *  
+ *  @langversion 3.0
+ *  @playerversion Flash 9
+ *  @playerversion AIR 1.1
+ *  @productversion Flex 3
  */
-[Style(name="borderColor", type="uint", format="Color", inherit="no")]
+[Style(name="borderColor", type="uint", format="Color", inherit="no", theme="halo, spark, mobile")]
 
 /**
  *  Bounding box sides.
@@ -103,17 +98,27 @@
  *  which shows all four sides.
  *
  *  This style is only used when borderStyle is <code>"solid"</code>.
+ *  
+ *  @langversion 3.0
+ *  @playerversion Flash 9
+ *  @playerversion AIR 1.1
+ *  @productversion Flex 3
  */
-[Style(name="borderSides", type="String", inherit="no")]
+[Style(name="borderSides", type="String", inherit="no", theme="halo")]
 
 /**
  *  The border skin class of the component. 
- *  The mx.skins.halo.HaloBorder class is the default value for all components 
- *  that do not explicitly set their own default. 
- *  The Panel container has a default value of mx.skins.halo.PanelSkin.
+ *  The default value in all components that do not explicitly
+ *  set their own default for the Halo theme is <code>mx.skins.halo.HaloBorder</code>
+ *  and for the Spark theme is <code>mx.skins.spark.BorderSkin</code>.
+ *  The Panel container has a default value of <code>mx.skins.halo.PanelSkin</code>
+ *  for the Halo theme and <code>mx.skins.spark.BorderSkin</code> for the Spark theme.
  *  To determine the default value for a component, see the default.css file.
- *
- *  @default mx.skins.halo.HaloBorder
+ *  
+ *  @langversion 3.0
+ *  @playerversion Flash 9
+ *  @playerversion AIR 1.1
+ *  @productversion Flex 3
  */
 [Style(name="borderSkin", type="Class", inherit="no")]
 
@@ -124,6 +129,13 @@
  *  The default value depends on the component class;
  *  if not overridden for the class, the default value is <code>"inset"</code>.
  *  The default value for most Containers is <code>"none"</code>.
+ *  The <code>"inset"</code> and <code>"outset"</code> values are only
+ *  valid with the halo theme.
+ *  
+ *  @langversion 3.0
+ *  @playerversion Flash 9
+ *  @playerversion AIR 1.1
+ *  @productversion Flex 3
  */
 [Style(name="borderStyle", type="String", enumeration="inset,outset,solid,none", inherit="no")]
 
@@ -132,16 +144,25 @@
  *  Only used when <code>borderStyle</code> is set to <code>"solid"</code>.
  *
  *  @default 1
+ *  
+ *  @langversion 3.0
+ *  @playerversion Flash 9
+ *  @playerversion AIR 1.1
+ *  @productversion Flex 3
  */
-[Style(name="borderThickness", type="Number", format="Length", inherit="no")]
+[Style(name="borderThickness", type="Number", format="Length", inherit="no", theme="halo")]
 
 /**
- *  Radius of component corners.
- *  The default value depends on the component class;
- *  if not overriden for the class, the default value is 0.
- *  The default value for ApplicationControlBar is 5.
+ *  Visibility of the border.
+ *
+ *  @default true
+ *  
+ *  @langversion 3.0
+ *  @playerversion Flash 10
+ *  @playerversion AIR 1.5
+ *  @productversion Flex 4
  */
-[Style(name="cornerRadius", type="Number", format="Length", inherit="no")]
+[Style(name="borderVisible", type="Boolean", inherit="no", theme="spark")]
 
 /**
  *  Boolean property that specifies whether the component has a visible
@@ -153,15 +174,42 @@
  *  <code>backgroundColor</code> or <code>backgroundImage</code> properties.
  *  Otherwise, the shadow appears behind the container because
  *  the default background of a container is transparent.</p>
+ *  
+ *  @langversion 3.0
+ *  @playerversion Flash 9
+ *  @playerversion AIR 1.1
+ *  @productversion Flex 3
  */
-[Style(name="dropShadowEnabled", type="Boolean", inherit="no")]
+[Style(name="dropShadowEnabled", type="Boolean", inherit="no", theme="halo")]
+
+/**
+ *  Boolean property that specifies whether the component has a visible
+ *  drop shadow.
+ *  The default value is <code>false</code>.
+ *
+ *  <p><b>Note:</b> For drop shadows to appear on containers, set
+ *  <code>contentBackgroundColor</code> property.
+ *  Otherwise, the shadow appears behind the container because
+ *  the default background of a container is transparent.</p>
+ *  
+ *  @langversion 3.0
+ *  @playerversion Flash 10
+ *  @playerversion AIR 1.5
+ *  @productversion Flex 4
+ */
+[Style(name="dropShadowVisible", type="Boolean", inherit="no", theme="spark")]
 
 /**
  *  Color of the drop shadow.
  *
  *  @default 0x000000
+ *  
+ *  @langversion 3.0
+ *  @playerversion Flash 9
+ *  @playerversion AIR 1.1
+ *  @productversion Flex 3
  */
-[Style(name="dropShadowColor", type="uint", format="Color", inherit="yes")]
+[Style(name="dropShadowColor", type="uint", format="Color", inherit="yes", theme="halo")]
 
 /**
  *  Direction of the drop shadow.
@@ -169,16 +217,26 @@
  *  and <code>"right"</code>.
  *
  *  @default "center"
+ *  
+ *  @langversion 3.0
+ *  @playerversion Flash 9
+ *  @playerversion AIR 1.1
+ *  @productversion Flex 3
  */
-[Style(name="shadowDirection", type="String", enumeration="left,center,right", inherit="no")]
+[Style(name="shadowDirection", type="String", enumeration="left,center,right", inherit="no", theme="halo")]
 
 /**
  *  Distance of the drop shadow.
  *  If the property is set to a negative value, the shadow appears above the component.
  *
  *  @default 2
+ *  
+ *  @langversion 3.0
+ *  @playerversion Flash 9
+ *  @playerversion AIR 1.1
+ *  @productversion Flex 3
  */
-[Style(name="shadowDistance", type="Number", format="Length", inherit="no")]
+[Style(name="shadowDistance", type="Number", format="Length", inherit="no", theme="halo")]
 
 
 

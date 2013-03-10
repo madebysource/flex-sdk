@@ -39,7 +39,10 @@ use namespace mx_internal;
  *  @see mx.core.Window
  *  @see mx.core.WindowedApplication
  * 
+ *  
+ *  @langversion 3.0
  *  @playerversion AIR 1.1
+ *  @productversion Flex 3
  */
 public class TitleBar extends UIComponent
 {
@@ -67,6 +70,10 @@ public class TitleBar extends UIComponent
 
     /**
      *  Constructor.
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function TitleBar():void
     {
@@ -76,7 +83,7 @@ public class TitleBar extends UIComponent
         
         addEventListener(MouseEvent.MOUSE_DOWN, mouseDownHandler);
         addEventListener(MouseEvent.DOUBLE_CLICK, doubleClickHandler);
-    }    
+    }   
     
     //--------------------------------------------------------------------------
     //
@@ -115,8 +122,8 @@ public class TitleBar extends UIComponent
     /**
      *  @private
      */
-      private var closeButtonSkin:Class;
-      
+    private var closeButtonSkin:Class;
+    
     //--------------------------------------------------------------------------
     //
     //  Properties
@@ -129,6 +136,10 @@ public class TitleBar extends UIComponent
 
     /**
      *  The Button object that defines the close button.
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public var closeButton:Button;
 
@@ -138,6 +149,10 @@ public class TitleBar extends UIComponent
 
     /**
      *  The Button object that defines the maximize button.
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public var maximizeButton:Button;
 
@@ -147,6 +162,10 @@ public class TitleBar extends UIComponent
 
     /**
      *  The Button object that defines the minimize button.
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public var minimizeButton:Button;
     
@@ -156,6 +175,10 @@ public class TitleBar extends UIComponent
 
     /**
      *  Storage for the title property.
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     private var _title:String = "";
 
@@ -169,6 +192,10 @@ public class TitleBar extends UIComponent
      *  the dock or taskbar.
      *
      *  @default ""
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get title():String
     {
@@ -207,6 +234,10 @@ public class TitleBar extends UIComponent
      *  The icon displayed in the title bar.
      *
      *  @default null
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get titleIcon():Class
     {
@@ -231,6 +262,10 @@ public class TitleBar extends UIComponent
 
     /**
      *  The UITextField in the title bar that displays the application title.
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public var titleTextField:IUITextField;
 
@@ -240,6 +275,10 @@ public class TitleBar extends UIComponent
 
     /**
      *  The IWindow that owns this TitleBar.
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     private function get window():IWindow
     {
@@ -257,8 +296,8 @@ public class TitleBar extends UIComponent
      */
     override protected function createChildren():void
     {
-         super.createChildren();
-         
+        super.createChildren();
+        
         var titleBarBackgroundClass:Class =
             getStyle("titleBarBackgroundSkin");
         if (titleBarBackgroundClass)
@@ -333,7 +372,7 @@ public class TitleBar extends UIComponent
             closeButton = new Button();
             closeButtonSkin = getStyle("closeButtonSkin");
             if (closeButtonSkin)
-                   closeButton.setStyle("skin", closeButtonSkin);
+                closeButton.setStyle("skin", closeButtonSkin);
             closeButton.focusEnabled = false;
             closeButton.addEventListener(MouseEvent.MOUSE_DOWN,
                                          button_mouseDownHandler);
@@ -353,7 +392,7 @@ public class TitleBar extends UIComponent
         if (titleChanged)
         {
             titleTextField.text = _title;
-            titleChanged = false;    
+            titleChanged = false;   
         }
 
         if (titleIconChanged)
@@ -374,7 +413,7 @@ public class TitleBar extends UIComponent
 
     /**
      *  @private
-     */              
+     */             
     override protected function measure():void
     {
         super.measure();
@@ -395,13 +434,13 @@ public class TitleBar extends UIComponent
                         maximizeButton.measuredWidth +
                         minimizeButton.measuredWidth +
                         closeButton.measuredWidth;
-         
+        
         if (titleIconObject)
-         {
-             measuredHeight = Math.max(measuredHeight,
+        {
+            measuredHeight = Math.max(measuredHeight,
                                       titleIconObject.height + 1);
-             measuredWidth += titleIconObject.width;
-         }
+            measuredWidth += titleIconObject.width;
+        }
     }
 
     /**
@@ -460,7 +499,7 @@ public class TitleBar extends UIComponent
         {
             placeButtons(buttonAlign, width, height,
                          leftOffset, rightOffset, cornerOffset);
-           }
+        }
         else if (buttonAlign == "left")
         {
             placeButtons(buttonAlign,width,
@@ -484,7 +523,7 @@ public class TitleBar extends UIComponent
         var titleAlign:String =
             String(getStyle("titleAlignment"));
         if (titleAlign == "center" || titleAlign == "left")
-             placeTitle(titleAlign, leftOffset, rightOffset, buttonAlign);
+            placeTitle(titleAlign, leftOffset, rightOffset, buttonAlign);
         else if (isMac())
             placeTitle("center",  leftOffset, rightOffset, buttonAlign);
         else
@@ -497,6 +536,10 @@ public class TitleBar extends UIComponent
      *  @param styleProp the name of the style that's changed.
      *  In some cases, it can be null, usually when changing
      *  the global style or styleName.
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     override public function styleChanged(styleProp:String):void
     {
@@ -545,26 +588,26 @@ public class TitleBar extends UIComponent
         {
             closeButtonSkin = getStyle("closeButtonSkin");
             if (closeButtonSkin && closeButton)
-                   closeButton.setStyle("skin", closeButtonSkin);
+                closeButton.setStyle("skin", closeButtonSkin);
         }
 
         if (allStyles || styleProp == "maximizeButtonSkin")
         {
-             maximizeButtonSkin = getStyle("maximizeButtonSkin");
+            maximizeButtonSkin = getStyle("maximizeButtonSkin");
             if (maximizeButtonSkin && maximizeButton)
                 maximizeButton.setStyle("skin", maximizeButtonSkin);
         }
 
         if (allStyles || styleProp == "minimizeButtonSkin")
         {
-             minimizeButtonSkin = getStyle("minimizeButtonSkin");
+            minimizeButtonSkin = getStyle("minimizeButtonSkin");
             if (minimizeButtonSkin && minimizeButton)
                  minimizeButton.setStyle("skin", minimizeButtonSkin);
         }
 
         if (allStyles || styleProp == "restoreButtonSkin")
         {
-             restoreButtonSkin = getStyle("restoreButtonSkin");
+            restoreButtonSkin = getStyle("restoreButtonSkin");
         }
     }
 
@@ -589,6 +632,10 @@ public class TitleBar extends UIComponent
      *
      *  @param cornerOffset how much to indent things to take into account
      *  corner radius
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     protected function placeButtons(align:String,
                                     unscaledWidth:Number, unscaledHeight:Number,
@@ -652,6 +699,10 @@ public class TitleBar extends UIComponent
      *  @param rightOffset how much space to allow on right for corners, etc.
      *
      *  @param buttonAlign the way the buttons are aligned
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     protected function placeTitle(titleAlign:String,
                                   leftOffset:Number, rightOffset:Number,
@@ -659,7 +710,7 @@ public class TitleBar extends UIComponent
     {
         titleTextField.text = _title;
         titleTextField.validateNow();
-                               
+
         var buttonsX:Number; // x point between buttons and title text
         
         if( buttonAlign == "left" )
@@ -698,7 +749,7 @@ public class TitleBar extends UIComponent
 
                 titleTextField.move(
                     leftOffset,
-                     (height - (measureChromeText(titleTextField).height +
+                    (height - (measureChromeText(titleTextField).height +
                     UITextField.TEXT_HEIGHT_PADDING))/2);
 
                 titleTextField.truncateToFit();
@@ -720,7 +771,7 @@ public class TitleBar extends UIComponent
                     width - rightOffset - buttonsX - 2,
                     measureChromeText(titleTextField).height +
                     UITextField.TEXT_HEIGHT_PADDING);
-                
+
                 titleX = Math.max(buttonsX, (width - leftOffset - rightOffset - textWidth)/2);
                 
                 titleTextField.move(titleX,
@@ -734,7 +785,7 @@ public class TitleBar extends UIComponent
                     (width - buttonsX) - 2,
                     measureChromeText(titleTextField).height +
                     UITextField.TEXT_HEIGHT_PADDING);
-                
+
                 titleX = Math.max(0, Math.min(buttonsX - textWidth - 2, (width - leftOffset - rightOffset - textWidth)/2));
                 
                 titleTextField.move(
@@ -780,7 +831,12 @@ public class TitleBar extends UIComponent
     }
     
     /**
+     *  @private
      *  Handles a <code>doubleClick</code> event in a platform-appropriate manner.
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     protected function doubleClickHandler(event:MouseEvent):void
     {
@@ -832,9 +888,10 @@ public class TitleBar extends UIComponent
         else
         {
             window.maximize();
-            // work around bug  Bug SDK-9547
-            maximizeButton.dispatchEvent(new MouseEvent(MouseEvent.ROLL_OUT));
         }
+        
+        // work around for bugs SDK-9547 & SDK-21190
+        maximizeButton.dispatchEvent(new MouseEvent(MouseEvent.ROLL_OUT));
     }
     
     /**

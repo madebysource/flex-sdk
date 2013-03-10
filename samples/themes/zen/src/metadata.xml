@@ -1,0 +1,7 @@
+<theme>
+<name>Zen</name>
+<mainFile>zen.swc</mainFile>
+<category>Flex 4 Samples</category>
+<baseTheme></baseTheme>
+<sourceLocation>src</sourceLocation>
+</theme>

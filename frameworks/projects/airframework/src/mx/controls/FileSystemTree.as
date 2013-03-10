@@ -40,6 +40,10 @@ use namespace mx_internal;
  *  for any reason.
  *
  *  @eventType mx.events.FileEvent.DIRECTORY_CHANGE
+ *  
+ *  @langversion 3.0
+ *  @playerversion AIR 1.1
+ *  @productversion Flex 3
  */
 [Event(name="directoryChange", type="mx.events.FileEvent")]
 
@@ -48,6 +52,10 @@ use namespace mx_internal;
  *  using the mouse of keyboard.
  *
  *  @eventType mx.events.FileEvent.DIRECTORY_CLOSING
+ *  
+ *  @langversion 3.0
+ *  @playerversion AIR 1.1
+ *  @productversion Flex 3
  */
 [Event(name="directoryClosing", type="mx.events.FileEvent")]
 
@@ -62,6 +70,10 @@ use namespace mx_internal;
  *  double-clicked.</p>
  *
  *  @eventType mx.events.FileEvent.DIRECTORY_OPENING
+ *  
+ *  @langversion 3.0
+ *  @playerversion AIR 1.1
+ *  @productversion Flex 3
  */
 [Event(name="directoryOpening", type="mx.events.FileEvent")]
 
@@ -70,6 +82,10 @@ use namespace mx_internal;
  *  or by selecting it and pressing Enter.
  *
  *  @eventType mx.events.FileEvent.FILE_CHOOSE
+ *  
+ *  @langversion 3.0
+ *  @playerversion AIR 1.1
+ *  @productversion Flex 3
  */
 [Event(name="fileChoose", type="mx.events.FileEvent")]
 
@@ -153,7 +169,10 @@ use namespace mx_internal;
  * 
  *  @see flash.filesystem.File
  * 
+ *  
+ *  @langversion 3.0
  *  @playerversion AIR 1.1
+ *  @productversion Flex 3
  */
 public class FileSystemTree extends Tree
 {
@@ -167,6 +186,10 @@ public class FileSystemTree extends Tree
 
     /**
      *  @copy mx.controls.FileSystemList#COMPUTER
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public static const COMPUTER:File = FileSystemControlHelper.COMPUTER;
 
@@ -178,6 +201,10 @@ public class FileSystemTree extends Tree
 
     /**
      *  Constructor.
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function FileSystemTree()
     {
@@ -239,6 +266,10 @@ public class FileSystemTree extends Tree
      *  the root directories, such as C: and D: on Windows.</p>
      *
      *  @default COMPUTER
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get directory():File
     {
@@ -263,6 +294,10 @@ public class FileSystemTree extends Tree
      *  @default FileSystemEnumerationMode.DIRECTORIES_FIRST
      *
      *  @see mx.controls.FileSystemEnumerationMode
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get enumerationMode():String
     {
@@ -285,6 +320,10 @@ public class FileSystemTree extends Tree
      *  @copy mx.controls.FileSystemList#extensions
      *
      *  @default null
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get extensions():Array /* of String */
     {
@@ -307,6 +346,10 @@ public class FileSystemTree extends Tree
      *  @copy mx.controls.FileSystemList#filterFunction
      *
      *  @default null
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get filterFunction():Function
     {
@@ -329,6 +372,10 @@ public class FileSystemTree extends Tree
      *  @copy mx.controls.FileSystemList#nameCompareFunction
      *
      *  @default null
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get nameCompareFunction():Function
     {
@@ -353,6 +400,10 @@ public class FileSystemTree extends Tree
      *  This Array is empty if no subdirectories are open.
      *
      *  @default []
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get openPaths():Array /* of String */
     {
@@ -373,7 +424,7 @@ public class FileSystemTree extends Tree
 
     [Bindable("change")]
     [Bindable("directoryChanged")]
-	
+    
     /**
      *  @copy mx.controls.FileSystemList#selectedPath
      *
@@ -381,6 +432,10 @@ public class FileSystemTree extends Tree
      *
      *  @see mx.controls.listClasses.ListBase#selectedIndex
      *  @see mx.controls.listClasses.ListBase#selectedItem
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get selectedPath():String
     {
@@ -401,7 +456,7 @@ public class FileSystemTree extends Tree
 
     [Bindable("change")]
     [Bindable("directoryChanged")]
-	
+    
     /**
      *  @copy mx.controls.FileSystemList#selectedPaths
      *
@@ -409,6 +464,10 @@ public class FileSystemTree extends Tree
      *
      *  @see mx.controls.listClasses.ListBase#selectedIndex
      *  @see mx.controls.listClasses.ListBase#selectedItem
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get selectedPaths():Array /* of String */
     {
@@ -431,6 +490,10 @@ public class FileSystemTree extends Tree
      *  @copy mx.controls.FileSystemList#showExtensions
      *
      *  @default true
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get showExtensions():Boolean
     {
@@ -453,6 +516,10 @@ public class FileSystemTree extends Tree
      *  @copy mx.controls.FileSystemList#showHidden
      *
      *  @default false
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get showHidden():Boolean
     {
@@ -475,6 +542,10 @@ public class FileSystemTree extends Tree
      *  @copy mx.controls.FileSystemList#showIcons
      *
      *  @default true
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get showIcons():Boolean
     {
@@ -513,7 +584,7 @@ public class FileSystemTree extends Tree
         super.measure();
 
        var text:String = resourceManager.getString(
-        	"aircontrols", "fileSystemTree_measuredText");
+            "aircontrols", "fileSystemTree_measuredText");
         measuredWidth = measureText(text).width;
     }
 
@@ -553,7 +624,7 @@ public class FileSystemTree extends Tree
      */
     override protected function itemToUID(data:Object):String
     {
-    	return helper.itemToUID(data);
+        return helper.itemToUID(data);
     }
 
     //--------------------------------------------------------------------------
@@ -564,6 +635,10 @@ public class FileSystemTree extends Tree
 
     /**
      *  @copy mx.controls.FileSystemList#findIndex()
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function findIndex(nativePath:String):int
     {
@@ -572,6 +647,10 @@ public class FileSystemTree extends Tree
 
     /**
      *  @copy mx.controls.FileSystemList#findItem()
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function findItem(nativePath:String):File
     {
@@ -588,10 +667,14 @@ public class FileSystemTree extends Tree
      *  After the enumeration, the <code>dataProvider</code> property
      *  contains an ArrayCollection of File instances
      *  for the directory's contents.</p>
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function refresh():void
     {
-		helper.refresh();
+        helper.refresh();
     }
 
     /**
@@ -600,6 +683,10 @@ public class FileSystemTree extends Tree
      *  <p>This method sets the <code>dataProvider</code> to <code>null</code>
      *  but leaves the <code>directory</code> property unchanged.
      *  You can call <code>refresh</code> to populate the list again.</p>
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function clear():void
     {
@@ -616,33 +703,37 @@ public class FileSystemTree extends Tree
      *  an existing file system directory, or if that
      *  directory isn't within the directory that this control
      *  is displaying, then this method does nothing.</p>
-	 *
-	 *  @param file A String specifying the <code>nativePath</code>
+     *
+     *  @param file A String specifying the <code>nativePath</code>
      *  of a File item.
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function openSubdirectory(nativePath:String):void
     {
-    	var item:File = new File(nativePath);
-    	if (!item.exists || !item.isDirectory)
-    		return;
-    		
-		// Don't animate the opens, since we're doing
-		// multiple ones synchronously.
-		var savedOpenDuration:Number = getStyle("openDuration");
-		setStyle("openDuration", 0);
-		
-    	var parentPaths:Array = getParentPaths(item);
-    	var n:int = parentPaths.length;
-    	for (var i:int = 0; i < n; i++)
-    	{
-    		item = findItem(parentPaths[i]);
-    		if (item)
-    			openItem(item, false);
-    	}
-    	
-		setStyle("openDuration", savedOpenDuration);
+        var item:File = new File(nativePath);
+        if (!item.exists || !item.isDirectory)
+            return;
+            
+        // Don't animate the opens, since we're doing
+        // multiple ones synchronously.
+        var savedOpenDuration:Number = getStyle("openDuration");
+        setStyle("openDuration", 0);
+        
+        var parentPaths:Array = getParentPaths(item);
+        var n:int = parentPaths.length;
+        for (var i:int = 0; i < n; i++)
+        {
+            item = findItem(parentPaths[i]);
+            if (item)
+                openItem(item, false);
+        }
+        
+        setStyle("openDuration", savedOpenDuration);
 
-    	invalidateList();
+        invalidateList();
     }
 
     /**
@@ -651,31 +742,31 @@ public class FileSystemTree extends Tree
     mx_internal function openItem(item:File, async:Boolean = true):void
     {
         if (isItemOpen(item))
-        	return;
+            return;
 
         var children:ArrayCollection =
-        	ArrayCollection(dataDescriptor.getChildren(item));
+            ArrayCollection(dataDescriptor.getChildren(item));
 
         if (!children || modificationDateHasChanged(item))
         {
             if (async)
-      		{
-	      		item.addEventListener(FileListEvent.DIRECTORY_LISTING,
-	                                  directoryListingHandler);
-	            item.getDirectoryListingAsync();
-      		}
-      		else
-      		{
-	        	insertChildItems(item, item.getDirectoryListing());
-			}
+            {
+                item.addEventListener(FileListEvent.DIRECTORY_LISTING,
+                                      directoryListingHandler);
+                item.getDirectoryListingAsync();
+            }
+            else
+            {
+                insertChildItems(item, item.getDirectoryListing());
+            }
         }
         else
         {
             expandItem(item, true, true);
-        	helper.itemsChanged();
+            helper.itemsChanged();
         }
 
-     	invalidateList();
+        invalidateList();
      }
 
     /**
@@ -684,15 +775,19 @@ public class FileSystemTree extends Tree
      *  <p>If the <code>nativePath</code> doesn't specify
      *  a directory being displayed within this control,
      *  then this method does nothing.</p>
-	 *
+     *
      *  @param file A String specifying the <code>nativePath</code>
      *  of a File item.
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function closeSubdirectory(nativePath:String):void
     {
-    	var item:File = findItem(nativePath);
-    	if (item && item.isDirectory)
-    		closeItem(item);
+        var item:File = findItem(nativePath);
+        if (item && item.isDirectory)
+            closeItem(item);
     }
 
     /**
@@ -703,8 +798,8 @@ public class FileSystemTree extends Tree
         expandItem(item, false, true);
 
         fixSelectionAfterClose(item);
-		
-		helper.itemsChanged();
+        
+        helper.itemsChanged();
     }
 
     /**
@@ -715,21 +810,21 @@ public class FileSystemTree extends Tree
      */
     mx_internal function fixSelectionAfterClose(item:File):void
     {
-    	var closingPath:String = item.nativePath;
-    	
-    	var newSelectedItems:Array = []
-    	
-    	var n:int = selectedItems.length;
-    	for (var i:int = 0; i < n; i++)
-    	{
-    		var selectedPath:String = selectedItems[i].nativePath;
-    		if (selectedPath.indexOf(closingPath) == 0)
-    			newSelectedItems.push(item);
-    		else
-    			newSelectedItems.push(selectedItems[i]);
-    	}
-    	
-    	selectedItems = newSelectedItems;
+        var closingPath:String = item.nativePath;
+        
+        var newSelectedItems:Array = []
+        
+        var n:int = selectedItems.length;
+        for (var i:int = 0; i < n; i++)
+        {
+            var selectedPath:String = selectedItems[i].nativePath;
+            if (selectedPath.indexOf(closingPath) == 0)
+                newSelectedItems.push(item);
+            else
+                newSelectedItems.push(selectedItems[i]);
+        }
+        
+        selectedItems = newSelectedItems;
     }
 
     /**
@@ -741,9 +836,9 @@ public class FileSystemTree extends Tree
 
         for (var f:File = file; f != null; f = f.parent)
         {
-        	if (f.nativePath == directory.nativePath)
-        		break;
-        		
+            if (f.nativePath == directory.nativePath)
+                break;
+                
             a.unshift(f.nativePath);
         }
 
@@ -764,17 +859,17 @@ public class FileSystemTree extends Tree
      */
     mx_internal function insertChildItems(subdirectory:File, childItems:Array):void
     {
-    	var childCollection:ArrayCollection = new ArrayCollection(childItems);
-    	
+        var childCollection:ArrayCollection = new ArrayCollection(childItems);
+        
         childCollection.filterFunction =
-        	helper.directoryEnumeration.fileFilterFunction;
+            helper.directoryEnumeration.fileFilterFunction;
         childCollection.sort = new Sort();
         childCollection.sort.compareFunction =
-        	helper.directoryEnumeration.fileCompareFunction;
+            helper.directoryEnumeration.fileCompareFunction;
         childCollection.refresh();
 
         FileSystemTreeDataDescriptor(dataDescriptor).setChildren(
-        	subdirectory, childCollection);
+            subdirectory, childCollection);
 
         expandItem(subdirectory, true, true);
 
@@ -782,9 +877,9 @@ public class FileSystemTree extends Tree
     }
 
     /**
-	 *  @private
-	 *
-	 *  Opens the selected node if it is a directory.
+     *  @private
+     *
+     *  Opens the selected node if it is a directory.
      *  This method does nothing if no node is selected,
      *  or if a file node is selected.
      */
@@ -796,8 +891,8 @@ public class FileSystemTree extends Tree
     }
 
     /**
-	 *  @private
-	 *
+     *  @private
+     *
      *  Closes the selected node if it is a directory.
      *  This method does nothing if no node is selected,
      *  or if a file node is selected.
@@ -809,11 +904,11 @@ public class FileSystemTree extends Tree
             closeItem(item);
     }
 
-	/**
-	 *  @private
-	 *  Dispatches a cancelable "directoryOpening" event
-	 *  and returns true if it wasn't canceled.
-	 */
+    /**
+     *  @private
+     *  Dispatches a cancelable "directoryOpening" event
+     *  and returns true if it wasn't canceled.
+     */
     private function dispatchDirectoryOpeningEvent(directory:File):Boolean
     {
         var event:FileEvent =
@@ -824,11 +919,11 @@ public class FileSystemTree extends Tree
         return !event.isDefaultPrevented();
     }
 
-	/**
-	 *  @private
-	 *  Dispatches a cancelable "directoryClosing" event
-	 *  and returns true if it wasn't canceled.
-	 */
+    /**
+     *  @private
+     *  Dispatches a cancelable "directoryClosing" event
+     *  and returns true if it wasn't canceled.
+     */
     private function dispatchDirectoryClosingEvent(directory:File):Boolean
     {
         var event:FileEvent =
@@ -850,13 +945,13 @@ public class FileSystemTree extends Tree
      */
     override protected function keyDownHandler(event:KeyboardEvent):void
     {
-		if (event.keyCode == Keyboard.ENTER)
-		{
-			var selectedFile:File = File(selectedItem);
-			if (selectedFile && !selectedFile.isDirectory)
-				helper.dispatchFileChooseEvent(selectedFile);
-			return;
-		}
+        if (event.keyCode == Keyboard.ENTER)
+        {
+            var selectedFile:File = File(selectedItem);
+            if (selectedFile && !selectedFile.isDirectory)
+                helper.dispatchFileChooseEvent(selectedFile);
+            return;
+        }
 
         super.keyDownHandler(event);
     }
@@ -894,7 +989,7 @@ public class FileSystemTree extends Tree
      */
     private function directoryListingHandler(event:FileListEvent):void
     {
-    	insertChildItems(File(event.target), event.files);
+        insertChildItems(File(event.target), event.files);
     }
 
     /**
@@ -919,7 +1014,7 @@ public class FileSystemTree extends Tree
                 // Dispatch a cancelable "directoryClosing" event.
                 // If the event wasn't canceled,
                 // then close that node.
-				if (dispatchDirectoryClosingEvent(item))
+                if (dispatchDirectoryClosingEvent(item))
                     closeSelectedSubdirectory();
             }
         }

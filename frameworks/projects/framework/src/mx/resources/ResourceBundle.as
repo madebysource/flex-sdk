@@ -12,11 +12,12 @@
 package mx.resources
 {
 
-import flash.utils.describeType;
 import flash.system.ApplicationDomain;
+
 import mx.core.mx_internal;
-import mx.managers.ISystemManager;
 import mx.utils.StringUtil;
+
+use namespace mx_internal;
 
 /**
  *  Provides an implementation of the IResourceBundle interface.
@@ -31,6 +32,11 @@ import mx.utils.StringUtil;
  *  
  *  @see mx.resources.IResourceBundle
  *  @see mx.resources.IResourceManager
+ *  
+ *  @langversion 3.0
+ *  @playerversion Flash 9
+ *  @playerversion AIR 1.1
+ *  @productversion Flex 3
  */
 public class ResourceBundle implements IResourceBundle
 {
@@ -63,86 +69,6 @@ public class ResourceBundle implements IResourceBundle
     //
     //--------------------------------------------------------------------------
 
-    [Deprecated(replacement="ResourceManager.getInstance().getResourceBundle()", since="3.0")]
-    
-    /**
-     *  If you compiled your application for a single locale,
-     *  this method can return a ResourceBundle when provided
-     *  with a resource bundle name,
-     *
-     *  <p>This method has been deprecated because the Flex framework
-     *  now supports having resource bundles for multiple locales
-     *  in the same application.
-     *  You can use the <code>getResourceBundle()</code> method
-     *  of IResourceManager to get a resource bundle if you know
-     *  its bundle name and locale.
-     *  However, you should no longer access resources
-     *  directly from a ResourceBundle.
-     *  All resources should now be accessed via methods
-     *  of the IResourceManager interface such as <code>getString()</code>.
-     *  All classes that extend UIComponent, Formatter, or Validator
-     *  have a <code>resourceManager</code> property
-     *  which provides a reference to an object implementing this interface.
-     *  Other classes can call <code>ResourceManager.getInstance()</code>
-     *  to obtain this object.</p>
-     *  
-     *  @param baseName The name of the resource bundle to return.
-     *  
-     *  @param currentDomain The ApplicationDomain that the resource bundle is in.
-     * 
-     *  @return The resource bundle that matches the specified name and domain.
-     */
-    public static function getResourceBundle(
-                                baseName:String,
-                                currentDomain:ApplicationDomain = null):
-                                ResourceBundle
-    {
-        if (!currentDomain)
-            currentDomain = ApplicationDomain.currentDomain;
-
-        var className:String;
-        var bundleClass:Class;
-
-        className = mx_internal::locale + "$" + baseName + "_properties";
-        bundleClass = getClassByName(className, currentDomain);
-
-        if (!bundleClass)
-        {
-            className = baseName + "_properties";
-            bundleClass = getClassByName(className, currentDomain);
-        }
-
-        if (!bundleClass)
-        {
-            className = baseName;
-            bundleClass = getClassByName(className, currentDomain);
-        }
-
-        if (!bundleClass && mx_internal::backupApplicationDomain)
-        {
-            className = baseName + "_properties";
-            bundleClass = getClassByName(className, mx_internal::backupApplicationDomain);
-
-            if (!bundleClass)
-            {
-                className = baseName;
-                bundleClass = getClassByName(className, mx_internal::backupApplicationDomain);
-            }
-        }
-
-        if (bundleClass)
-        {
-            var bundleObj:Object = new bundleClass();
-            if (bundleObj is ResourceBundle)
-            {
-                var bundle:ResourceBundle = ResourceBundle(bundleObj);
-                return bundle;
-            }
-        }
-
-        throw new Error("Could not find resource bundle " + baseName);
-    }
-
     /**
      *  @private
      */
@@ -170,6 +96,11 @@ public class ResourceBundle implements IResourceBundle
      *
      *  @param bundleName A name that identifies this bundle,
      *  such as <code>"MyResources"</code>.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function ResourceBundle(locale:String = null,
                                    bundleName:String = null)
@@ -184,8 +115,8 @@ public class ResourceBundle implements IResourceBundle
         
         super();
         
-        mx_internal::_locale = locale;
-        mx_internal::_bundleName = bundleName;
+        _locale = locale;
+        _bundleName = bundleName;
 
         _content = getContent();
     }  
@@ -208,10 +139,15 @@ public class ResourceBundle implements IResourceBundle
 
     /**
      *  @copy mx.resources.IResourceBundle#bundleName
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */     
     public function get bundleName():String
     {
-        return mx_internal::_bundleName;
+        return _bundleName;
     }
 
     //----------------------------------
@@ -226,6 +162,11 @@ public class ResourceBundle implements IResourceBundle
 
     /**
      *  @copy mx.resources.IResourceBundle#content
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */     
     public function get content():Object
     {
@@ -244,10 +185,15 @@ public class ResourceBundle implements IResourceBundle
 
     /**
      *  @copy mx.resources.IResourceBundle#locale
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */     
     public function get locale():String
     {
-        return mx_internal::_locale;
+        return _locale;
     }
 
     //--------------------------------------------------------------------------
@@ -266,174 +212,15 @@ public class ResourceBundle implements IResourceBundle
      *  you can set the key-value pairs on the <code>content</code> object.</p>
      *  
      *  @return The Object that contains key-value pairs for the bundle's resources.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     protected function getContent():Object
     {
         return {};
-    }
-
-    [Deprecated(replacement="ResourceManager.getInstance().getBoolean()", since="3.0")]
-    
-    /**
-     *  Gets a Boolean from a ResourceBundle.
-     *
-     *  <p>If the resource specified by the <code>key</code> parameter
-     *  does not exist in this bundle, this method throws an error.</p>
-     *
-     *  <p>This method has been deprecated because all resources
-     *  should now be accessed via methods of the IResourceManager interface.
-     *  You should convert your code to instead call
-     *  the <code>getBoolean()</code>method of IResourceManager.
-     *  All classes that extend UIComponent, Formatter, or Validator
-     *  have a <code>resourceManager</code> property
-     *  that provides a reference to an object implementing this interface.
-     *  Other classes can call the <code>ResourceManager.getInstance()</code>
-     *  method to obtain this object.</p>
-     *
-     *  @param key A String identifying a resource in this ResourceBundle.
-     *
-     *  @param defaultValue The value to return if the resource value,
-     *  after being converted to lowercase, is neither the String
-     *  <code>"true"</code> nor the String <code>"false"</code>.
-     *  This parameter is optional; its default value is <code>true</code>.
-     *
-     *  @return The value of the specified resource, as a Boolean.
-     */    
-    public function getBoolean(key:String, defaultValue:Boolean = true):Boolean
-    {
-        var temp:String = _getObject(key).toLowerCase();
-        
-        if (temp == "false")
-            return false;
-        else if (temp == "true")
-            return true;
-        else
-            return defaultValue;
-    }
-
-    [Deprecated(replacement="ResourceManager.getInstance().getNumber()", since="3.0")]
-    
-    /**
-     *  Gets a Number from a ResourceBundle.
-     *
-     *  <p>If the resource specified by the <code>key</code> parameter
-     *  does not exist in this bundle, this method throws an error.</p>
-     *
-     *  <p>This method has been deprecated because all resources
-     *  should now be accessed via methods of the IResourceManager interface.
-     *  You should convert your code to instead call
-     *  the <code>getNumber()</code>, <code>getInt()</code>,
-     *  or <code>getUint()</code> method of IResourceManager.
-     *  All classes that extend UIComponent, Formatter, or Validator
-     *  have a <code>resourceManager</code> property
-     *  that provides a reference to an object implementing this interface.
-     *  Other classes can call the <code>ResourceManager.getInstance()</code>
-     *  method to obtain this object.</p>
-     *
-     *  @param key A String identifying a resource in this ResourceBundle.
-     *
-     *  @return The value of the specified resource, as a Number.
-     */        
-    public function getNumber(key:String):Number
-    {
-        return Number(_getObject(key));
-    }
-
-    [Deprecated(replacement="ResourceManager.getInstance().getString()", since="3.0")]
-    
-    /**
-     *  Gets a String from a ResourceBundle.
-     *
-     *  <p>If the resource specified by the <code>key</code> parameter
-     *  does not exist in this bundle, this method throws an error.</p>
-     *
-     *  <p>This method has been deprecated because all resources
-     *  should now be accessed via methods of the IResourceManager interface.
-     *  You should convert your code to instead call
-     *  the <code>getString()</code> method of IResourceManager.
-     *  All classes that extend UIComponent, Formatter, or Validator
-     *  have a <code>resourceManager</code> property
-     *  that provides a reference to an object implementing this interface.
-     *  Other classes can call the <code>ResourceManager.getInstance()</code>
-     *  method to obtain this object.</p>
-     *
-     *  @param key A String identifying a resource in this ResourceBundle.
-     *
-     *  @return The value of the specified resource, as a String.
-     */        
-    public function getString(key:String):String
-    {
-        return String(_getObject(key));
-    }
-
-    [Deprecated(replacement="ResourceManager.getInstance().getStringArray()", since="3.0")]
-    
-    /**
-     *  Gets an Array of Strings from a ResourceBundle.
-     *
-     *  <p>The Array is produced by assuming that the actual value
-     *  of the resource is a String containing comma-separated items,
-     *  such as <code>"India, China, Japan"</code>.
-     *  After splitting the String at the commas, any white space
-     *  before or after each item is trimmed.</p>
-     *
-     *  <p>If the resource specified by the <code>key</code> parameter
-     *  does not exist in this bundle, this method throws an error.</p>
-     *
-     *  <p>This method has been deprecated because all resources
-     *  should now be accessed via methods of the IResourceManager interface.
-     *  You should convert your code to instead call
-     *  the <code>getStringArray()</code> method of IResourceManager.
-     *  All classes that extend UIComponent, Formatter, or Validator
-     *  have a <code>resourceManager</code> property
-     *  which provides a reference to an object implementing this interface.
-     *  Other classes can call <code>ResourceManager.getInstance()</code>
-     *  to obtain this object.</p>
-     *
-     *  @param key A String identifying a resource in this ResourceBundle.
-     *
-     *  @return The value of the specified resource,
-     *  as an Array of Strings.
-     */
-    public function getStringArray(key:String):Array
-    {
-        var array:Array = _getObject(key).split(",");
-        
-        var n:int = array.length;
-        for (var i:int = 0; i < n; i++)
-        {
-             array[i] = StringUtil.trim(array[i]);
-        }  
-        
-        return array;
-    }
-
-    [Deprecated(replacement="ResourceManager.getInstance().getObject()", since="3.0")]
-    
-    /**
-     *  Gets an Object from a ResourceBundle.
-     *
-     *  <p>If the resource specified by the <code>key</code> parameter
-     *  does not exist in this bundle, this method throws an error.</p>
-     *
-     *  <p>This method has been deprecated because all resources
-     *  should now be accessed via methods of the IResourceManager interface.
-     *  You should convert your code to instead call
-     *  the <code>getObject()</code> or <code>getClass()</code> method
-     *  of IResourceManager.
-     *  All classes that extend UIComponent, Formatter, or Validator
-     *  have a <code>resourceManager</code> property
-     *  that provides a reference to an object implementing this interface.
-     *  Other classes can call the <code>ResourceManager.getInstance()</code>
-     *  method to obtain this object.</p>
-     *
-     *  @param key A String identifying a resource in this ResourceBundle.
-     *
-     *  @return An Object that is the value of the specified resource.
-     */        
-    public function getObject(key:String):Object
-    {
-        return _getObject(key);
     }
 
     /**

@@ -11,13 +11,15 @@
 ////////////////////////////////////////////////////////////////////////////////
 */
 
+@namespace mx "library://ns.adobe.com/flex/mx";
+
 /*
 //------------------------------
-//  FileSystemComboBox
+//  Halo FileSystemComboBox
 //------------------------------
 */
 
-FileSystemComboBox
+mx|FileSystemComboBox
 {
 	computerIcon: Embed(source="ComputerIcon.swf", symbol="ComputerIcon");
 	directoryIcon: Embed(source="Assets.swf", symbol="TreeFolderOpen");
@@ -25,11 +27,11 @@ FileSystemComboBox
 
 /*
 //------------------------------
-//  FileSystemDataGrid
+//  Halo FileSystemDataGrid
 //------------------------------
 */
 
-FileSystemDataGrid
+mx|FileSystemDataGrid
 {
 	directoryIcon: Embed(source="Assets.swf", symbol="TreeFolderClosed");
 	fileIcon: Embed(source="Assets.swf", symbol="TreeNodeIcon");
@@ -37,11 +39,11 @@ FileSystemDataGrid
 
 /*
 //------------------------------
-//  FileSystemList
+//  Halo FileSystemList
 //------------------------------
 */
 
-FileSystemList
+mx|FileSystemList
 {
 	directoryIcon: Embed(source="Assets.swf", symbol="TreeFolderClosed");
 	fileIcon: Embed(source="Assets.swf", symbol="TreeNodeIcon");
@@ -53,11 +55,12 @@ FileSystemList
 //------------------------------
 */
 
-FileSystemTree
+mx|FileSystemTree
 {
 	directoryIcon: Embed(source="Assets.swf", symbol="TreeFolderClosed");
 	fileIcon: Embed(source="Assets.swf", symbol="TreeNodeIcon");
 }
+
 
 /*
 //------------------------------
@@ -78,10 +81,10 @@ FileSystemTree
 //------------------------------
 */
 
-HTML
+mx|HTML
 {
-	backgroundColor: #FFFFFF;
 	borderStyle: "none";
+    layoutDirection: "ltr";
 }
 
 /*
@@ -171,16 +174,15 @@ HTML
 //------------------------------
 */
 
-Window
+mx|Window
 {
 	borderColor: #A6A6A6;
 	borderStyle: "solid";
-	borderThickness: 1;
 	buttonPadding: 2;
 	closeButtonSkin: ClassReference("mx.skins.halo.WindowCloseButtonSkin");
-	cornerRadius: 8;
-	backgroundColor: #C0C0C0;
-	backgroundImage: ClassReference("mx.skins.halo.WindowBackground");
+	cornerRadius: 0;
+    backgroundAlpha: 1;
+	backgroundColor: #FFFFFF;
 	buttonAlignment: "auto";
 	gripperPadding: 3;
 	gripperStyleName: "gripperSkin";
@@ -191,7 +193,7 @@ Window
 	roundedBottomCorners: false;
 	showFlexChrome: true;
 	statusBarBackgroundSkin: ClassReference("mx.skins.halo.StatusBarBackgroundSkin");
-	statusBarBackgroundColor: #CCCCCC;
+	statusBarBackgroundColor: #DDDDDD;
 	statusTextStyleName: "statusTextStyle";
 	titleAlignment: "auto";
 	titleBarBackgroundSkin: ClassReference("mx.skins.halo.ApplicationTitleBarBackgroundSkin");
@@ -206,16 +208,15 @@ Window
 //------------------------------
 */
 
-WindowedApplication
+mx|WindowedApplication
 {
 	borderColor: #A6A6A6;
 	borderStyle: "solid";
-	borderThickness: 1;
 	buttonPadding: 2;
 	closeButtonSkin: ClassReference("mx.skins.halo.WindowCloseButtonSkin");
-	cornerRadius: 8;
-	backgroundColor: #C0C0C0;
-	backgroundImage: ClassReference("mx.skins.halo.WindowBackground");
+	cornerRadius: 0;
+    backgroundAlpha: 1;
+	backgroundColor: #FFFFFF;
 	buttonAlignment: "auto";
 	gripperPadding: 3;
 	gripperStyleName: "gripperSkin";
@@ -226,7 +227,7 @@ WindowedApplication
 	roundedBottomCorners: false;
 	showFlexChrome: true;
 	statusBarBackgroundSkin: ClassReference("mx.skins.halo.StatusBarBackgroundSkin");
-	statusBarBackgroundColor: #CCCCCC;
+	statusBarBackgroundColor: #DDDDDD;
 	statusTextStyleName: "statusTextStyle";
 	titleAlignment: "auto";
 	titleBarBackgroundSkin: ClassReference("mx.skins.halo.ApplicationTitleBarBackgroundSkin");

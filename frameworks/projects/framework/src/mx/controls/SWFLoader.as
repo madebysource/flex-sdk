@@ -35,20 +35,25 @@ import flash.system.LoaderContext;
 import flash.system.SecurityDomain;
 import flash.utils.ByteArray;
 
-import mx.core.Application;
+import mx.core.FlexGlobals;
 import mx.core.FlexLoader;
 import mx.core.FlexVersion;
 import mx.core.IFlexDisplayObject;
+import mx.core.IFlexModuleFactory;
+import mx.core.ILayoutDirectionElement;
 import mx.core.ISWFLoader;
 import mx.core.IUIComponent;
+import mx.core.LayoutDirection;
 import mx.core.UIComponent;
 import mx.core.mx_internal;
 import mx.events.FlexEvent;
 import mx.events.InterManagerRequest;
 import mx.events.InvalidateRequestData;
+import mx.events.Request;
 import mx.events.SWFBridgeEvent;
 import mx.events.SWFBridgeRequest;
 import mx.managers.CursorManager;
+import mx.managers.IMarshalSystemManager;
 import mx.managers.ISystemManager;
 import mx.managers.SystemManager;
 import mx.managers.SystemManagerGlobals;
@@ -68,6 +73,11 @@ use namespace mx_internal;
  *  by an autoload or an explicit call to the <code>load()</code> method.</p>
  *
  *  @eventType flash.events.Event.COMPLETE
+ *  
+ *  @langversion 3.0
+ *  @playerversion Flash 9
+ *  @playerversion AIR 1.1
+ *  @productversion Flex 3
  */
 [Event(name="complete", type="flash.events.Event")]
 
@@ -76,6 +86,11 @@ use namespace mx_internal;
  *  and Flash Player or AIR can detect the HTTP status code.
  * 
  *  @eventType flash.events.HTTPStatusEvent.HTTP_STATUS
+ *  
+ *  @langversion 3.0
+ *  @playerversion Flash 9
+ *  @playerversion AIR 1.1
+ *  @productversion Flex 3
  */
 [Event(name="httpStatus", type="flash.events.HTTPStatusEvent")]
 
@@ -91,6 +106,11 @@ use namespace mx_internal;
  *  </ul>
  * 
  *  @eventType flash.events.Event.INIT
+ *  
+ *  @langversion 3.0
+ *  @playerversion Flash 9
+ *  @playerversion AIR 1.1
+ *  @productversion Flex 3
  */
 [Event(name="init", type="flash.events.Event")]
 
@@ -99,6 +119,11 @@ use namespace mx_internal;
  *  @see flash.events.IOErrorEvent
  *
  *  @eventType flash.events.IOErrorEvent.IO_ERROR
+ *  
+ *  @langversion 3.0
+ *  @playerversion Flash 9
+ *  @playerversion AIR 1.1
+ *  @productversion Flex 3
  */
 [Event(name="ioError", type="flash.events.IOErrorEvent")]
 
@@ -106,6 +131,11 @@ use namespace mx_internal;
  *  Dispatched when a network operation starts.
  * 
  *  @eventType flash.events.Event.OPEN
+ *  
+ *  @langversion 3.0
+ *  @playerversion Flash 9
+ *  @playerversion AIR 1.1
+ *  @productversion Flex 3
  */
 [Event(name="open", type="flash.events.Event")]
 
@@ -122,6 +152,11 @@ use namespace mx_internal;
  *  This can happen when the loaded content is a local file.</p>
  *
  *  @eventType flash.events.ProgressEvent.PROGRESS
+ *  
+ *  @langversion 3.0
+ *  @playerversion Flash 9
+ *  @playerversion AIR 1.1
+ *  @productversion Flex 3
  */
 [Event(name="progress", type="flash.events.ProgressEvent")]
 
@@ -130,6 +165,11 @@ use namespace mx_internal;
  *  For more information, see the SecurityErrorEvent class.
  *
  *  @eventType flash.events.SecurityErrorEvent.SECURITY_ERROR
+ *  
+ *  @langversion 3.0
+ *  @playerversion Flash 9
+ *  @playerversion AIR 1.1
+ *  @productversion Flex 3
  */
 [Event(name="securityError", type="flash.events.SecurityErrorEvent")]
 
@@ -139,6 +179,11 @@ use namespace mx_internal;
  *  and the original content is removed prior to the new load beginning.
  * 
  *  @eventType flash.events.Event.UNLOAD
+ *  
+ *  @langversion 3.0
+ *  @playerversion Flash 9
+ *  @playerversion AIR 1.1
+ *  @productversion Flex 3
  */
 [Event(name="unload", type="flash.events.Event")]
 
@@ -150,6 +195,11 @@ use namespace mx_internal;
  *  The name of class to use as the SWFLoader border skin if the control cannot
  *  load the content.
  *  @default BrokenImageBorderSkin
+ *  
+ *  @langversion 3.0
+ *  @playerversion Flash 9
+ *  @playerversion AIR 1.1
+ *  @productversion Flex 3
  */
 [Style(name="brokenImageBorderSkin", type="Class", inherit="no")]
 
@@ -157,6 +207,11 @@ use namespace mx_internal;
  *  The name of the class to use as the SWFLoader skin if the control cannot load
  *  the content.
  *  The default value is the "__brokenImage" symbol in the Assets.swf file.
+ *  
+ *  @langversion 3.0
+ *  @playerversion Flash 9
+ *  @playerversion AIR 1.1
+ *  @productversion Flex 3
  */
 [Style(name="brokenImageSkin", type="Class", inherit="no")]
 
@@ -166,6 +221,11 @@ use namespace mx_internal;
  *  Possible values are <code>"left"</code>, <code>"center"</code>,
  *  and <code>"right"</code>.
  *  @default "left"
+ *  
+ *  @langversion 3.0
+ *  @playerversion Flash 9
+ *  @playerversion AIR 1.1
+ *  @productversion Flex 3
  */
 [Style(name="horizontalAlign", type="String", enumeration="left,center,right", inherit="no")]
 
@@ -175,6 +235,11 @@ use namespace mx_internal;
  *  Possible values are <code>"top"</code>, <code>"middle"</code>,
  *  and <code>"bottom"</code>.
  *  @default "top"
+ *  
+ *  @langversion 3.0
+ *  @playerversion Flash 9
+ *  @playerversion AIR 1.1
+ *  @productversion Flex 3
  */
 [Style(name="verticalAlign", type="String", enumeration="bottom,middle,top", inherit="no")]
 
@@ -184,8 +249,19 @@ use namespace mx_internal;
 
 /**
  *  An effect that is started when the complete event is dispatched.
+ *  
+ *  @langversion 3.0
+ *  @playerversion Flash 9
+ *  @playerversion AIR 1.1
+ *  @productversion Flex 3
  */
 [Effect(name="completeEffect", event="complete")]
+
+//--------------------------------------
+//  Excluded APIs
+//--------------------------------------
+
+[Exclude(name="chromeColor", kind="style")]
 
 //--------------------------------------
 //  Other metadata
@@ -291,111 +367,120 @@ use namespace mx_internal;
  *  @includeExample examples/SimpleLoader.mxml
  *
  *  @see mx.controls.Image
+ *  
+ *  @langversion 3.0
+ *  @playerversion Flash 9
+ *  @playerversion AIR 1.1
+ *  @productversion Flex 3
  */
 public class SWFLoader extends UIComponent implements ISWFLoader
 {
     include "../core/Version.as";
-
+    
     //--------------------------------------------------------------------------
     //
     //  Constructor
     //
     //--------------------------------------------------------------------------
-
+    
     /**
      *  Constructor.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function SWFLoader()
     {
         super();
-
-        // SWFLoader generally load interactive content.
-        tabChildren = true;
+        
         tabEnabled = false;
-
+        tabFocusEnabled = false;
+        
         addEventListener(FlexEvent.INITIALIZE, initializeHandler);
         addEventListener(Event.ADDED_TO_STAGE, addedToStageHandler);
         addEventListener(MouseEvent.CLICK, clickHandler);
-
+        
         showInAutomationHierarchy = false;
     }
-
+    
     //--------------------------------------------------------------------------
     //
     //  Variables
     //
     //--------------------------------------------------------------------------
-
+    
     /**
      *  @private
      */
     mx_internal var contentHolder:DisplayObject;
-
+    
     /**
      *  @private
      */
     private var contentChanged:Boolean = false;
-
+    
     /**
      *  @private
      */
     private var scaleContentChanged:Boolean = false;
-
+    
     /**
      *  @private
      */
     private var smoothBitmapContentChanged:Boolean = false;
-
+    
     /**
      *  @private
      */
     private var isContentLoaded:Boolean = false;
-
+    
     /**
      *  @private
      */
     private var brokenImage:Boolean = false;
-
+    
     /**
      *  @private
      */
     private var resizableContent:Boolean = false; // true if we've loaded a SWF
-
+    
     /**
      *  @private
      */
     private var flexContent:Boolean = false; // true if we've loaded a Flex SWF
-
+    
     /**
      *  @private
      */
     private var contentRequestID:String = null;
-
+    
     /**
      *  @private
      */
     private var attemptingChildAppDomain:Boolean = false;
-
+    
     /**
      *  @private
      */
     private var requestedURL:URLRequest;
-
+    
     /**
      *  @private
      */
     private var brokenImageBorder:IFlexDisplayObject;
-
+    
     /**
      *  @private
      */
     private var explicitLoaderContext:Boolean = false;
-
+    
     /**
      *  @private
      */
     private var mouseShield:Sprite;
-
+    
     /**
      *  @private
      * 
@@ -403,7 +488,7 @@ public class SWFLoader extends UIComponent implements ISWFLoader
      *  should use unload() or unloadAndStop().
      */
     private var useUnloadAndStop:Boolean;
-
+    
     /**
      *  @private
      * 
@@ -411,49 +496,26 @@ public class SWFLoader extends UIComponent implements ISWFLoader
      *  as the gc parameter.
      */
     private var unloadAndStopGC:Boolean;
-
-    //--------------------------------------------------------------------------
-    //
-    //  Overridden properties
-    //
-    //--------------------------------------------------------------------------
-
-    //----------------------------------
-    //  baselinePosition
-    //----------------------------------
-
-    /**
-     *  @private
-     *  The baselinePosition of a SWFLoader is calculated
-     *  the same as for a generic UIComponent.
-     */
-    override public function get baselinePosition():Number
-    {
-        if (FlexVersion.compatibilityVersion < FlexVersion.VERSION_3_0)
-            return 0;
-
-        return super.baselinePosition;
-    }
-
+    
     //--------------------------------------------------------------------------
     //
     //  Properties
     //
     //--------------------------------------------------------------------------
-
+    
     //----------------------------------
     //  autoLoad
     //----------------------------------
-
+    
     /**
      *  @private
      *  Storage for the autoLoad property.
      */
     private var _autoLoad:Boolean = true;
-
+    
     [Bindable("autoLoadChanged")]
     [Inspectable(defaultValue="true")]
-
+    
     /**
      *  A flag that indicates whether content starts loading automatically
      *  or waits for a call to the <code>load()</code> method.
@@ -461,12 +523,17 @@ public class SWFLoader extends UIComponent implements ISWFLoader
      *  If <code>false</code>, you must call the <code>load()</code> method.
      *
      *  @default true
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get autoLoad():Boolean
     {
         return _autoLoad;
     }
-
+    
     /**
      *  @private
      */
@@ -475,30 +542,30 @@ public class SWFLoader extends UIComponent implements ISWFLoader
         if (_autoLoad != value)
         {
             _autoLoad = value;
-
+            
             contentChanged = true;
-
+            
             invalidateProperties();
             invalidateSize();
             invalidateDisplayList();
-
+            
             dispatchEvent(new Event("autoLoadChanged"));
         }
     }
-
+    
     //----------------------------------
     //  loadForCompatibility
     //----------------------------------
-
+    
     /**
      *  @private
      *  Storage for the loadForCompatibility property.
      */
     private var _loadForCompatibility:Boolean = false;
-
+    
     [Bindable("loadForCompatibilityChanged")]
     [Inspectable(defaultValue="false")]
-
+    
     /**
      *  A flag that indicates whether the content is loaded so that it can
      *  interoperate with applications built with a different verion of the Flex compiler.  
@@ -510,12 +577,17 @@ public class SWFLoader extends UIComponent implements ISWFLoader
      *  If <code>false</code>, the content loaded into a child ApplicationDomain.
      *
      *  @default false
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get loadForCompatibility():Boolean
     {
         return _loadForCompatibility;
     }
-
+    
     /**
      *  @private
      */
@@ -524,80 +596,95 @@ public class SWFLoader extends UIComponent implements ISWFLoader
         if (_loadForCompatibility != value)
         {
             _loadForCompatibility = value;
-
+            
             contentChanged = true;
-
+            
             invalidateProperties();
             invalidateSize();
             invalidateDisplayList();
-
+            
             dispatchEvent(new Event("loadForCompatibilityChanged"));
         }
     }
-
+    
     //----------------------------------
     //  bytesLoaded (read only)
     //----------------------------------
-
+    
     /**
      *  @private
      *  Storage for the autoLoad property.
      */
     private var _bytesLoaded:Number = NaN;
-
+    
     [Bindable("progress")]
-
+    
     /**
      *  The number of bytes of the SWF or image file already loaded.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get bytesLoaded():Number
     {
         return _bytesLoaded;
     }
-
+    
     //----------------------------------
     //  bytesTotal (read only)
     //----------------------------------
-
+    
     /**
      *  @private
      *  Storage for the bytesTotal property.
      */
     private var _bytesTotal:Number = NaN;
-
+    
     [Bindable("complete")]
-
+    
     /**
      *  The total size of the SWF or image file.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get bytesTotal():Number
     {
         return _bytesTotal;
     }
-
+    
     //----------------------------------
     //  content (read only)
     //----------------------------------
-
+    
     /**
      *  This property contains the object that represents
      *  the content that was loaded in the SWFLoader control. 
      *
      *  @tiptext Returns the content of the SWFLoader.
      *  @helpid 3134
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get content():DisplayObject
     {
         if (contentHolder is Loader)
             return Loader(contentHolder).content;
-
+        
         return contentHolder;
     }
-
+    
     //----------------------------------
     //  contentHeight
     //----------------------------------
-
+    
     /**
      *  Height of the scaled content loaded by the control, in pixels. 
      *  Note that this is not the height of the control itself, but of the 
@@ -608,16 +695,21 @@ public class SWFLoader extends UIComponent implements ISWFLoader
      *  You can get the value after the <code>updateComplete</code> event is triggered.</p>
      *
      *  @default NaN
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get contentHeight():Number
     {
         return contentHolder ? contentHolder.height : NaN;
     }
-
+    
     //----------------------------------
     //  contentHolderHeight (private)
     //----------------------------------
-
+    
     /**
      *  @private
      */
@@ -627,24 +719,26 @@ public class SWFLoader extends UIComponent implements ISWFLoader
         var loaderInfo:LoaderInfo;
         if (contentHolder is Loader)
             loaderInfo = Loader(contentHolder).contentLoaderInfo;
-
+        
         if (loaderInfo)
         {
             if (loaderInfo.contentType == "application/x-shockwave-flash")
             {
                 try
                 {
-                        if (systemManager.swfBridgeGroup)
+                    var mp:IMarshalSystemManager = 
+                        IMarshalSystemManager(systemManager.getImplementation("mx.managers::IMarshalSystemManager"));
+                    if (mp && mp.swfBridgeGroup)
+                    {
+                        var bridge:IEventDispatcher = swfBridge;
+                        if (bridge)
                         {
-                            var bridge:IEventDispatcher = swfBridge;
-                            if (bridge)
-                            {
-                                var request:SWFBridgeRequest = new SWFBridgeRequest(SWFBridgeRequest.GET_SIZE_REQUEST);
-                                bridge.dispatchEvent(request);
-                                return request.data.height;
-                            }
+                            var request:SWFBridgeRequest = new SWFBridgeRequest(SWFBridgeRequest.GET_SIZE_REQUEST);
+                            bridge.dispatchEvent(request);
+                            return request.data.height;
                         }
-                        
+                    }
+                    
                     var content:IFlexDisplayObject =
                         Loader(contentHolder).content as IFlexDisplayObject;
                     if (content)
@@ -666,23 +760,23 @@ public class SWFLoader extends UIComponent implements ISWFLoader
                     return contentHolder.height;
                 }
             }
-
+            
             return loaderInfo.height;
         }
-
+        
         // For internally loaded content, use preferredHeight (if present) or height
         if (contentHolder is IUIComponent)
             return IUIComponent(contentHolder).getExplicitOrMeasuredHeight();
         if (contentHolder is IFlexDisplayObject)
             return IFlexDisplayObject(contentHolder).measuredHeight;
-
+        
         return contentHolder.height;
     }
-
+    
     //----------------------------------
     //  contentHolderWidth (private)
     //----------------------------------
-
+    
     /**
      *  @private
      */
@@ -692,20 +786,20 @@ public class SWFLoader extends UIComponent implements ISWFLoader
         var loaderInfo:LoaderInfo;
         if (contentHolder is Loader)
             loaderInfo = Loader(contentHolder).contentLoaderInfo;
-
+        
         if (loaderInfo)
         {
             if (loaderInfo.contentType == "application/x-shockwave-flash")
             {
                 try
                 {
-                        if (swfBridge)
-                        {
+                    if (swfBridge)
+                    {
                         var request:SWFBridgeRequest = new SWFBridgeRequest(SWFBridgeRequest.GET_SIZE_REQUEST);
                         swfBridge.dispatchEvent(request);
                         return request.data.width;
-                        }
-                        
+                    }
+                    
                     var content:IFlexDisplayObject =
                         Loader(contentHolder).content as IFlexDisplayObject;
                     if (content)
@@ -727,23 +821,23 @@ public class SWFLoader extends UIComponent implements ISWFLoader
                     return contentHolder.width;
                 }
             }
-
+            
             return loaderInfo.width;
         }
-
+        
         // For internally loaded content, use explicitWidth (if present) or explicitWidth
         if (contentHolder is IUIComponent)
             return IUIComponent(contentHolder).getExplicitOrMeasuredWidth();
         if (contentHolder is IFlexDisplayObject)
             return IFlexDisplayObject(contentHolder).measuredWidth;
-
+        
         return contentHolder.width;
     }
-
+    
     //----------------------------------
     //  contentWidth
     //----------------------------------
-
+    
     /**
      *  Width of the scaled content loaded by the control, in pixels. 
      *  Note that this is not the width of the control itself, but of the 
@@ -754,25 +848,30 @@ public class SWFLoader extends UIComponent implements ISWFLoader
      *  You can get the value after the <code>updateComplete</code> event is triggered.</p>
      *
      *  @default NaN
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get contentWidth():Number
     {
         return contentHolder ? contentHolder.width : NaN;
     }
-
+    
     //----------------------------------
     //  loaderContext
     //----------------------------------
-
+    
     /**
      *  @private
      *  Storage for the loaderContext property.
      */
     private var _loaderContext:LoaderContext;
-
+    
     [Bindable("loaderContextChanged")]
     [Inspectable(defaultValue="true")]
-
+    
     /**
      *  A LoaderContext object to use to control loading of the content.
      *  This is an advanced property. 
@@ -796,36 +895,41 @@ public class SWFLoader extends UIComponent implements ISWFLoader
      *  @see flash.system.LoaderContext
      *  @see flash.system.ApplicationDomain
      *  @see flash.system.SecurityDomain
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get loaderContext():LoaderContext
     {
         return _loaderContext;
     }
-
+    
     /**
      *  @private
      */
     public function set loaderContext(value:LoaderContext):void
     {
         _loaderContext = value;
-                explicitLoaderContext = true;
-
+        explicitLoaderContext = true;
+        
         dispatchEvent(new Event("loaderContextChanged"));
     }
-
+    
     //----------------------------------
     //  maintainAspectRatio
     //----------------------------------
-
+    
     /**
      *  @private
      *  Storage for the maintainAspectRatio property.
      */
     private var _maintainAspectRatio:Boolean = true;
-
+    
     [Bindable("maintainAspectRatioChanged")]
     [Inspectable(defaultValue="true")]
-
+    
     /**
      *  A flag that indicates whether to maintain the aspect ratio
      *  of the loaded content.
@@ -833,64 +937,74 @@ public class SWFLoader extends UIComponent implements ISWFLoader
      *  height to width as the original image.
      *
      *  @default true
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get maintainAspectRatio():Boolean
     {
         return _maintainAspectRatio;
     }
-
+    
     /**
      *  @private
      */
     public function set maintainAspectRatio(value:Boolean):void
     {
         _maintainAspectRatio = value;
-
+        
         dispatchEvent(new Event("maintainAspectRatioChanged"));
     }
-
-
+    
+    
     //----------------------------------
     //  sandBoxBridge (read only)
     //----------------------------------
-        private var _swfBridge:IEventDispatcher;
-
+    private var _swfBridge:IEventDispatcher;
+    
     //----------------------------------
     //  percentLoaded (read only)
     //----------------------------------
-
+    
     [Bindable("progress")]
-
+    
     /**
      *  The percentage of the image or SWF file already loaded.
      *
      *  @default 0
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get percentLoaded():Number
     {
         var p:Number = isNaN(_bytesTotal) || _bytesTotal == 0 ?
-                       0 :
-                       100 * (_bytesLoaded / _bytesTotal);
-
+            0 :
+            100 * (_bytesLoaded / _bytesTotal);
+        
         if (isNaN(p))
             p = 0;
-
+        
         return p;
     }
-
+    
     //----------------------------------
     //  scaleContent
     //----------------------------------
-
+    
     /**
      *  @private
      *  Storage for the scaleContent property.
      */
     private var _scaleContent:Boolean = true;
-
+    
     [Bindable("scaleContentChanged")]
     [Inspectable(category="General", defaultValue="true")]
-
+    
     /**
      *  A flag that indicates whether to scale the content to fit the
      *  size of the control or resize the control to the content's size.
@@ -898,12 +1012,17 @@ public class SWFLoader extends UIComponent implements ISWFLoader
      *  If <code>false</code>, the SWFLoader scales to fit the content. 
      *
      *  @default true
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get scaleContent():Boolean
     {
         return _scaleContent;
     }
-
+    
     /**
      *  @private
      */
@@ -912,26 +1031,26 @@ public class SWFLoader extends UIComponent implements ISWFLoader
         if (_scaleContent != value)
         {
             _scaleContent = value;
-
+            
             scaleContentChanged = true;
             invalidateDisplayList();
         }
-
+        
         dispatchEvent(new Event("scaleContentChanged"));
     }
-
+    
     //----------------------------------
     //  showBusyCursor
     //----------------------------------
-
+    
     /**
      *  @private
      *  Storage for the scaleContent property.
      */
     private var _showBusyCursor:Boolean = false;
-
+    
     [Inspectable(category="General", defaultValue="true")]
-
+    
     /**
      *  A flag that indicates whether to show a busy cursor while
      *  the content loads.
@@ -942,12 +1061,17 @@ public class SWFLoader extends UIComponent implements ISWFLoader
      *  @default false
      *
      *  @see mx.managers.CursorManager
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get showBusyCursor():Boolean
     {
         return _showBusyCursor;
     }
-
+    
     /**
      *  @private
      */
@@ -956,27 +1080,27 @@ public class SWFLoader extends UIComponent implements ISWFLoader
         if (_showBusyCursor != value)
         {
             _showBusyCursor = value;
-
+            
             if (_showBusyCursor)
                 CursorManager.registerToUseBusyCursor(this);
             else
                 CursorManager.unRegisterToUseBusyCursor(this);
         }
     }
-
+    
     //----------------------------------
     //  smoothBitmapContent
     //----------------------------------
-
+    
     /**
      *  @private
      *  Storage for the smoothBitmapContent property.
      */
     private var _smoothBitmapContent:Boolean = false;
-
+    
     [Bindable("smoothBitmapContentChanged")]
     [Inspectable(category="General", defaultValue="false")]
-
+    
     /**
      *  A flag that indicates whether to smooth the content when it
      *  is scaled. Only Bitmap content can be smoothed.
@@ -985,12 +1109,17 @@ public class SWFLoader extends UIComponent implements ISWFLoader
      *  If <code>false</code>, the content isn't smoothed. 
      *
      *  @default false
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get smoothBitmapContent():Boolean
     {
         return _smoothBitmapContent;
     }
-
+    
     /**
      *  @private
      */
@@ -999,27 +1128,27 @@ public class SWFLoader extends UIComponent implements ISWFLoader
         if (_smoothBitmapContent != value)
         {
             _smoothBitmapContent = value;
-
+            
             smoothBitmapContentChanged = true;
             invalidateDisplayList();
         }
-
+        
         dispatchEvent(new Event("smoothBitmapContentChanged"));
     }
-
+    
     //----------------------------------
     //  source
     //----------------------------------
-
+    
     /**
      *  @private
      *  Storage for the source property.
      */
     private var _source:Object;
-
+    
     [Bindable("sourceChanged")]
     [Inspectable(category="General", defaultValue="", format="File")]
-
+    
     /**
      *  The URL, object, class or string name of a class to
      *  load as the content.
@@ -1060,12 +1189,17 @@ public class SWFLoader extends UIComponent implements ISWFLoader
      *  you should build them as custom components. </p>
      *
      *  @default null
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get source():Object
     {
         return _source;
     }
-
+    
     /**
      *  @private
      */
@@ -1074,30 +1208,30 @@ public class SWFLoader extends UIComponent implements ISWFLoader
         if (_source != value)
         {
             _source = value;
-
+            
             contentChanged = true;
-
+            
             invalidateProperties();
             invalidateSize();
             invalidateDisplayList()
-
+            
             dispatchEvent(new Event("sourceChanged"));
         }
     }
-
+    
     //----------------------------------
     //  trustContent
     //----------------------------------
-
+    
     /**
      *  @private
      *  Storage for the trustContent property.
      */
     private var _trustContent:Boolean = false;
-
+    
     [Bindable("trustContentChanged")]
     [Inspectable(defaultValue="false")]
-
+    
     /**
      *  If <code>true</code>, the content is loaded
      *  into your security domain.
@@ -1126,12 +1260,17 @@ public class SWFLoader extends UIComponent implements ISWFLoader
      *  @default false
      *  @see flash.system.SecurityDomain
      *  @see flash.system.ApplicationDomain
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get trustContent():Boolean
     {
         return _trustContent;
     }
-
+    
     /**
      *  @private
      */
@@ -1140,23 +1279,28 @@ public class SWFLoader extends UIComponent implements ISWFLoader
         if (_trustContent != value)
         {
             _trustContent = value;
-
+            
             invalidateProperties();
             invalidateSize();
             invalidateDisplayList();
-
+            
             dispatchEvent(new Event("trustContentChanged"));
         }
     }
-
+    
     //--------------------------------------------------------------------------
     //
     //  Properties of ISWFBridgeProvider
     //
     //--------------------------------------------------------------------------
-
+    
     /**
      * @inheritDoc
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */    
     public function get swfBridge():IEventDispatcher
     {
@@ -1165,12 +1309,17 @@ public class SWFLoader extends UIComponent implements ISWFLoader
     
     /**
      * @inheritDoc
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */    
     public function get childAllowsParent():Boolean
     {
         if (!isContentLoaded)
             return false;
-            
+        
         try
         {
             if (contentHolder is Loader)
@@ -1185,9 +1334,14 @@ public class SWFLoader extends UIComponent implements ISWFLoader
         
         return true;
     }
-
+    
     /**
      * @inheritDoc
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */    
     public function get parentAllowsChild():Boolean
     {
@@ -1205,50 +1359,50 @@ public class SWFLoader extends UIComponent implements ISWFLoader
             // We can get this if this content has been unload
             return false;
         }
-                
+        
         return true;
     }
-
+    
     //--------------------------------------------------------------------------
     //
     //  Overridden methods: UIComponent
     //
     //--------------------------------------------------------------------------
-
+    
     /**
      *  @private
      */
     override protected function commitProperties():void
     {
         super.commitProperties();
-
+        
         if (contentChanged)
         {
             contentChanged = false;
-
+            
             if (_autoLoad)
                 load(_source);
         }
     }
-
+    
     /**
      *  @private
      */
     override protected function measure():void
     {
         super.measure();
-
+        
         if (isContentLoaded)
         {
             var oldScaleX:Number = contentHolder.scaleX;
             var oldScaleY:Number = contentHolder.scaleY;
-
+            
             contentHolder.scaleX = 1.0;
             contentHolder.scaleY = 1.0;
-
+            
             measuredWidth = contentHolderWidth;
             measuredHeight = contentHolderHeight;
-
+            
             contentHolder.scaleX = oldScaleX;
             contentHolder.scaleY = oldScaleY;
         }
@@ -1266,7 +1420,7 @@ public class SWFLoader extends UIComponent implements ISWFLoader
             }
         }
     }
-
+    
     /**
      *  @private
      */
@@ -1274,7 +1428,7 @@ public class SWFLoader extends UIComponent implements ISWFLoader
                                                   unscaledHeight:Number):void
     {
         super.updateDisplayList(unscaledWidth, unscaledHeight);
-
+        
         if (contentChanged)
         {
             contentChanged = false;
@@ -1282,7 +1436,7 @@ public class SWFLoader extends UIComponent implements ISWFLoader
             if (_autoLoad)
                 load(_source);
         }
-
+        
         if (isContentLoaded)
         {
             // We will either scale the content to the size of the SWFLoader,
@@ -1291,15 +1445,15 @@ public class SWFLoader extends UIComponent implements ISWFLoader
                 doScaleContent();
             else
                 doScaleLoader();
-
+            
             scaleContentChanged = false;
             
             if (smoothBitmapContentChanged) {
-            	doSmoothBitmapContent();
-            	smoothBitmapContentChanged = false;
+                doSmoothBitmapContent();
+                smoothBitmapContentChanged = false;
             }
         }
-
+        
         if (brokenImage && !brokenImageBorder)
         {
             var skinClass:Class = getStyle("brokenImageBorderSkin");
@@ -1316,19 +1470,19 @@ public class SWFLoader extends UIComponent implements ISWFLoader
             removeChild(DisplayObject(brokenImageBorder));
             brokenImageBorder = null;
         }
-
+        
         if (brokenImageBorder)
             brokenImageBorder.setActualSize(unscaledWidth, unscaledHeight);
-
+        
         sizeShield();
     }
-
+    
     //--------------------------------------------------------------------------
     //
     //  Methods
     //
     //--------------------------------------------------------------------------
-
+    
     /**
      *  Loads an image or SWF file.
      *  The <code>url</code> argument can reference a GIF, JPEG, PNG,
@@ -1338,115 +1492,23 @@ public class SWFLoader extends UIComponent implements ISWFLoader
      *
      *  @param url Absolute or relative URL of the GIF, JPEG, PNG,
      *  or SWF file to load.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function load(url:Object = null):void
     {
         if (url)
             _source = url;
-
-        if (contentHolder)
-        {
-            if (isContentLoaded)
-            {
-                // can get rid of bitmap data if it's an image on unload
-                // this helps with garbage collection (SDK-9533)
-                var imageData:Bitmap;
-                
-                if (contentHolder is Loader)
-                {
-                    try
-                    {
-                        if (Loader(contentHolder).content is Bitmap)
-                        {
-                            imageData = Bitmap(Loader(contentHolder).content);
-                            if (imageData.bitmapData)
-                                imageData.bitmapData = null; 
-                        }
-                    }
-                    catch(error:Error)
-                    {
-                        // Ignore any errors trying to access the Bitmap
-                        // b/c we may cause a security violation trying to do it
-                    }
-                
-                    if (_swfBridge)
-                    {
-                        var request:SWFBridgeEvent = new SWFBridgeEvent(
-                                                SWFBridgeEvent.BRIDGE_APPLICATION_UNLOADING,
-                                                false, false,
-                                                _swfBridge);
-                        _swfBridge.dispatchEvent(request);
-                    }
-
-                    if (childAllowsParent && content == SystemManager.mx_internal::lastSystemManager)
-                        SystemManager.mx_internal::lastSystemManager = null;
-
-                    removeInitSystemManagerCompleteListener(Loader(contentHolder).contentLoaderInfo);
-
-                    // try the new "unloadAndStop" in FP10. If not available
-                    // then call unload.
-                    if (useUnloadAndStop && "unloadAndStop" in contentHolder)
-                        contentHolder["unloadAndStop"](unloadAndStopGC);
-                    else 
-                        Loader(contentHolder).unload();
-
-                    if (!explicitLoaderContext)
-                        _loaderContext = null;
-                }
-                else
-                {
-                    if (contentHolder is Bitmap)
-                    {
-                        imageData = Bitmap(contentHolder);
-                        if (imageData.bitmapData)
-                            imageData.bitmapData = null;
-                    }
-                }
-            }
-            else
-            {
-                if (contentHolder is Loader)
-                {
-                    try
-                    {
-                        Loader(contentHolder).close();
-                    }
-                    catch(error:Error)
-                    {
-                        // Ignore any errors thrown by close()
-                    }
-                }
-            }
-
-            // when SWFLoader/Image is used with renderer
-            // recycling and the content is a DisplayObject instance
-            // the instance can be stolen from us while
-            // we're on the free list
-            try
-            {
-                if (contentHolder.parent == this)
-                    removeChild(contentHolder);
-            }
-            catch(error:Error)
-            {
-                try
-                {
-                    // just try to remove it anyway
-                    removeChild(contentHolder);
-                }
-                catch(error1:Error)
-                {
-                    // Ignore any errors thrown by removeChild()
-                }
-            }
-            
-            contentHolder = null;
-        }
-
+        
+        unloadContent();
+        
         isContentLoaded = false;
         brokenImage = false;
         useUnloadAndStop = false;
-
+        
         // Prevent double loading an app when properties are set and
         // then load() is called directly from application code instead
         // of from commitProperties().
@@ -1454,10 +1516,10 @@ public class SWFLoader extends UIComponent implements ISWFLoader
         
         if (!_source || _source == "")
             return;
-
+        
         loadContent(_source);
     }
-
+    
     /**
      *  Unloads an image or SWF file. After this method returns the 
      *  <code>source</code> property will be null. This is only supported
@@ -1487,6 +1549,11 @@ public class SWFLoader extends UIComponent implements ISWFLoader
      *  performance. However, if the parameter is set to <code>false</code>, media
      *  and display objects of the child SWF file might persist in memory after
      *  the child SWF has been unloaded.  
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function unloadAndStop(invokeGarbageCollector:Boolean = true):void
     {
@@ -1496,7 +1563,7 @@ public class SWFLoader extends UIComponent implements ISWFLoader
         if (!autoLoad)
             load(null);
     }
- 
+    
     //--------------------------------------------------------------------------
     //
     //  ISWFLoader
@@ -1505,6 +1572,11 @@ public class SWFLoader extends UIComponent implements ISWFLoader
     
     /**
      *  @inheritDoc
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */  
     public function getVisibleApplicationRect(allApplications:Boolean=false):Rectangle
     {
@@ -1515,7 +1587,123 @@ public class SWFLoader extends UIComponent implements ISWFLoader
         
         return rect;
     }
- 
+    
+    
+    /**
+     *  @private
+     *  
+     *  Unload any existing content.
+     */
+    private function unloadContent():void
+    {
+        if (contentHolder)
+        {
+            if (isContentLoaded)
+            {
+                // can get rid of bitmap data if it's an image on unload
+                // this helps with garbage collection (SDK-9533)
+                var imageData:Bitmap;
+                
+                if (contentHolder is Loader)
+                {
+                    var contentLoader:Loader = Loader(contentHolder);
+                    
+                    try
+                    {
+                        if (contentLoader.content is Bitmap)
+                        {
+                            imageData = Bitmap(contentLoader.content);
+                            if (imageData.bitmapData)
+                                imageData.bitmapData = null; 
+                        }
+                    }
+                    catch(error:Error)
+                    {
+                        // Ignore any errors trying to access the Bitmap
+                        // b/c we may cause a security violation trying to do it
+                    }
+                    
+                    if (_swfBridge)
+                    {
+                        var request:SWFBridgeEvent = new SWFBridgeEvent(
+                            SWFBridgeEvent.BRIDGE_APPLICATION_UNLOADING,
+                            false, false,
+                            _swfBridge);
+                        _swfBridge.dispatchEvent(request);
+                    }
+                    
+                    if (contentLoader.contentLoaderInfo.contentType == "application/x-shockwave-flash" &&
+                        contentLoader.contentLoaderInfo.parentAllowsChild && 
+                        contentLoader.contentLoaderInfo.childAllowsParent &&
+                        contentLoader.content)
+                    {
+                        contentLoader.content.removeEventListener(Request.GET_PARENT_FLEX_MODULE_FACTORY_REQUEST, 
+                            contentHolder_getFlexModuleFactoryRequestHandler);            
+                    }
+                    
+                    contentHolder.removeEventListener(Event.ADDED, contentHolder_addedHandler);
+                    removeInitSystemManagerCompleteListener(contentLoader.contentLoaderInfo);
+                    
+                    if (useUnloadAndStop)
+                        contentLoader.unloadAndStop(unloadAndStopGC);
+                    else 
+                        contentLoader.unload();
+                    
+                    if (!explicitLoaderContext)
+                        _loaderContext = null;
+                }
+                else
+                {
+                    if (contentHolder is Bitmap)
+                    {
+                        imageData = Bitmap(contentHolder);
+                        if (imageData.bitmapData)
+                            imageData.bitmapData = null;
+                    }
+                }
+            }
+            else
+            {
+                if (contentHolder is Loader)
+                {
+                    try
+                    {
+                        Loader(contentHolder).close();
+                    }
+                    catch(error:Error)
+                    {
+                        // Ignore any errors thrown by close()
+                    }
+                }
+            }
+            
+            // when SWFLoader/Image is used with renderer
+            // recycling and the content is a DisplayObject instance
+            // the instance can be stolen from us while
+            // we're on the free list
+            try
+            {
+                if (contentHolder.parent == this)
+                    removeChild(contentHolder);
+            }
+            catch(error:Error)
+            {
+                try
+                {
+                    // just try to remove it anyway
+                    removeChild(contentHolder);
+                }
+                catch(error1:Error)
+                {
+                    // Ignore any errors thrown by removeChild()
+                }
+            }
+            
+            contentHolder = null;
+        }
+        
+    }
+    
     /**
      *  @private
      *  If changes are made to this method, make sure to look at
@@ -1558,20 +1746,24 @@ public class SWFLoader extends UIComponent implements ISWFLoader
             // example). Call toString() and try to load it.
             url = classOrString.toString();
         }
-
+        
         // Create a child UIComponent based on a class reference, such as Button.
         if (cls)
         {
             contentHolder = child = new cls();
+            contentHolder.addEventListener(Event.ADDED, contentHolder_addedHandler, false, 0, true);
             addChild(child);
             contentLoaded();
-
         }
         else if (classOrString is DisplayObject)
         {
             contentHolder = child = DisplayObject(classOrString);
             addChild(child);
             contentLoaded();
+            
+            // Listen for requests to get the flex module factory.
+            contentHolder.addEventListener(Request.GET_PARENT_FLEX_MODULE_FACTORY_REQUEST, 
+                contentHolder_getFlexModuleFactoryRequestHandler);            
         }
         else if (byteArray)
         {
@@ -1597,10 +1789,10 @@ public class SWFLoader extends UIComponent implements ISWFLoader
             // Create an instance of the Flash Player Loader class to do all the work
             loader = new FlexLoader();
             contentHolder = child = loader;
-
+            
             // addChild needs to be called before load()
             addChild(loader);
-
+            
             // Forward the events from the Flash Loader to anyone
             // who has registered as an event listener on this Loader.
             loader.contentLoaderInfo.addEventListener(
@@ -1622,11 +1814,11 @@ public class SWFLoader extends UIComponent implements ISWFLoader
             
             // are we in a debug player and this was a debug=true request
             if ( (Capabilities.isDebugger == true) && 
-                 (url.indexOf(".jpg") == -1) && 
-                 (LoaderUtil.normalizeURL(
-                 Application.application.systemManager.loaderInfo).indexOf("debug=true") > -1) )
+                (url.indexOf(".jpg") == -1) && 
+                (LoaderUtil.normalizeURL(
+                    FlexGlobals.topLevelApplication.systemManager.loaderInfo).indexOf("debug=true") > -1) )
                 url = url + ( (url.indexOf("?") > -1) ? "&debug=true" : "?debug=true" );
-
+            
             // make relative paths relative to the SWF loading it, not the top-level SWF
             if (!(url.indexOf(":") > -1 || url.indexOf("/") == 0 || url.indexOf("\\") == 0))
             {
@@ -1637,40 +1829,58 @@ public class SWFLoader extends UIComponent implements ISWFLoader
                     rootURL = LoaderUtil.normalizeURL(root.loaderInfo);
                 else if (systemManager)
                     rootURL = LoaderUtil.normalizeURL(DisplayObject(systemManager).loaderInfo);
-
+                
+                url = LoaderUtil.OSToPlayerURI(url, LoaderUtil.isLocal(rootURL ? rootURL : url));
                 if (rootURL)
                     url = LoaderUtil.createAbsoluteURL(rootURL, url);
+            } else {
+                url = LoaderUtil.OSToPlayerURI(url, LoaderUtil.isLocal(url));
             }
-
+            
             requestedURL = new URLRequest(url);
-                        
+            
             var lc:LoaderContext = loaderContext;
             if (!lc)
             {
                 lc = new LoaderContext();
                 _loaderContext = lc;
                 
+                var currentDomain:ApplicationDomain;
+                
+                // Try to use the application domain of this component from 
+                // the moduleFactory. If we don't have a moduleFactory then 
+                // fallback to using ApplicationDomain.currentDomain which 
+                // could give us a parent ApplicationDomain of where the first
+                // SWFLoader was used. If no SWFLoaders were used by parent
+                // applications or modules then ApplicationDomain.currentDomain
+                // will be correct.
+                if (moduleFactory &&
+                    FlexVersion.compatibilityVersion >= FlexVersion.VERSION_4_0)
+                    currentDomain = moduleFactory.info()["currentDomain"];
+                else
+                    currentDomain = ApplicationDomain.currentDomain;
+                
                 // To get a peer application domain (relative to framework classes), 
                 // get the topmost parent domain of the current domain. This
                 // will either be the application domain of the 
                 // bootstrap loader (non-framework classes), or null. Either way we get
-                // an application domain free of framework classes. 
+                // an application domain free of framework classes.
                 if (loadForCompatibility) 
                 {
                     // the AD.currentDomain.parentDomain could be null, 
                     // the domain of the top-level system manager, or
                     // the bootstrap loader. The bootstrap loader will always be topmost
                     // if it is present.
-                    var currentDomain:ApplicationDomain = ApplicationDomain.currentDomain.parentDomain;
+                    var appDomain:ApplicationDomain = currentDomain.parentDomain;
                     var topmostDomain:ApplicationDomain = null;
-                    while (currentDomain)
+                    while (appDomain)
                     {
-                        topmostDomain = currentDomain;
-                        currentDomain = currentDomain.parentDomain;
+                        topmostDomain = appDomain;
+                        appDomain = appDomain.parentDomain;
                     }
                     lc.applicationDomain = new ApplicationDomain(topmostDomain);
                 }
-                        
+                
                 if (trustContent)
                 {
                     lc.securityDomain = SecurityDomain.currentDomain;
@@ -1680,10 +1890,10 @@ public class SWFLoader extends UIComponent implements ISWFLoader
                     attemptingChildAppDomain = true;
                     // assume the best, which is that it is in the same domain and
                     // we can make it a child app domain.
-                    lc.applicationDomain = new ApplicationDomain(ApplicationDomain.currentDomain);
+                    lc.applicationDomain = new ApplicationDomain(currentDomain);
                 }
             }
-
+            
             loader.load(requestedURL, lc);
         }
         else
@@ -1692,29 +1902,34 @@ public class SWFLoader extends UIComponent implements ISWFLoader
                 "controls", "notLoadable", [ source ]);
             throw new Error(message);
         }
-
+        
+        // contentHolder should inherit the layoutDirection
+        // (sometimes its an asset which defaults to LTR). 
+        if (contentHolder && contentHolder is ILayoutDirectionElement)
+            ILayoutDirectionElement(contentHolder).layoutDirection = null;
+        
         invalidateDisplayList();
     }
-
+        
     /**
      *  @private
      *  Called when the content has successfully loaded.
      */
-    private function contentLoaded():void
+    protected function contentLoaded():void
     {
         isContentLoaded = true;
-
+        
         // For externally loaded content, use the loaderInfo structure
         var loaderInfo:LoaderInfo;
         if (contentHolder is Loader)
             loaderInfo = Loader(contentHolder).contentLoaderInfo;
-
+        
         resizableContent = false;
         if (loaderInfo)
         {
             if (loaderInfo.contentType == "application/x-shockwave-flash")
                 resizableContent = true;
-
+            
             if (resizableContent)
             {
                 try 
@@ -1731,13 +1946,13 @@ public class SWFLoader extends UIComponent implements ISWFLoader
                 }
             }
         }
-
+        
         try
         {
             if (tabChildren &&
                 contentHolder is Loader &&
                 (loaderInfo.contentType == "application/x-shockwave-flash" ||
-                Loader(contentHolder).content is DisplayObjectContainer))
+                    Loader(contentHolder).content is DisplayObjectContainer))
             {
                 Loader(contentHolder).tabChildren = true;
                 DisplayObjectContainer(Loader(contentHolder).content).tabChildren = true;
@@ -1747,11 +1962,11 @@ public class SWFLoader extends UIComponent implements ISWFLoader
         {
             // eat security errors from x-domain content.
         }
-
+        
         invalidateSize();
         invalidateDisplayList();
     }
-
+    
     /**
      *  @private
      *  If scaleContent = true then two situations arise:
@@ -1766,47 +1981,47 @@ public class SWFLoader extends UIComponent implements ISWFLoader
     {
         if (!isContentLoaded)
             return;
-
+        
         // if not a SWF, then we scale it, otherwise we just set the size of the SWF.
         if (!resizableContent || (maintainAspectRatio && !flexContent))
         {
             // Make sure any previous scaling is undone.
             unScaleContent();
-
+            
             // Scale the content to the size of the SWFLoader, preserving aspect ratio.
             var interiorWidth:Number = unscaledWidth;
             var interiorHeight:Number = unscaledHeight;
             var contentWidth:Number = contentHolderWidth;
             var contentHeight:Number = contentHolderHeight;
-
+            
             var x:Number = 0;
             var y:Number = 0;
             
             // bug 84294 a swf may still not have size at this point
             var newXScale:Number = contentWidth == 0 ?
-                                   1 :
-                                   interiorWidth / contentWidth;
+                1 :
+                interiorWidth / contentWidth;
             var newYScale:Number = contentHeight == 0 ?
-                                   1 :
-                                   interiorHeight / contentHeight;
+                1 :
+                interiorHeight / contentHeight;
             
             var scale:Number;
-
+            
             if (_maintainAspectRatio)
             {
                 if (newXScale > newYScale)
                 {
                     x = Math.floor((interiorWidth - contentWidth * newYScale) *
-                                   getHorizontalAlignValue());
+                        getHorizontalAlignValue());
                     scale = newYScale;
                 }
                 else
                 {
                     y = Math.floor((interiorHeight - contentHeight * newXScale) *
-                                   getVerticalAlignValue());
+                        getVerticalAlignValue());
                     scale = newXScale;
                 }
-
+                
                 // Scale by the same amount in both directions.
                 contentHolder.scaleX = scale;
                 contentHolder.scaleY = scale;
@@ -1816,7 +2031,7 @@ public class SWFLoader extends UIComponent implements ISWFLoader
                 contentHolder.scaleX = newXScale;
                 contentHolder.scaleY = newYScale;
             }
-
+            
             contentHolder.x = x;
             contentHolder.y = y;
         }
@@ -1824,10 +2039,10 @@ public class SWFLoader extends UIComponent implements ISWFLoader
         {
             contentHolder.x = 0;
             contentHolder.y = 0;
-
+            
             var w:Number = unscaledWidth;
             var h:Number = unscaledHeight;
-
+            
             if (contentHolder is Loader)
             {
                 var holder:Loader = Loader(contentHolder);
@@ -1852,12 +2067,12 @@ public class SWFLoader extends UIComponent implements ISWFLoader
                             if (!sizeSet && swfBridge) 
                             {
                                 swfBridge.dispatchEvent(new SWFBridgeRequest(SWFBridgeRequest.SET_ACTUAL_SIZE_REQUEST, 
-                                                        false, false, null,
-                                                        { width: w, height: h}));
+                                    false, false, null,
+                                    { width: w, height: h}));
                                 sizeSet = true;
                             }                               
                         }
-
+                        
                         if (!sizeSet)
                         {
                             // Bug 142705 - we can't just set width and height here. If the SWF content
@@ -1865,7 +2080,7 @@ public class SWFLoader extends UIComponent implements ISWFLoader
                             // the same as the loaderInfo width/height. If we just set width/height
                             // here is can scale the content in unpredictable ways.
                             var lInfo:LoaderInfo = holder.contentLoaderInfo;
-
+                            
                             if (lInfo)
                             {
                                 contentHolder.scaleX = w / lInfo.width;
@@ -1879,7 +2094,7 @@ public class SWFLoader extends UIComponent implements ISWFLoader
                         }
                     }
                     else if (childAllowsParent &&
-                             !(holder.content is IFlexDisplayObject))
+                        !(holder.content is IFlexDisplayObject))
                     {
                         contentHolder.width = w;
                         contentHolder.height = h;
@@ -1893,8 +2108,8 @@ public class SWFLoader extends UIComponent implements ISWFLoader
                 
                 if (!parentAllowsChild)
                     contentHolder.scrollRect = new Rectangle(0, 0, 
-                                                             w / contentHolder.scaleX, 
-                                                             h / contentHolder.scaleY);
+                        w / contentHolder.scaleX, 
+                        h / contentHolder.scaleY);
             }
             else
             {
@@ -1903,7 +2118,7 @@ public class SWFLoader extends UIComponent implements ISWFLoader
             }
         }
     }
-
+    
     /**
      *  @private
      *  If scaleContent = false then two situations arise:
@@ -1920,15 +2135,15 @@ public class SWFLoader extends UIComponent implements ISWFLoader
     {
         if (!isContentLoaded)
             return;
-
+        
         unScaleContent();
-
+        
         var w:Number = unscaledWidth;
         var h:Number = unscaledHeight;
-
+        
         if ((contentHolderWidth > w) ||
             (contentHolderHeight > h) ||
-             !parentAllowsChild)
+            !parentAllowsChild)
         {
             contentHolder.scrollRect = new Rectangle(0, 0, w, h);
         }
@@ -1936,7 +2151,7 @@ public class SWFLoader extends UIComponent implements ISWFLoader
         {
             contentHolder.scrollRect = null;
         }
-
+        
         contentHolder.x = (w - contentHolderWidth) * getHorizontalAlignValue();
         contentHolder.y = (h - contentHolderHeight) * getVerticalAlignValue();
     }
@@ -1946,10 +2161,10 @@ public class SWFLoader extends UIComponent implements ISWFLoader
      */
     private function doSmoothBitmapContent():void
     {
-    	if (content is Bitmap) 
-    		(content as Bitmap).smoothing = _smoothBitmapContent;
+        if (content is Bitmap) 
+            (content as Bitmap).smoothing = _smoothBitmapContent;
     }
-
+    
     /**
      *  @private
      */
@@ -1960,36 +2175,36 @@ public class SWFLoader extends UIComponent implements ISWFLoader
         contentHolder.x = 0;
         contentHolder.y = 0;
     }
-
-
+    
+    
     /**
      *  @private
      */
     private function getHorizontalAlignValue():Number
     {
         var horizontalAlign:String = getStyle("horizontalAlign");
-
+        
         if (horizontalAlign == "left")
             return 0;
         else if (horizontalAlign == "right")
             return 1;
-
+        
         // default = center
         return 0.5;
     }
-
+    
     /**
      *  @private
      */
     private function getVerticalAlignValue():Number
     {
         var verticalAlign:String = getStyle("verticalAlign");
-
+        
         if (verticalAlign == "top")
             return 0;
         else if (verticalAlign == "bottom")
             return 1;
-
+        
         // default = middle
         return 0.5;
     }
@@ -2005,10 +2220,12 @@ public class SWFLoader extends UIComponent implements ISWFLoader
                                                invalidateDisplayList:Boolean):void
     {
         var sm:ISystemManager = systemManager;
-        if (!sm.useSWFBridge())
+        var mp:IMarshalSystemManager = 
+            IMarshalSystemManager(systemManager.getImplementation("mx.managers::IMarshalSystemManager"));
+        if (!mp || !mp.useSWFBridge())
             return;
-            
-        var bridge:IEventDispatcher = sm.swfBridgeGroup.parentBridge;
+        
+        var bridge:IEventDispatcher = mp.swfBridgeGroup.parentBridge;
         var flags:uint = 0;
         
         if (invalidateProperites)
@@ -2017,13 +2234,13 @@ public class SWFLoader extends UIComponent implements ISWFLoader
             flags |= InvalidateRequestData.SIZE;
         if (invalidateDisplayList)
             flags |= InvalidateRequestData.DISPLAY_LIST;
-            
+        
         var request:SWFBridgeRequest = new SWFBridgeRequest(
-                                                    SWFBridgeRequest.INVALIDATE_REQUEST,
-                                                    false, false,
-                                                    bridge,
-                                                    flags);
-         bridge.dispatchEvent(request);
+            SWFBridgeRequest.INVALIDATE_REQUEST,
+            false, false,
+            bridge,
+            flags);
+        bridge.dispatchEvent(request);
     }
     
     //--------------------------------------------------------------------------
@@ -2031,7 +2248,7 @@ public class SWFLoader extends UIComponent implements ISWFLoader
     //  Event handlers
     //
     //--------------------------------------------------------------------------
-
+    
     /**
      *  @private
      */
@@ -2044,17 +2261,17 @@ public class SWFLoader extends UIComponent implements ISWFLoader
             if (_autoLoad)
                 load(_source);
         }
-        }
-
+    }
+    
     /**
      *  @private
      */
     private function addedToStageHandler(event:Event):void
     {
         systemManager.getSandboxRoot().addEventListener(InterManagerRequest.DRAG_MANAGER_REQUEST, 
-                mouseShieldHandler, false, 0, true);
+            mouseShieldHandler, false, 0, true);
     }
-
+    
     
     /**
      *  @private
@@ -2070,27 +2287,24 @@ public class SWFLoader extends UIComponent implements ISWFLoader
         // because that means it was for the old content
         if (LoaderInfo(event.target).loader != contentHolder)
             return;
-
+        
         // Redispatch the event from this SWFLoader.
         dispatchEvent(event);
-
+        
         contentLoaded();
         
-        if (contentHolder is Loader) 
-            removeInitSystemManagerCompleteListener(Loader(contentHolder).contentLoaderInfo);
-
     }
-
+    
     /**
      *  @private
      */
     private function contentLoaderInfo_httpStatusEventHandler(
-                            event:HTTPStatusEvent):void
+        event:HTTPStatusEvent):void
     {
         // Redispatch the event from this SWFLoader.
         dispatchEvent(event);
     }
-
+    
     /**
      *  @private
      */
@@ -2101,14 +2315,31 @@ public class SWFLoader extends UIComponent implements ISWFLoader
         
         // if we are loading a swf listen of a message if it ends up needing to
         // use a sandbox bridge to communicate.
-        addInitSystemManagerCompleteListener(LoaderInfo(event.target).loader.contentLoaderInfo);
+        var loaderInfo:LoaderInfo = LoaderInfo(event.target);
+        addInitSystemManagerCompleteListener(loaderInfo.loader.contentLoaderInfo);
+        
+        // Listen for requests to get the flex module factory.
+        if (loaderInfo.contentType == "application/x-shockwave-flash" &&
+            loaderInfo.parentAllowsChild && loaderInfo.childAllowsParent && 
+            loaderInfo.content)
+        {
+            loaderInfo.content.addEventListener(Request.GET_PARENT_FLEX_MODULE_FACTORY_REQUEST, 
+                contentHolder_getFlexModuleFactoryRequestHandler);            
+        }
+        
     }
-
-
+    
+    
     /**
-     *  @private 
+     *  @private
+     * 
      *  If we are loading a swf, listen for a message from the swf telling us it was loading
      *  into an application domain where it needs to use a sandbox bridge to communicate.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     private function addInitSystemManagerCompleteListener(loaderInfo:LoaderInfo):void
     {
@@ -2116,13 +2347,19 @@ public class SWFLoader extends UIComponent implements ISWFLoader
         {
             var bridge:EventDispatcher = loaderInfo.sharedEvents;
             bridge.addEventListener(SWFBridgeEvent.BRIDGE_NEW_APPLICATION, 
-                                    initSystemManagerCompleteEventHandler);
+                initSystemManagerCompleteEventHandler);
         }
     }
-        
+    
     /**
-     *  @private 
+     *  @private
+     * 
      *  Remove the listener after the swf is loaded.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     private function removeInitSystemManagerCompleteListener(loaderInfo:LoaderInfo):void
     {
@@ -2130,26 +2367,26 @@ public class SWFLoader extends UIComponent implements ISWFLoader
         {
             var bridge:EventDispatcher = loaderInfo.sharedEvents;                   
             bridge.removeEventListener(SWFBridgeEvent.BRIDGE_NEW_APPLICATION, 
-                                       initSystemManagerCompleteEventHandler);
+                initSystemManagerCompleteEventHandler);
         }
     }
-
+    
     /**
      *  @private
      */
     private function contentLoaderInfo_ioErrorEventHandler(
-                            event:IOErrorEvent):void
+        event:IOErrorEvent):void
     {
         // Error loading content, show the broken image.
         source = getStyle("brokenImageSkin");
-
+        
         // Force the load of the broken image skin here, since that will
         // clear the brokenImage flag. After the image is loaded we set
         // the brokenImage flag.
         load();
         contentChanged = false;
         brokenImage = true;
-
+        
         // Redispatch the event from this SWFLoader,
         // but only if there is a listener.
         // If there are no listeners for ioError event,
@@ -2159,9 +2396,9 @@ public class SWFLoader extends UIComponent implements ISWFLoader
         
         if (contentHolder is Loader)
             removeInitSystemManagerCompleteListener(Loader(contentHolder).contentLoaderInfo);
-
+        
     }
-
+    
     /**
      *  @private
      */
@@ -2170,25 +2407,25 @@ public class SWFLoader extends UIComponent implements ISWFLoader
         // Redispatch the event from this SWFLoader.
         dispatchEvent(event);
     }
-
+    
     /**
      *  @private
      */
     private function contentLoaderInfo_progressEventHandler(
-                            event:ProgressEvent):void
+        event:ProgressEvent):void
     {
         _bytesTotal = event.bytesTotal;
         _bytesLoaded = event.bytesLoaded;
-
+        
         // Redispatch the event from this SWFLoader.
         dispatchEvent(event);
     }
-
+    
     /**
      *  @private
      */
     private function contentLoaderInfo_securityErrorEventHandler(
-                            event:SecurityErrorEvent):void
+        event:SecurityErrorEvent):void
     {
         if (attemptingChildAppDomain)
         {
@@ -2198,14 +2435,14 @@ public class SWFLoader extends UIComponent implements ISWFLoader
             callLater(load);
             return;
         }
-
+        
         // Redispatch the event from this SWFLoader.
         dispatchEvent(event);
-
+        
         if (contentHolder is Loader)
             removeInitSystemManagerCompleteListener(Loader(contentHolder).contentLoaderInfo);
     }
-
+    
     /**
      *  @private
      */
@@ -2220,18 +2457,57 @@ public class SWFLoader extends UIComponent implements ISWFLoader
         if (_swfBridge)
         {
             _swfBridge.removeEventListener(SWFBridgeRequest.INVALIDATE_REQUEST, 
-                                           invalidateRequestHandler);
-                                               
+                invalidateRequestHandler);
+            
             var sm:ISystemManager = systemManager;
-            sm.removeChildBridge(_swfBridge);
+            var mp:IMarshalSystemManager = 
+                IMarshalSystemManager(systemManager.getImplementation("mx.managers::IMarshalSystemManager"));
+            mp.removeChildBridge(_swfBridge);
             _swfBridge = null;
         }
     }
-
+    
     /**
-     *      @private
+     *  @private
      * 
-     *      Message dispatched from System Manager. This gives us the child bridge
+     *  @param request Use type Event instead of Request because the event may be send from
+     *  another ApplicationDomain (A.2).
+     */
+    private function contentHolder_getFlexModuleFactoryRequestHandler(request:Event):void
+    {
+        if ("value" in request)
+            request["value"] = moduleFactory;
+    }
+    
+    /**
+     *  @private
+     * 
+     *  Used when we are loading a class. If the embedded class is a SWF, then wait for
+     *  the added event where the target is a IFlexModuleFactory. This will be message after
+     *  the event for the class being added. 
+     * 
+     *  All this is done to support the module factory parent request when loading an 
+     *  embedded swf.
+     */
+    private function contentHolder_addedHandler(event:Event):void
+    {
+        if (event.target == contentHolder)
+            return;  // wait for next message
+        
+        if (event.target is IFlexModuleFactory)
+        {
+            // Listen for requests to get the flex module factory.
+            event.target.addEventListener(Request.GET_PARENT_FLEX_MODULE_FACTORY_REQUEST, 
+                contentHolder_getFlexModuleFactoryRequestHandler);            
+        }
+        
+        contentHolder.removeEventListener(Event.ADDED, contentHolder_addedHandler);
+    }
+    
+    /**
+     *  @private
+     * 
+     *  Message dispatched from System Manager. This gives us the child bridge
      *  of the application we loaded.
      */
     private function initSystemManagerCompleteEventHandler(event:Event):void
@@ -2244,15 +2520,21 @@ public class SWFLoader extends UIComponent implements ISWFLoader
         {
             _swfBridge = Loader(contentHolder).contentLoaderInfo.sharedEvents;
             
+            flexContent = true;
+            // if we got validated before we got this event
+            // then we might have accidentally scaled the loader
+            unScaleContent();
+            
             var sm:ISystemManager = systemManager;
-            sm.addChildBridge(_swfBridge, this);
+            IMarshalSystemManager(sm.getImplementation("mx.managers::IMarshalSystemManager")).addChildBridge(_swfBridge, this);
             removeInitSystemManagerCompleteListener(Loader(contentHolder).contentLoaderInfo);
             
             _swfBridge.addEventListener(SWFBridgeRequest.INVALIDATE_REQUEST, 
-                                       invalidateRequestHandler);
+                invalidateRequestHandler);
         }
     }
-        
+    
+    
     /**
      *  @private
      * 
@@ -2264,43 +2546,43 @@ public class SWFLoader extends UIComponent implements ISWFLoader
     {
         if (event is SWFBridgeRequest)
             return;
-
+        
         // handle request
         var request:SWFBridgeRequest = SWFBridgeRequest.marshal(event);
-
+        
         var invalidateFlags:uint = uint(request.data);        
-
+        
         if (invalidateFlags & InvalidateRequestData.PROPERTIES)
             invalidateProperties();
-
+        
         if (invalidateFlags & InvalidateRequestData.SIZE)
             invalidateSize();
-
+        
         if (invalidateFlags & InvalidateRequestData.DISPLAY_LIST)
             invalidateDisplayList();
-                    
+        
         // redispatch the request up the parent chain
         dispatchInvalidateRequest(
-                (invalidateFlags & InvalidateRequestData.PROPERTIES) != 0,
-                (invalidateFlags & InvalidateRequestData.SIZE) != 0,
-                (invalidateFlags & InvalidateRequestData.DISPLAY_LIST) != 0);
+            (invalidateFlags & InvalidateRequestData.PROPERTIES) != 0,
+            (invalidateFlags & InvalidateRequestData.SIZE) != 0,
+            (invalidateFlags & InvalidateRequestData.DISPLAY_LIST) != 0);
     }
     
-
+    
     /**
-     *  @private
+     *      @private
      * 
-     *  Put up or takedown a mouseshield that covers the content
+     *      Put up or takedown a mouseshield that covers the content
      *  of the application we loaded.
      */
     private function mouseShieldHandler(event:Event):void
     {
         if (event["name"] != "mouseShield")
             return;
-
+        
         if (!isContentLoaded || parentAllowsChild)
             return;
-
+        
         if (event["value"])
         {
             if (!mouseShield)
@@ -2334,7 +2616,7 @@ public class SWFLoader extends UIComponent implements ISWFLoader
             mouseShield.height = unscaledHeight;
         }
     }
-
+    
     /**
      *  @private
      * 
@@ -2349,16 +2631,19 @@ public class SWFLoader extends UIComponent implements ISWFLoader
         {
             var sm:ISystemManager = content as ISystemManager;
             if (sm != null)
-                Object(sm).regenerateStyleCache(recursive);
+            {
+                var cm:Object = sm.getImplementation("mx.managers::ISystemManagerChildManager");
+                Object(cm).regenerateStyleCache(recursive);
+            }
         }
         catch(error:Error)
         {
             // Ignore any errors trying to access the content
             // b/c we may cause a security violation trying to do it
-                        // Also ignore if the sm doesn't have a regenerateStyleCache method
+            // Also ignore if the sm doesn't have a regenerateStyleCache method
         }
     }
-
+    
     /**
      *  @private
      * 
@@ -2373,16 +2658,19 @@ public class SWFLoader extends UIComponent implements ISWFLoader
         {
             var sm:ISystemManager = content as ISystemManager;
             if (sm != null)
-                Object(sm).notifyStyleChangeInChildren(styleProp, recursive);
+            {
+                var cm:Object = sm.getImplementation("mx.managers::ISystemManagerChildManager");
+                Object(cm).notifyStyleChangeInChildren(styleProp, recursive);
+            }
         }
         catch(error:Error)
         {
             // Ignore any errors trying to access the content
             // b/c we may cause a security violation trying to do it
-                        // Also ignore if the sm doesn't have a notifyStyleChangeInChildren method
+            // Also ignore if the sm doesn't have a notifyStyleChangeInChildren method
         }
     }
-
+    
     /**
      *  @private 
      *  @throws Error - #2099 if the content has been unloaded 
@@ -2393,7 +2681,7 @@ public class SWFLoader extends UIComponent implements ISWFLoader
         
         if (!contentHolder is Loader)
             return pt;
-                
+        
         var holder:Loader = Loader(contentHolder);
         if (holder.contentLoaderInfo.childAllowsParent)
         {
@@ -2411,17 +2699,18 @@ public class SWFLoader extends UIComponent implements ISWFLoader
                 pt.y = request.data.height;
             }
         }
-
+        
         // don't return zero out of here otherwise the Loader's scale goes to zero
         if (pt.x == 0)
             pt.x = holder.contentLoaderInfo.width;
         if (pt.y == 0)
             pt.y = holder.contentLoaderInfo.height;
-
+        
         return pt;
     }
     
     /**
+     *  @private
      *  The default handler for the <code>MouseEvent.CLICK</code> event.
      *
      *  @param The event object.

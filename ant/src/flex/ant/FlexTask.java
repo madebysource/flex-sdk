@@ -31,7 +31,7 @@ import java.net.URLClassLoader;
 import java.util.List;
 
 /**
- *
+ * This class contains common data and logic used by all the Flex Ant tasks.
  */
 public abstract class FlexTask extends Java
 {
@@ -117,14 +117,21 @@ public abstract class FlexTask extends Java
 
     protected NestedAttributeElement createElem(String attrib, OptionSpec spec)
     {
-        NestedAttributeElement e = new NestedAttributeElement(attrib, spec);
+        NestedAttributeElement e = new NestedAttributeElement(attrib, spec, this);
         nestedAttribs.add(e);
         return e;
     }
 
     protected NestedAttributeElement createElem(String[] attribs, OptionSpec spec)
     {
-        NestedAttributeElement e = new NestedAttributeElement(attribs, spec);
+        NestedAttributeElement e = new NestedAttributeElement(attribs, spec, this);
+        nestedAttribs.add(e);
+        return e;
+    }
+    
+    protected NestedAttributeElement createElemAllowAppend(String[] attribs, OptionSpec spec)
+    {
+        NestedAttributeElement e = new NestedAttributeElement(attribs, spec, this, true);
         nestedAttribs.add(e);
         return e;
     }
@@ -228,18 +235,14 @@ public abstract class FlexTask extends Java
 
     /**
      * Executes the task in a separate VM
-     *
      */
     private void executeOutOfProcess() throws BuildException
     {
         try
         {
             Class toolClass = resolveClass(toolClassName);
-            URL url = toolClass.getProtectionDomain().getCodeSource().getLocation();
-            String fileName = url.getFile();
 
             super.setClassname(toolClassName);
-            super.setClasspath(new Path(getProject(), fileName));
 
             // convert arguments into a string for use by executeJava()
             // also auto-quotes arguments with spaces
@@ -248,7 +251,7 @@ public abstract class FlexTask extends Java
 
             int err = super.executeJava();
             //check error code
-            if(err > 0)
+            if (err > 0)
             {
                 throw new BuildException(toolName + " task failed.");
             }
@@ -264,7 +267,6 @@ public abstract class FlexTask extends Java
 
     /**
      * Executes the task in the same VM
-     *
      */
     private void executeInProcess() throws BuildException
     {
@@ -336,6 +338,11 @@ public abstract class FlexTask extends Java
                             result = Class.forName(className, true, urlClassLoader);
                             originalContextClassLoader = Thread.currentThread().getContextClassLoader();
                             Thread.currentThread().setContextClassLoader(urlClassLoader);
+                            
+							if (fork)
+							{
+								super.setClasspath(new Path(getProject(), jarFile.getAbsolutePath()));
+							}                            
                         }
                         catch (MalformedURLException malformedURLException)
                         {

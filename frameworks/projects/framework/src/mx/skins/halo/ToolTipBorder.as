@@ -20,6 +20,11 @@ import mx.skins.RectangularBorder;
 
 /**
  *  The skin for a ToolTip.
+ *  
+ *  @langversion 3.0
+ *  @playerversion Flash 9
+ *  @playerversion AIR 1.1
+ *  @productversion Flex 3
  */
 public class ToolTipBorder extends RectangularBorder
 {
@@ -33,6 +38,11 @@ public class ToolTipBorder extends RectangularBorder
 
 	/**
 	 *  Constructor.
+	 *  
+	 *  @langversion 3.0
+	 *  @playerversion Flash 9
+	 *  @playerversion AIR 1.1
+	 *  @productversion Flex 3
 	 */
 	public function ToolTipBorder() 
 	{
@@ -117,14 +127,14 @@ public class ToolTipBorder extends RectangularBorder
 	 */
 	override public function styleChanged(styleProp:String):void
 	{
+        super.styleChanged(styleProp);
+        
 		if (styleProp == "borderStyle" ||
 			styleProp == "styleName" ||
 			styleProp == null)
 		{
 			_borderMetrics = null;
 		}
-		
-		invalidateDisplayList();
 	}
 
 	/**
@@ -140,8 +150,6 @@ public class ToolTipBorder extends RectangularBorder
 		var backgroundAlpha:Number= getStyle("backgroundAlpha");
 		var borderColor:uint = getStyle("borderColor");
 		var cornerRadius:Number = getStyle("cornerRadius");
-		var shadowColor:uint = getStyle("shadowColor");
-		var shadowAlpha:Number = 0.1;
 
 		var g:Graphics = graphics;
 		g.clear();

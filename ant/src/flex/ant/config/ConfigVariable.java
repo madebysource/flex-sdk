@@ -11,11 +11,13 @@
 
 package flex.ant.config;
 
+
 /**
  * Provides a base class for Configuration Variables that can be set with a
  * String value.
  *
- * Consumers of this class must implement the <code>set</code> <code>isSet</code> methods.
+ * Consumers of this class must implement the <code>set</code>
+ * <code>isSet</code> methods.
  */
 public abstract class ConfigVariable extends BaseConfigVariable
 {

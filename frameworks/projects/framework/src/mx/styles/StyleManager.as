@@ -15,8 +15,13 @@ package mx.styles
 import flash.events.IEventDispatcher;
 import flash.system.ApplicationDomain;
 import flash.system.SecurityDomain;
+import flash.utils.Dictionary;
+
+import mx.core.FlexVersion;
+import mx.core.IFlexModuleFactory;
 import mx.core.Singleton;
 import mx.core.mx_internal;
+import mx.managers.SystemManagerGlobals;
 
 /**
  *  The StyleManager class manages the following:
@@ -27,6 +32,11 @@ import mx.core.mx_internal;
  *  </ul>
  *
  *  @see mx.styles.CSSStyleDeclaration
+ *  
+ *  @langversion 3.0
+ *  @playerversion Flash 9
+ *  @playerversion AIR 1.1
+ *  @productversion Flex 3
  */
 public class StyleManager
 {
@@ -41,6 +51,11 @@ public class StyleManager
     /**
      *  The <code>getColorName()</code> method returns this value if the passed-in
      *  String is not a legitimate color name.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public static const NOT_A_COLOR:uint = 0xFFFFFFFF;
 
@@ -77,7 +92,7 @@ public class StyleManager
             _impl = IStyleManager2(
                 Singleton.getInstance("mx.styles::IStyleManager2"));
         }
-        
+
         return _impl;
     }
 
@@ -87,6 +102,65 @@ public class StyleManager
     //
     //--------------------------------------------------------------------------
 
+	/**
+	 *  @private 
+	 *  Dictionary that maps a moduleFactory to its associated styleManager
+	 */
+	private static var styleManagerDictionary:Dictionary;
+	
+    /**
+     *  Returns the style manager for an object.
+     *
+     *  @param moduleFactory The module factory of an object you want the 
+     *  style manager for. If null, the top-level style manager is returned.
+     *
+     *  @return the style manager for the given module factory.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 10
+     *  @playerversion AIR 1.5
+     *  @productversion Flex 4
+     */
+    public static function getStyleManager(moduleFactory:IFlexModuleFactory):IStyleManager2
+    {
+        if (!moduleFactory)
+        {
+            moduleFactory = SystemManagerGlobals.topLevelSystemManagers[0];
+            // trace("no style manager specified, using top-level style manager");
+        }
+        
+        if (!styleManagerDictionary)
+			styleManagerDictionary = new Dictionary(true);
+		
+        var styleManager:IStyleManager2;
+        var dictionary:Dictionary = styleManagerDictionary[moduleFactory];
+		if (dictionary == null)
+		{
+	        styleManager = IStyleManager2(moduleFactory.getImplementation("mx.styles::IStyleManager2"));
+	        if (styleManager == null)
+	        {
+	            // All Flex 4 swfs should have a style manager. 
+	            // In the transition to multiple style managers, use the top-level style manager.
+	            // trace("no style manager found");
+	            styleManager = impl;
+	        }
+			
+            dictionary = new Dictionary(true);
+			styleManagerDictionary[moduleFactory] = dictionary;
+            dictionary[styleManager] = 1;
+		}
+        else 
+        {
+            for (var o:Object in dictionary)
+            {
+                styleManager = o as IStyleManager2;
+                break;
+            }
+        }
+		
+        return styleManager;
+    }   
+    
     /**
      *  @private
      *  The root of all proto chains used for looking up styles.
@@ -95,6 +169,8 @@ public class StyleManager
      *  It is accessed by code that needs to construct proto chains,
      *  such as the initProtoChain() method of UIComponent.
      */
+    [Deprecated(replacement="IStyleManager2.stylesRoot on a style manager instance",
+                since="4.0")]   
     mx_internal static function get stylesRoot():Object
     {
         return impl.stylesRoot;
@@ -113,6 +189,8 @@ public class StyleManager
      *  The method registerInheritingStyle() adds to this set
      *  and isInheritingStyle() queries this set.
      */
+    [Deprecated(replacement="IStyleManager2.inheritingStyles on a style manager instance",
+                since="4.0")]   
     mx_internal static function get inheritingStyles():Object
     {
         return impl.inheritingStyles;
@@ -125,6 +203,22 @@ public class StyleManager
     /**
      *  @private
      */
+    [Deprecated(replacement="IStyleManager2.typeHierarchyCache on a style manager instance",
+                since="4.0")]   
+    mx_internal static function get typeHierarchyCache():Object
+    {
+        return impl.typeHierarchyCache;
+    }
+    mx_internal static function set typeHierarchyCache(value:Object):void
+    {
+        impl.typeHierarchyCache = value;
+    }
+
+    /**
+     *  @private
+     */
+    [Deprecated(replacement="IStyleManager2.typeSelectorCache on a style manager instance",
+                since="4.0")]   
     mx_internal static function get typeSelectorCache():Object
     {
         return impl.typeSelectorCache;
@@ -139,6 +233,8 @@ public class StyleManager
      *  This method is called by code autogenerated by the MXML compiler,
      *  after StyleManager.styles is popuplated with CSSStyleDeclarations.
      */
+    [Deprecated(replacement="IStyleManager2.initProtoChainRoots on a style manager instance",
+                since="4.0")]   
     mx_internal static function initProtoChainRoots():void
     {
         impl.initProtoChainRoots();
@@ -150,12 +246,19 @@ public class StyleManager
      *  Class selectors are prepended with a period.
      *  
      *  @return An Array of all of the selectors
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */ 
+    [Deprecated(replacement="IStyleManager2.selectors on a style manager instance",
+                since="4.0")]   
     public static function get selectors():Array
     {
         return impl.selectors;
     }
-    
+
     /**
      *  Gets the CSSStyleDeclaration object that stores the rules
      *  for the specified CSS selector.
@@ -180,7 +283,14 @@ public class StyleManager
      *  @param selector The name of the CSS selector.
      *
      *  @return The style declaration whose name matches the <code>selector</code> property.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
+    [Deprecated(replacement="IStyleManager2.getStyleDeclaration on a style manager instance",
+                since="4.0")]   
     public static function getStyleDeclaration(
                                 selector:String):CSSStyleDeclaration
     {
@@ -234,7 +344,14 @@ public class StyleManager
      *  because one of these style declaration methods might not yet have been called with the 
      *  <code>update</code> property set to <code>true</code>.</p>
      *  
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
+    [Deprecated(replacement="IStyleManager2.setStyleDeclaration on a style manager instance",
+                since="4.0")]   
     public static function setStyleDeclaration(
                                 selector:String,
                                 styleDeclaration:CSSStyleDeclaration,
@@ -264,7 +381,14 @@ public class StyleManager
      *  method.
      *  
      *  @see #setStyleDeclaration()
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
+    [Deprecated(replacement="IStyleManager2.clearStyleDeclaration on a style manager instance",
+                since="4.0")]   
     public static function clearStyleDeclaration(selector:String,
                                                  update:Boolean):void
     {
@@ -276,6 +400,8 @@ public class StyleManager
      *  After an entire selector is added, replaced, or removed,
      *  this method updates all the DisplayList trees.
      */
+    [Deprecated(replacement="IStyleManager2.styleDeclarationsChanged on a style manager instance",
+                since="4.0")]   
     mx_internal static function styleDeclarationsChanged():void
     {
         impl.styleDeclarationsChanged();
@@ -290,7 +416,14 @@ public class StyleManager
      *  already used becomes inheriting.</p>
      *
      *  @param styleName The name of the style that is added to the list of styles that can inherit values.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
+    [Deprecated(replacement="IStyleManager2.registerInheritingStyle on a style manager instance",
+                since="4.0")]   
     public static function registerInheritingStyle(styleName:String):void
     {
         impl.registerInheritingStyle(styleName);
@@ -302,7 +435,14 @@ public class StyleManager
      *  @param styleName The name of the style that you test to see if it is inheriting.
      *
      *  @return Returns <code>true</code> if the specified style is inheriting.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
+    [Deprecated(replacement="IStyleManager2.isInheritingStyle on a style manager instance",
+                since="4.0")]   
     public static function isInheritingStyle(styleName:String):Boolean
     {
         return impl.isInheritingStyle(styleName);
@@ -315,7 +455,14 @@ public class StyleManager
      *
      *  @return Returns <code>true</code> if the specified TextFormat style
      *  is inheriting.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
+    [Deprecated(replacement="IStyleManager2.isInheritingTextFormatStyle on a style manager instance",
+                since="4.0")]   
     public static function isInheritingTextFormatStyle(styleName:String):Boolean
     {
         return impl.isInheritingTextFormatStyle(styleName);
@@ -329,7 +476,14 @@ public class StyleManager
      *  to make its measured size get recalculated later.
      *
      *  @param styleName The name of the style that you add to the list.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
+    [Deprecated(replacement="IStyleManager2.registerSizeInvalidatingStyle on a style manager instance",
+                since="4.0")]   
     public static function registerSizeInvalidatingStyle(styleName:String):void
     {
         impl.registerSizeInvalidatingStyle(styleName);
@@ -346,7 +500,14 @@ public class StyleManager
      *
      *  @return Returns <code>true</code> if the specified style is one
      *  which may affect the measured size of the component.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
+    [Deprecated(replacement="IStyleManager2.isSizeInvalidatingStyle on a style manager instance",
+                since="4.0")]   
     public static function isSizeInvalidatingStyle(styleName:String):Boolean
     {
         return impl.isSizeInvalidatingStyle(styleName);
@@ -361,7 +522,14 @@ public class StyleManager
      *  later.</p>
      *
      *  @param styleName The name of the style to register.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
+    [Deprecated(replacement="IStyleManager2.registerParentSizeInvalidatingStyle on a style manager instance",
+                since="4.0")]   
     public static function registerParentSizeInvalidatingStyle(styleName:String):void
     {
         impl.registerParentSizeInvalidatingStyle(styleName);
@@ -380,7 +548,14 @@ public class StyleManager
      *  @return Returns <code>true</code> if the specified style is one
      *  which may affect the measured size of the component's
      *  parent container.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
+    [Deprecated(replacement="IStyleManager2.isParentSizeInvalidatingStyle on a style manager instance",
+                since="4.0")]   
     public static function isParentSizeInvalidatingStyle(styleName:String):Boolean
     {
         return impl.isParentSizeInvalidatingStyle(styleName);
@@ -394,7 +569,14 @@ public class StyleManager
      *  parent container to make it redraw and/or relayout its children.
      *
      *  @param styleName The name of the style to register.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
+    [Deprecated(replacement="IStyleManager2.registerParentDisplayListInvalidatingStyle on a style manager instance",
+                since="4.0")]   
     public static function registerParentDisplayListInvalidatingStyle(
                                 styleName:String):void
     {
@@ -414,7 +596,14 @@ public class StyleManager
      *  @return Returns <code>true</code> if the specified style is one
      *  which may affect the appearance or layout of the component's
      *  parent container.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
+    [Deprecated(replacement="IStyleManager2.isParentDisplayListInvalidatingStyle on a style manager instance",
+                since="4.0")]   
     public static function isParentDisplayListInvalidatingStyle(
                                 styleName:String):Boolean
     {
@@ -428,7 +617,14 @@ public class StyleManager
      *  If you later access this color name, the value is not case-sensitive.
      *
      *  @param colorValue Color value, for example, 0x0000FF.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
+    [Deprecated(replacement="IStyleManager2.registerColorName on a style manager instance",
+                since="4.0")]   
     public static function registerColorName(colorName:String, colorValue:uint):void
     {
         impl.registerColorName(colorName, colorValue);
@@ -442,7 +638,14 @@ public class StyleManager
      *
      *  @return Returns <code>true</code> if <code>colorName</code> is an alias
      *  for a color.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
+    [Deprecated(replacement="IStyleManager2.isColorName on a style manager instance",
+                since="4.0")]   
     public static function isColorName(colorName:String):Boolean
     {
         return impl.isColorName(colorName);
@@ -471,7 +674,14 @@ public class StyleManager
      *
      *  @return Returns a uint that represents the color value or <code>NOT_A_COLOR</code>
      *  if the value of the <code>colorName</code> property is not an alias for a color.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
+    [Deprecated(replacement="IStyleManager2.getColorName on a style manager instance",
+                since="4.0")]   
     public static function getColorName(colorName:Object):uint
     {
         return impl.getColorName(colorName);
@@ -486,7 +696,14 @@ public class StyleManager
      *  such as <code>"#FF0000"</code>..
      *
      *  @param colors An Array of color names.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
+    [Deprecated(replacement="IStyleManager2.getColorNames on a style manager instance",
+                since="4.0")]   
     public static function getColorNames(colors:Array /* of Number or String */):void
     {
         impl.getColorNames(colors);
@@ -510,7 +727,14 @@ public class StyleManager
      *  to this method, it returns <code>true</code> if the style
      *  was set and <code>false</code> if it was not set.
      *
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
+    [Deprecated(replacement="IStyleManager2.isValidStyleValue on a style manager instance",
+                since="4.0")]   
     public static function isValidStyleValue(value:*):Boolean
     {
         return impl.isValidStyleValue(value);
@@ -545,7 +769,14 @@ public class StyleManager
      *          StyleEvent.ERROR.
      *
      *  @see #setStyleDeclaration()
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
+    [Deprecated(replacement="IStyleManager2.loadStyleDeclarations on a style manager instance",
+                since="4.0")]   
     public static function loadStyleDeclarations(
                          url:String, update:Boolean = true,
                          trustContent:Boolean = false,
@@ -566,7 +797,14 @@ public class StyleManager
      *  method.
      *  
      *  @see #setStyleDeclaration()
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
+    [Deprecated(replacement="IStyleManager2.unloadStyleDeclarations on a style manager instance",
+                since="4.0")]   
     public static function unloadStyleDeclarations(
                                 url:String, update:Boolean = true):void
     {

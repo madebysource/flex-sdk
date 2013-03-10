@@ -12,7 +12,7 @@
 ################################################################################
 
 # amxmlc script for Unix.
-# This simply executes the mxmxc script in the same directory,
+# This simply executes the mxmlc script in the same directory,
 # inserting the option +configname=air, which makes
 # mxmlc use air-config.xml rather than flex-config.xml.
 # On Windows, amxmlc.bat is used instead.

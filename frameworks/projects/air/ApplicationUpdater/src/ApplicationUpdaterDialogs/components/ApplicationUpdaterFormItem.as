@@ -12,8 +12,30 @@ written permission of Adobe.
 package components
 {
 	import mx.containers.FormItem;
+	import mx.controls.Label;
+	import flash.accessibility.*;
 
 	public class ApplicationUpdaterFormItem extends FormItem
 	{
+		override protected function commitProperties():void
+		{
+			accessibilityProperties = new AccessibilityProperties();
+			accessibilityProperties.name = label;
+			// We merge the accessibilityPropties of the form item 
+			// with those from its child label. Otherwise flex gets 
+			// the tab order wrong
+			if( numChildren > 0 )
+			{ 
+				try
+				{
+					var child : Label = getChildAt( 0 ) as Label;
+					accessibilityProperties.name += " " + child.text;
+					child.accessibilityProperties.silent = true;
+				} 
+				catch ( e : Error ) {}
+			}
+			super.commitProperties();
+		}
+		
 	}
 }

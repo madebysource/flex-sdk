@@ -1,3 +1,0 @@
-include "../src/mx/automation/delegates/flashflexkit/ContainerMovieClipAutomationImpl.as";
-include "../src/mx/automation/delegates/flashflexkit/FlexContentHolderAutomationImpl.as";
-include "../src/mx/automation/delegates/flashflexkit/UIMovieClipAutomationImpl.as";

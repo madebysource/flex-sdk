@@ -14,7 +14,10 @@ package flex.ant.config;
 import org.apache.tools.ant.types.Commandline;
 
 /**
- *
+ * Extends ConfigVariable by overriding addToCommandline to use the
+ * -foo=bar syntax unless the value is null, in which case, -foo=
+ * syntax is used.  Note this is different than not setting foo at
+ * all, because it overrides any existing values for foo.
  */
 public class ConfigString extends ConfigVariable
 {

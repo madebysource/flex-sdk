@@ -15,7 +15,12 @@ package mx.graphics
 import flash.display.GradientType;
 import flash.display.Graphics;
 import flash.geom.Matrix;
+import flash.geom.Point;
 import flash.geom.Rectangle;
+
+import mx.core.mx_internal;
+
+use namespace mx_internal;
 
 /**
  *  The RadialGradient class lets you specify a gradual color transition 
@@ -108,6 +113,11 @@ import flash.geom.Rectangle;
  *  @see mx.graphics.GradientEntry
  *  @see mx.graphics.LinearGradient  
  *  @see mx.graphics.IFill
+ *  
+ *  @langversion 3.0
+ *  @playerversion Flash 9
+ *  @playerversion AIR 1.1
+ *  @productversion Flex 3
  */
 public class RadialGradient extends GradientBase implements IFill
 {
@@ -121,68 +131,27 @@ public class RadialGradient extends GradientBase implements IFill
 
     /**
      *  Constructor.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function RadialGradient()
     {
         super();
     }
-
-    //--------------------------------------------------------------------------
-    //
-    //  Variables
-    //
-    //--------------------------------------------------------------------------
-
+        
     /**
      *  @private
      */
-    private var matrix:Matrix = new Matrix();
-        
+    private static var commonMatrix:Matrix = new Matrix();
+    
     //--------------------------------------------------------------------------
     //
     //  Properties
     //
     //--------------------------------------------------------------------------
-
-    //----------------------------------
-    //  angle
-    //----------------------------------
-
-    /**
-     *  @private
-     *  Storage for the angle property.
-     */
-    private var _rotation:Number = 0.0;
-
-    [Bindable("propertyChange")]
-    [Inspectable(category="General")]
-    
-    /**
-     *  Sets the location of the start of the radial fill.
-     *
-     *  <p>Use the <code>focalPointRatio</code> property in conjunction
-     *  with this property to adjust the location and distance
-     *  from the center point of the bounding Rectangle to the focal point.</p>
-     * 
-     *  <p>Valid values are from 0.0 to 360.0.</p>
-     *  
-     *  @default 0
-     */
-    public function get angle():Number
-    {
-        return _rotation / Math.PI * 180;
-    }
-
-    /**
-     *  @private 
-     */
-    public function set angle(value:Number):void
-    {
-        var oldValue:Number = _rotation;
-        _rotation = value / 180 * Math.PI;
-        
-        mx_internal::dispatchGradientChangedEvent("angle", oldValue, _rotation);
-    }
 
     //----------------------------------
     //  focalPointRatio
@@ -221,6 +190,11 @@ public class RadialGradient extends GradientBase implements IFill
      *  of the bounding Rectangle.</p>
      *
      *  @default 0.0
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get focalPointRatio():Number
     {
@@ -237,8 +211,111 @@ public class RadialGradient extends GradientBase implements IFill
         {
             _focalPointRatio = value;
             
-            mx_internal::dispatchGradientChangedEvent("focalPointRatio",
-                                                      oldValue, value);
+            dispatchGradientChangedEvent("focalPointRatio", oldValue, value);
+        }
+    } 
+    
+    //----------------------------------
+	//  matrix
+	//----------------------------------
+    
+    /**
+     *  @private
+     */
+    override public function set matrix(value:Matrix):void
+    {
+    	scaleX = NaN;
+    	scaleY = NaN;
+    	super.matrix = value;
+    }
+
+    //----------------------------------
+    //  scaleX
+    //----------------------------------
+    
+    private var _scaleX:Number;
+    
+    [Bindable("propertyChange")]
+    [Inspectable(category="General")]
+    
+    /**
+     *  The horizontal scale of the gradient transform, which defines the width of the (unrotated) gradient
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
+     */
+    public function get scaleX():Number
+    {
+        return compoundTransform ? compoundTransform.scaleX : _scaleX;
+    }
+    
+    /**
+     *  @private
+     */
+    public function set scaleX(value:Number):void
+    {
+        if (value != scaleX)
+        {
+            var oldValue:Number = scaleX;
+            
+            if (compoundTransform)
+            {
+                // If we have a compoundTransform, only non-NaN values are allowed
+                if (!isNaN(value))
+                    compoundTransform.scaleX = value;
+            }
+            else
+            {
+                _scaleX = value;
+            }
+            dispatchGradientChangedEvent("scaleX", oldValue, value);
+        }
+    }
+    
+    //----------------------------------
+	//  scaleY
+	//----------------------------------
+	
+    private var _scaleY:Number;
+    
+    [Bindable("propertyChange")]
+    [Inspectable(category="General")]
+    
+    /**
+     *  The vertical scale of the gradient transform, which defines the height of the (unrotated) gradient
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
+     */
+    public function get scaleY():Number
+    {
+        return compoundTransform ? compoundTransform.scaleY : _scaleY;
+    }
+    
+	/**
+	 *  @private
+	 */
+    public function set scaleY(value:Number):void
+    {
+        if (value != scaleY)
+        {
+            var oldValue:Number = scaleY;
+            
+            if (compoundTransform)
+            {
+                // If we have a compoundTransform, only non-NaN values are allowed
+                if (!isNaN(value))
+                    compoundTransform.scaleY = value;
+            }
+            else
+            {
+                _scaleY = value;
+            }
+            dispatchGradientChangedEvent("scaleY", oldValue, value);
         }
     }
     
@@ -250,19 +327,45 @@ public class RadialGradient extends GradientBase implements IFill
 
     /**
      *  @inheritDoc
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
-    public function begin(target:Graphics, rc:Rectangle):void
+    public function begin(target:Graphics, targetBounds:Rectangle, targetOrigin:Point):void
     {
-        matrix.createGradientBox(rc.width, rc.height, _rotation,
-                                 rc.left, rc.top);
-            
-        target.beginGradientFill(GradientType.RADIAL, mx_internal::colors,
-                                 mx_internal::alphas, mx_internal::ratios,
-                                 matrix, null, null, focalPointRatio);      
+    	var w:Number = !isNaN(scaleX) ? scaleX : targetBounds.width;
+    	var h:Number = !isNaN(scaleY) ? scaleY : targetBounds.height;
+		var regX:Number =  !isNaN(x) ? x + targetOrigin.x : targetBounds.left + targetBounds.width / 2;
+		var regY:Number =  !isNaN(y) ? y + targetOrigin.y : targetBounds.top + targetBounds.height / 2;
+			
+		commonMatrix.identity();
+		
+		if (!compoundTransform)
+		{
+	        commonMatrix.scale (w / GRADIENT_DIMENSION, h / GRADIENT_DIMENSION);
+	        commonMatrix.rotate(!isNaN(_angle) ? _angle : rotationInRadians);
+	        commonMatrix.translate(regX, regY);						
+		}
+	 	else
+	 	{            
+            commonMatrix.scale(1 / GRADIENT_DIMENSION, 1 / GRADIENT_DIMENSION);
+            commonMatrix.concat(compoundTransform.matrix);
+            commonMatrix.translate(targetOrigin.x, targetOrigin.y);
+	 	}
+	  		  	
+        target.beginGradientFill(GradientType.RADIAL, colors, alphas, ratios,
+            commonMatrix, spreadMethod, interpolationMethod, focalPointRatio);      
     }
 
     /**
      *  @inheritDoc
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function end(target:Graphics):void
     {

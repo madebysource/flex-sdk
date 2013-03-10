@@ -16,7 +16,9 @@ import org.apache.tools.ant.types.Commandline;
 import org.apache.tools.ant.types.FlexInteger;
 
 /**
- *
+ * Extends ConfigVariable to add support for parsing values into
+ * integers and reporting build exceptions when the value isn't an
+ * integer.
  */
 public class ConfigInt extends ConfigVariable
 {

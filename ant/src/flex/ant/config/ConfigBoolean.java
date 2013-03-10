@@ -14,7 +14,8 @@ package flex.ant.config;
 import org.apache.tools.ant.types.Commandline;
 
 /**
- *
+ * Extends ConfigVariable to support setting boolean configuration
+ * options.  Values of "true", "yes", and "on" are supported.
  */
 public final class ConfigBoolean extends ConfigVariable
 {

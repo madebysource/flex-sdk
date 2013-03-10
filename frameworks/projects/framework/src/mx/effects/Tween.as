@@ -22,6 +22,13 @@ import mx.core.mx_internal;
 import mx.events.TweenEvent;
 
 use namespace mx_internal;
+
+/**
+ *  Tween is the underlying animation class for the effects in Flex 3. As of Flex 4, the Spark 
+ *  effects use the spark.effects.animation.Animation class to provide similar functionality.
+ */
+[Alternative(replacement="spark.effects.animation.Animation", since="4.0")]
+
 /**
  *  The Tween class defines a tween, a property animation performed
  *  on a target object over a period of time.
@@ -52,6 +59,11 @@ use namespace mx_internal;
  *
  *  @see mx.effects.TweenEffect
  *  @see mx.effects.effectClasses.TweenEffectInstance
+ *  
+ *  @langversion 3.0
+ *  @playerversion Flash 9
+ *  @playerversion AIR 1.1
+ *  @productversion Flex 3
  */
 public class Tween extends EventDispatcher
 {
@@ -242,6 +254,11 @@ public class Tween extends EventDispatcher
      *
      *  @param endFunction Specifies an alternative end callback function
      *  to be used instead of <code>listener.OnTweenEnd()</code>
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function Tween(listener:Object,
                           startValue:Object, endValue:Object,
@@ -378,6 +395,11 @@ public class Tween extends EventDispatcher
 
     /**
      *  Duration of the animation, in milliseconds. 
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public var duration:Number = 3000;
     
@@ -387,6 +409,11 @@ public class Tween extends EventDispatcher
 
     /**
      *  Object that is notified at each interval of the animation. 
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public var listener:Object;
     
@@ -462,6 +489,11 @@ public class Tween extends EventDispatcher
      *  @param updateFunction Specifies the update callback function.
      *
      *  @param endFunction Specifies the end callback function.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function setTweenHandlers(updateFunction:Function,
                                      endFunction:Function):void
@@ -499,6 +531,11 @@ public class Tween extends EventDispatcher
      *  in the mx.effects.easing package.</p>
      *
      *  @param easingFunction Function that implements the easing equation. 
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function set easingFunction(value:Function):void
     {   
@@ -508,6 +545,11 @@ public class Tween extends EventDispatcher
     /**
      *  Interrupt the tween, jump immediately to the end of the tween, 
      *  and invoke the <code>onTweenEnd()</code> callback function.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function endTween():void
     {
@@ -638,6 +680,11 @@ public class Tween extends EventDispatcher
      *
      *  @param playheadTime The position, in milliseconds, between 0
      *  and the value of the <code>duration</code> property.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */ 
     public function seek(playheadTime:Number):void
     {
@@ -653,11 +700,18 @@ public class Tween extends EventDispatcher
         startTime = clockTime - playheadTime;
         
         _doSeek = true;
+        
+        doInterval();
     }
     
     /**
      *  Plays the effect in reverse,
      *  starting from the current position of the effect.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function reverse():void
     {
@@ -675,6 +729,11 @@ public class Tween extends EventDispatcher
     
     /**
      *  Pauses the effect until you call the <code>resume()</code> method.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function pause():void
     {
@@ -684,6 +743,11 @@ public class Tween extends EventDispatcher
     /**
      *  Stops the tween, ending it without dispatching an event or calling
      *  the Tween's endFunction or <code>onTweenEnd()</code>. 
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function stop():void
     {
@@ -694,6 +758,11 @@ public class Tween extends EventDispatcher
     /**
      *  Resumes the effect after it has been paused 
      *  by a call to the <code>pause()</code> method. 
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function resume():void
     {

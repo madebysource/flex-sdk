@@ -13,6 +13,7 @@ package mx.controls
 {
 
 import flash.events.Event;
+import flash.events.FocusEvent;
 import flash.events.HTMLUncaughtScriptExceptionEvent;
 import flash.events.MouseEvent;
 import flash.html.HTMLLoader;
@@ -20,6 +21,8 @@ import flash.html.HTMLHistoryItem;
 import flash.html.HTMLHost;
 import flash.net.URLRequest;
 import flash.system.ApplicationDomain;
+import flash.system.IME;
+import flash.system.IMEConversionMode;
 import mx.controls.listClasses.BaseListData;
 import mx.controls.listClasses.IDropInListItemRenderer;
 import mx.controls.listClasses.IListItemRenderer;
@@ -27,6 +30,7 @@ import mx.core.ClassFactory;
 import mx.core.EdgeMetrics;
 import mx.core.IDataRenderer;
 import mx.core.IFactory;
+import mx.core.IIMESupport;
 import mx.core.FlexHTMLLoader;
 import mx.core.mx_internal;
 import mx.core.ScrollControlBase;
@@ -36,6 +40,8 @@ import mx.events.ScrollEvent;
 import mx.styles.StyleManager
 import mx.styles.CSSStyleDeclaration;
 import mx.managers.IFocusManagerComponent;
+
+use namespace mx_internal;
 
 //--------------------------------------
 //  Events
@@ -58,6 +64,10 @@ import mx.managers.IFocusManagerComponent;
  * 
  *  @see location
  *  @see htmlText
+ *  
+ *  @langversion 3.0
+ *  @playerversion AIR 1.1
+ *  @productversion Flex 3
  */
 [Event(name="complete", type="flash.events.Event")]
 
@@ -83,6 +93,10 @@ import mx.managers.IFocusManagerComponent;
  * 
  *  @see location
  *  @see htmlText
+ *  
+ *  @langversion 3.0
+ *  @playerversion AIR 1.1
+ *  @productversion Flex 3
  */
 [Event(name="htmlDOMInitialize", type="flash.events.Event")]
 
@@ -95,6 +109,10 @@ import mx.managers.IFocusManagerComponent;
  *  handler that might negatively impact performance.</p>
  *
  *  @eventType flash.events.Event.HTML_RENDER
+ *  
+ *  @langversion 3.0
+ *  @playerversion AIR 1.1
+ *  @productversion Flex 3
  */
 [Event(name="htmlRender", type="flash.events.Event")]
 
@@ -107,6 +125,10 @@ import mx.managers.IFocusManagerComponent;
  *  or its internal <code>htmlLoader</code>.</p>
  *
  *  @eventType flash.events.Event.LOCATION_CHANGE
+ *  
+ *  @langversion 3.0
+ *  @playerversion AIR 1.1
+ *  @productversion Flex 3
  */
 [Event(name="locationChange", type="flash.events.Event")]
 
@@ -119,6 +141,10 @@ import mx.managers.IFocusManagerComponent;
  *  or its internal <code>htmlLoader</code>.</p>
  *
  *  @eventType flash.events.HTMLUncaughtScriptExceptionEvent.UNCAUGHT_SCRIPT_EXCEPTION
+ *  
+ *  @langversion 3.0
+ *  @playerversion AIR 1.1
+ *  @productversion Flex 3
  */
 [Event(name="uncaughtScriptException", type="flash.events.HTMLUncaughtScriptExceptionEvent")]
 
@@ -131,6 +157,10 @@ import mx.managers.IFocusManagerComponent;
  *  and the bottom edge of its HTML content area.
  *
  *  @default 0
+ *  
+ *  @langversion 3.0
+ *  @playerversion AIR 1.1
+ *  @productversion Flex 3
  */
 [Style(name="paddingBottom", type="Number", format="Length", inherit="no")]
 
@@ -139,6 +169,10 @@ import mx.managers.IFocusManagerComponent;
  *  and the left edge of its HTML content area.
  *
  *  @default 0
+ *  
+ *  @langversion 3.0
+ *  @playerversion AIR 1.1
+ *  @productversion Flex 3
  */
 [Style(name="paddingLeft", type="Number", format="Length", inherit="no")]
 
@@ -147,6 +181,10 @@ import mx.managers.IFocusManagerComponent;
  *  and the right edge of its HTML content area.
  *
  *  @default 0
+ *  
+ *  @langversion 3.0
+ *  @playerversion AIR 1.1
+ *  @productversion Flex 3
  */
 [Style(name="paddingRight", type="Number", format="Length", inherit="no")]
 
@@ -155,6 +193,10 @@ import mx.managers.IFocusManagerComponent;
  *  and the top edge of its HTML content area.
  *
  *  @default 0
+ *  
+ *  @langversion 3.0
+ *  @playerversion AIR 1.1
+ *  @productversion Flex 3
  */
 [Style(name="paddingTop", type="Number", format="Length", inherit="no")]
 
@@ -163,6 +205,8 @@ import mx.managers.IFocusManagerComponent;
 //--------------------------------------
 
 [IconFile("HTML.png")]
+
+[ResourceBundle("controls")]
 
 /**
  *  The HTML control lets you display HTML content in your application.
@@ -206,9 +250,12 @@ import mx.managers.IFocusManagerComponent;
  *  /&gt;
  *  </pre>
  * 
- *  @see flash.html.HTMLLoader
+ *  @see ../../flash/html/HTMLLoader.html HTMLLoader
  * 
+ *  
+ *  @langversion 3.0
  *  @playerversion AIR 1.1
+ *  @productversion Flex 3
  */
  public class HTML extends ScrollControlBase
     implements IDataRenderer, IDropInListItemRenderer,
@@ -295,6 +342,10 @@ import mx.managers.IFocusManagerComponent;
      *         An HTML object cannot display PDF content.</td>
      *    </tr>
      *  </table>
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public static function get pdfCapability():int
     {
@@ -309,16 +360,19 @@ import mx.managers.IFocusManagerComponent;
 
     /**
      *  Constructor.
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function HTML()
     {
         super();
 
-        mx_internal::_horizontalScrollPolicy = ScrollPolicy.AUTO;
-        mx_internal::_verticalScrollPolicy = ScrollPolicy.AUTO;
+        _horizontalScrollPolicy = ScrollPolicy.AUTO;
+        _verticalScrollPolicy = ScrollPolicy.AUTO;
 
-		tabEnabled = false;
-		tabChildren = true;
+        tabFocusEnabled = false;
     }
 
     //--------------------------------------------------------------------------
@@ -332,6 +386,11 @@ import mx.managers.IFocusManagerComponent;
      *  Flag that will block default data/listData behavior.
      */
     private var textSet:Boolean;
+
+    /**
+     *  @private
+     */    
+    private var errorCaught:Boolean = false;
 
     //--------------------------------------------------------------------------
     //
@@ -369,6 +428,10 @@ import mx.managers.IFocusManagerComponent;
 
     /**
      *  The height, in pixels, of the HTML content.
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get contentHeight():Number
     {
@@ -384,6 +447,10 @@ import mx.managers.IFocusManagerComponent;
 
     /**
      *  The width, in pixels, of the HTML content.
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get contentWidth():Number
     {
@@ -420,6 +487,10 @@ import mx.managers.IFocusManagerComponent;
      *
      *  @default null
      *  @see mx.core.IDataRenderer
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get data():Object
     {
@@ -456,6 +527,7 @@ import mx.managers.IFocusManagerComponent;
         dispatchEvent(new FlexEvent(FlexEvent.DATA_CHANGE));
     }
 
+
     //----------------------------------
     //  historyLength
     //----------------------------------
@@ -469,6 +541,10 @@ import mx.managers.IFocusManagerComponent;
      *  JavaScript property of the the HTML content.
      *
      *  @see #historyPosition
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get historyLength():int
     {
@@ -490,8 +566,12 @@ import mx.managers.IFocusManagerComponent;
      *  Entries less than the current position are the "back" list;
      *  entries greater are "forward."
      *  Attempting to set the position beyond the end sets it to the end.</p>
-	 * 
-	 *  @default 0
+     * 
+     *  @default 0
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get historyPosition():int
     {
@@ -517,6 +597,10 @@ import mx.managers.IFocusManagerComponent;
     /**
      *  The internal HTMLLoader object that renders
      *  the HTML content for this control.
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public var htmlLoader:HTMLLoader;
 
@@ -535,8 +619,12 @@ import mx.managers.IFocusManagerComponent;
     /**
      *  The IFactory that creates an HTMLLoader-derived instance
      *  to use as the htmlLoader.
-	 *
+     *
      *  <p>The default value is an IFactory for HTMLLoader.</p>
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get htmlLoaderFactory():IFactory
     {
@@ -550,7 +638,7 @@ import mx.managers.IFocusManagerComponent;
     {
         _htmlLoaderFactory = value;
 
-		dispatchEvent(new Event("htmlLoaderFactoryChanged"));
+        dispatchEvent(new Event("htmlLoaderFactoryChanged"));
     }
 
     //----------------------------------
@@ -578,8 +666,12 @@ import mx.managers.IFocusManagerComponent;
      *  override its member functions
      *  to handle various user interface changes in the HTML content,
      *  and set this property to an instance of your subclass.</p>
-	 * 
-	 *  @default null
+     * 
+     *  @default null
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get htmlHost():HTMLHost
     {
@@ -620,17 +712,21 @@ import mx.managers.IFocusManagerComponent;
      *  <p>Setting this property has the side effect of setting
      *  the <code>location</code> property to <code>null</code>,
      *  and vice versa.</p>
-	 * 
-	 *  <p>Content added via the <code>htmlText</code> property is put in the 
-	 *  application security sandbox. If an AIR application includes an HTML 
-	 *  control located in the application sandbox, and remote HTML code is 
-	 *  directly added into the control by setting the  <code>htmlText</code> 
-	 *  property, any script contained in the HTML text is executed in the 
-	 *  application sandbox.</p>
+     * 
+     *  <p>Content added via the <code>htmlText</code> property is put in the 
+     *  application security sandbox. If an AIR application includes an HTML 
+     *  control located in the application sandbox, and remote HTML code is 
+     *  directly added into the control by setting the  <code>htmlText</code> 
+     *  property, any script contained in the HTML text is executed in the 
+     *  application sandbox.</p>
      *
      *  @default ""
      *
      *  @see #location
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get htmlText():String
     {
@@ -670,6 +766,10 @@ import mx.managers.IFocusManagerComponent;
      *  <code>htmlDOMInitialize</code> event has been dispatched.</p>
      *
      *  @default null
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get domWindow():Object
     {
@@ -677,6 +777,55 @@ import mx.managers.IFocusManagerComponent;
             return null;
 
         return htmlLoader.window;
+    }
+
+    //----------------------------------
+    //  imeMode
+    //----------------------------------
+
+    /**
+     *  @private
+     */
+    private var _imeMode:String = null;
+
+    /**
+     *  Specifies the IME (input method editor) mode.
+     *  The IME enables users to enter text in Chinese, Japanese, and Korean.
+     *  Flex sets the specified IME mode when the control gets the focus,
+     *  and sets it back to the previous value when the control loses the focus.
+     *
+     *  <p>The flash.system.IMEConversionMode class defines constants for the
+     *  valid values for this property.
+     *  You can also specify <code>null</code> to specify no IME.</p>
+     *
+     *  @default null
+     * 
+     *  @see flash.system.IMEConversionMode
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
+     */
+    public function get imeMode():String
+    {
+        return _imeMode;
+    }
+
+    /**
+     *  @private
+     */
+    public function set imeMode(value:String):void
+    {
+        _imeMode = value;
+        // We don't call IME.conversionMode here. We call it
+        // only on focusIn. Thus fringe cases like setting
+        // imeMode dynamically without moving focus, through
+        // keyboard events, wouldn't change the mode. Also
+        // getting imeMode asynch. from the server which gets
+        // delayed and set later after focusIn is not handled
+        // as having the text partly in one script and partly
+        // in another is not desirable.
     }
 
     //----------------------------------
@@ -706,6 +855,10 @@ import mx.managers.IFocusManagerComponent;
      *
      *  @default null
      *  @see mx.controls.listClasses.IDropInListItemRenderer
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get listData():BaseListData
     {
@@ -738,6 +891,10 @@ import mx.managers.IFocusManagerComponent;
      *  in which the <code>complete</code> event is never dispatched.</p>
      *
      *  @default false
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get loaded():Boolean
     {
@@ -774,6 +931,10 @@ import mx.managers.IFocusManagerComponent;
      *  @default ""
      *
      *  @see #htmlText
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get location():String
     {
@@ -827,8 +988,12 @@ import mx.managers.IFocusManagerComponent;
      *  <p>However, if any HTML element has its own opaque background color
      *  (specified by style="background-color:gray", for instance),
      *  then that background appears behind that element.</p>
-	 * 
-	 *  @default false;
+     * 
+     *  @default false;
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get paintsDefaultBackground():Boolean
     {
@@ -871,6 +1036,10 @@ import mx.managers.IFocusManagerComponent;
      *  <code>ApplicationDomain</code> for the page's domain.</p>
      *
      *  @default null
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get runtimeApplicationDomain():ApplicationDomain
     {
@@ -932,6 +1101,10 @@ import mx.managers.IFocusManagerComponent;
      *
      *  @see flash.net.URLRequest#userAgent
      *  @see flash.net.URLRequestDefaults#userAgent
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get userAgent():String
     {
@@ -1098,6 +1271,10 @@ import mx.managers.IFocusManagerComponent;
      *
      *  <p>This method does nothing if it is called before this component's
      *  internal HTMLLoader (the <code>htmlLoader</code> property) has been created.</p>
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function cancelLoad():void
     {
@@ -1118,6 +1295,10 @@ import mx.managers.IFocusManagerComponent;
      *  for the history entry  at the specified position.
      *
      *  @see historyPosition
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function getHistoryAt(position:int):HTMLHistoryItem
     {
@@ -1140,6 +1321,10 @@ import mx.managers.IFocusManagerComponent;
      *
      *  @see #historyPosition
      *  @see #historyForward()
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function historyBack():void
     {
@@ -1162,6 +1347,10 @@ import mx.managers.IFocusManagerComponent;
      *
      *  @see #historyPosition
      *  @see #historyBack()
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function historyForward():void
     {
@@ -1186,6 +1375,10 @@ import mx.managers.IFocusManagerComponent;
      *
      *  @param steps The number of steps in the history list
      *  to move forward (positive) or backward (negative).
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function historyGo(steps:int):void
     {
@@ -1198,6 +1391,10 @@ import mx.managers.IFocusManagerComponent;
      *
      *  <p>This method does nothing if it is called before this component's
      *  internal HTMLLoader (the <code>htmlLoader</code> property) has been created.</p>
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function reload():void
     {
@@ -1231,6 +1428,41 @@ import mx.managers.IFocusManagerComponent;
 
     /**
      *  @private
+     *  Gets called by internal field so we draw a focus rect around us.
+     */
+    override protected function focusInHandler(event:FocusEvent):void
+    {
+        super.focusInHandler(event);
+
+        if (_imeMode != null && 
+            (htmlLoader is IIMESupport && IIMESupport(htmlLoader).enableIME))
+        {
+            // When IME.conversionMode is unknown it cannot be
+            // set to anything other than unknown(English)
+            try
+            {
+                if (!errorCaught &&
+                    IME.conversionMode != IMEConversionMode.UNKNOWN)
+                {
+                    IME.conversionMode = _imeMode;
+                }
+                errorCaught = false;
+            }
+            catch(e:Error)
+            {
+                // Once an error is thrown, focusIn is called 
+                // again after the Alert is closed, throw error 
+                // only the first time.
+                errorCaught = true;
+                var message:String = resourceManager.getString(
+                    "controls", "unsupportedMode", [ _imeMode ]);
+                throw new Error(message);
+            }
+        }
+    }
+
+    /**
+     *  @private
      */
     override protected function scrollHandler(event:Event):void
     {
@@ -1245,10 +1477,10 @@ import mx.managers.IFocusManagerComponent;
      */
     override protected function mouseWheelHandler(event:MouseEvent):void
     {
-    	// Ignore mouseWheel events that are bubbling up
-    	// from the HTMLLoader; they have already been handled there.
-    	if (event.target != this)
-    		return;
+        // Ignore mouseWheel events that are bubbling up
+        // from the HTMLLoader; they have already been handled there.
+        if (event.target != this)
+            return;
 
         // Magnify the scrolling to approximate what browsers do.
         event.delta *= 6;
@@ -1270,7 +1502,7 @@ import mx.managers.IFocusManagerComponent;
          dispatchEvent(event);
     }
 
-    /*
+    /**
      *  @private
      */
     private function htmlLoader_completeHandler(event:Event):void
@@ -1288,6 +1520,10 @@ import mx.managers.IFocusManagerComponent;
         dispatchEvent(event);
 
         adjustScrollBars();
+
+        // we record this property here becuase it seems to
+        // change as you interact with the content
+        hasFocusableChildren = htmlLoader.hasFocusableContent;
     }
 
     /**
@@ -1318,7 +1554,7 @@ import mx.managers.IFocusManagerComponent;
      */
     private function htmlLoader_scrollHandler(event:Event):void
     {
-    	horizontalScrollPosition = htmlLoader.scrollH;
+        horizontalScrollPosition = htmlLoader.scrollH;
         verticalScrollPosition = htmlLoader.scrollV;
     }
 

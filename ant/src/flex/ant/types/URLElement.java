@@ -16,6 +16,9 @@ import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.DynamicAttribute;
 import org.apache.tools.ant.types.Commandline;
 
+/**
+ * Supports the nested URL based tags of RuntimeSharedLibraryPath.
+ */
 public class URLElement implements DynamicAttribute, OptionSource
 {
     private static final String RSL_URL = "rsl-url";

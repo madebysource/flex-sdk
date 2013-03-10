@@ -130,7 +130,7 @@ package air.update.net
 				urlStream.close();
 				urlStream = null;
 			}
-			dispatchEvent(new DownloadErrorEvent(DownloadErrorEvent.DOWNLOAD_ERROR, false, false, eventText, errorID, subErrorID));	
+			dispatchEvent(new DownloadErrorEvent(DownloadErrorEvent.DOWNLOAD_ERROR, false, true, eventText, errorID, subErrorID));	
 		}
 		
 		private function onDownloadError(event:ErrorEvent):void

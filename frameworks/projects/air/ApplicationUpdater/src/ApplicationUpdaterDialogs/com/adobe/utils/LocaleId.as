@@ -127,19 +127,19 @@ package com.adobe.utils
 		
 		public function toString():String{
 			var stack:Array = [ this.lang ];
-			Array.prototype.push.apply(stack, this.extended_langs);
+			appendElements(stack, this.extended_langs);
 			if(this.script!='') stack.push(this.script);
 			if(this.region!='') stack.push(this.region);
-			Array.prototype.push.apply(stack, this.variants);
+			appendElements(stack, this.variants);
 			for(var i:String in this.extensions){
 				if(this.extensions.hasOwnProperty(i)){
 					stack.push(i);
-					Array.prototype.push.apply(stack, this.extensions[i]);
+					appendElements(stack, this.extensions[i]);
 				}
 			}
 			if(this.privates.length>0){
 				stack.push('x');
-				Array.prototype.push.apply(stack, this.privates);
+				appendElements(stack, this.privates);
 			}
 			return stack.join('_');
 		} 
@@ -210,6 +210,16 @@ package com.adobe.utils
 			
 			return false;
 		}
+
+		/**
+		 *  @private
+		*/
+		private static function appendElements(dest:Array, src:Array):void
+		{
+			for (var i:uint=0, argc:uint=src.length; i < argc; i++)
+				dest.push(src[i]);
+		}
+
 
 	}
 }

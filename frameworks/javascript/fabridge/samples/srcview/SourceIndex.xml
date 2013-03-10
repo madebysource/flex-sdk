@@ -19,5 +19,5 @@
 		<node label="SimpleSample.html" icon="htmlIcon" url="source/SimpleSample.html"/>
 	</nodes>
 	<zipfile label="Download source (ZIP, 18K)" url="fabridge.zip"/>
-	<sdklink label="Download Flex 3 SDK" url="http://www.adobe.com/go/flex3_sdk"/>
+	<sdklink label="Download Flex 4 SDK" url="http://www.adobe.com/go/flex3_sdk"/>
 </index>

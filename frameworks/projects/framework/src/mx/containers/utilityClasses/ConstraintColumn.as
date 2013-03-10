@@ -35,6 +35,11 @@ use namespace mx_internal;
  *  constraint column, the amount of space the constraint column 
  *  takes in the container, and how the constraint column deals with 
  *  changes in the size of the container. 
+ *  
+ *  @langversion 3.0
+ *  @playerversion Flash 9
+ *  @playerversion AIR 1.1
+ *  @productversion Flex 3
  */
 public class ConstraintColumn extends EventDispatcher implements IMXMLObject
 {
@@ -48,6 +53,11 @@ public class ConstraintColumn extends EventDispatcher implements IMXMLObject
   
 	/**
 	 *  Constructor.
+	 *  
+	 *  @langversion 3.0
+	 *  @playerversion Flash 9
+	 *  @playerversion AIR 1.1
+	 *  @productversion Flex 3
 	 */
 	public function ConstraintColumn()
 	{
@@ -78,6 +88,11 @@ public class ConstraintColumn extends EventDispatcher implements IMXMLObject
     /**
      *  The container which this ConstraintColumn instance is 
      *  partitioning. 
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get container():IInvalidating
     {
@@ -103,6 +118,11 @@ public class ConstraintColumn extends EventDispatcher implements IMXMLObject
     /**
      *  ID of the ConstraintColumn instance. This value becomes the instance name of the
      *  ConstraintColumn instance and should not contain white space or special characters. 
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get id():String
     {
@@ -132,10 +152,17 @@ public class ConstraintColumn extends EventDispatcher implements IMXMLObject
      *  Number that specifies the maximum width of the ConstraintColumn 
      *  instance, in pixels, in the ConstraintColumn instance's coordinates.
      * 
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get maxWidth():Number
     {
-        return _explicitMaxWidth;
+        // Since ConstraintColumn doesn't have a measuredMaxWidth, we explictly return
+        // the default value of 10000 when no maxWidth is set.
+        return (!isNaN(_explicitMaxWidth)) ? _explicitMaxWidth : 10000;
     }
 
     /**
@@ -170,10 +197,17 @@ public class ConstraintColumn extends EventDispatcher implements IMXMLObject
      *  Number that specifies the minimum width of the ConstraintColumn instance,
      *  in pixels, in the ConstraintColumn instance's coordinates.
      * 
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get minWidth():Number
     {
-        return _explicitMinWidth;
+        // Since ConstraintColumn doesn't have a measuredMinWidth, we explictly return
+        // the default value of 0 when no minWidth is set.
+        return (!isNaN(_explicitMinWidth)) ? _explicitMinWidth : 0;
     }
 
     /**
@@ -209,6 +243,11 @@ public class ConstraintColumn extends EventDispatcher implements IMXMLObject
      *  Number that specifies the width of the ConstraintColumn instance, in pixels,
      *  in the parent container's coordinates.
      * 
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get width():Number
     {
@@ -226,6 +265,8 @@ public class ConstraintColumn extends EventDispatcher implements IMXMLObject
     		if (_width != value)
     		{
     			_width = value;
+                if (!isNaN(_width))
+                    contentSize = false;
     			if (container)
     			{
     				container.invalidateSize();
@@ -251,6 +292,11 @@ public class ConstraintColumn extends EventDispatcher implements IMXMLObject
     /**
      *  Number that specifies the explicit width of the ConstraintColumn instance, 
      *  in pixels, in the ConstraintColumn instance's coordinates.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get explicitWidth():Number
     {
@@ -295,6 +341,11 @@ public class ConstraintColumn extends EventDispatcher implements IMXMLObject
      *  Number that specifies the width of a component as a percentage of its 
      *  parent container's size. Allowed values are 0-100. The default value is NaN.
      *  Setting the <code>width</code> property resets this property to NaN.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get percentWidth():Number
     {
@@ -313,6 +364,8 @@ public class ConstraintColumn extends EventDispatcher implements IMXMLObject
             _explicitWidth = NaN;
 
         _percentWidth = value;
+        if (!isNaN(_percentWidth))
+            contentSize = false;
         
         if (container)
         {
@@ -365,12 +418,17 @@ public class ConstraintColumn extends EventDispatcher implements IMXMLObject
       *  @param document The MXML document containing this ConstraintColumn.
       *
       *  @param id Ignored.
+      *  
+      *  @langversion 3.0
+      *  @playerversion Flash 9
+      *  @playerversion AIR 1.1
+      *  @productversion Flex 3
       */
 	public function initialized(document:Object, id:String):void
     {
 		this.id = id;
 		if (!this.width && !this.percentWidth)
-			mx_internal::contentSize = true;
+			contentSize = true;
     }
     
 	/**
@@ -378,6 +436,11 @@ public class ConstraintColumn extends EventDispatcher implements IMXMLObject
 	 *
 	 *  @param width Width of constaint column computed during parent container
 	 *  processing.
+	 *  
+	 *  @langversion 3.0
+	 *  @playerversion Flash 9
+	 *  @playerversion AIR 1.1
+	 *  @productversion Flex 3
 	 */
     public function setActualWidth(w:Number):void
     {

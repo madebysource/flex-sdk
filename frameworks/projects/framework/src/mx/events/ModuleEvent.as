@@ -19,6 +19,11 @@ import mx.modules.IModuleInfo;
 /**
  *  The ModuleEvent class represents the event object passed to the event listener
  *  for events related to dynamically-loaded modules. 
+ *  
+ *  @langversion 3.0
+ *  @playerversion Flash 9
+ *  @playerversion AIR 1.1
+ *  @productversion Flex 3
  */
 public class ModuleEvent extends ProgressEvent
 {
@@ -54,6 +59,11 @@ public class ModuleEvent extends ProgressEvent
      *  </table>
      *
      *  @eventType error
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public static const ERROR:String = "error";
 
@@ -82,6 +92,11 @@ public class ModuleEvent extends ProgressEvent
      *  </table>
      *
      *  @eventType progress
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public static const PROGRESS:String = "progress";
 
@@ -109,6 +124,11 @@ public class ModuleEvent extends ProgressEvent
      *  </table>
      *
      *  @eventType ready
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public static const READY:String = "ready";
 
@@ -138,6 +158,11 @@ public class ModuleEvent extends ProgressEvent
      *  </table>
      *
      *  @eventType setup
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public static const SETUP:String = "setup";
 
@@ -166,6 +191,11 @@ public class ModuleEvent extends ProgressEvent
      *  </table>
      *
      *  @eventType unload
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public static const UNLOAD:String = "unload";
 
@@ -202,17 +232,24 @@ public class ModuleEvent extends ProgressEvent
      *  @param errorText The error message when the event type 
      *  is <code>ModuleEvent.ERROR</code>.
      *
+     *  @param module An instance of an interface for a particular module. .
+     *
      *  @tiptext Constructor for <code>ModuleEvent</code> objects.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */    
     public function ModuleEvent(type:String, bubbles:Boolean = false,
                                 cancelable:Boolean = false,
                                 bytesLoaded:uint = 0, bytesTotal:uint = 0,
-								errorText:String = null, module:IModuleInfo = null)
+                                errorText:String = null, module:IModuleInfo = null)
     {
         super(type, bubbles, cancelable, bytesLoaded, bytesTotal);
 
         this.errorText = errorText;
-		this._module = module;
+        this._module = module;
     }
     
     //--------------------------------------------------------------------------
@@ -228,6 +265,11 @@ public class ModuleEvent extends ProgressEvent
     /**
      *  The error message if the type is <code>ModuleEvent.ERROR</code>;
      *  otherwise, it is <code>null</code>.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public var errorText:String;
     
@@ -235,17 +277,22 @@ public class ModuleEvent extends ProgressEvent
     //  module
     //----------------------------------
 
-	private var _module:IModuleInfo;
+    private var _module:IModuleInfo;
 
     /**
      *  The <code>target</code>, which is an instance of an
      *  interface for a particular module.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get module():IModuleInfo
-	{
-		if (_module) return _module;
-		return target as IModuleInfo;
-	}
+    {
+        if (_module) return _module;
+        return target as IModuleInfo;
+    }
 
     //--------------------------------------------------------------------------
     //

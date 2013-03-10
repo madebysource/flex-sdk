@@ -24,6 +24,8 @@ case `uname` in
 			OS=Unix
 esac
 
+D32=''
+
 if [ $OS = "Windows" ]; then
 	# set FLEX_HOME relative to optimizer if not set
 	test "$FLEX_HOME" = "" && {
@@ -37,11 +39,17 @@ elif [ $OS = "Unix" ]; then
 	test "$FLEX_HOME" = "" && {
 	FLEX_HOME=`dirname "$0"`/..
 	}
-
+	
+	check64="`java -version 2>&1 | grep -i 64-Bit`"
+		isOSX="`uname | grep -i Darwin`"
+		
+		if [ "$isOSX" != "" -a "$HOSTTYPE" = "x86_64" -a "$check64" != "" ]; then
+			D32='-d32'
+	fi
 fi
 
 # don't use $FLEX_HOME in this variable because it may contain spaces,
 # instead put it on the java args directly, with double-quotes around it
-VMARGS="-Xmx384m -Dsun.io.useCanonCaches=false"
+VMARGS="-Xmx384m -Dsun.io.useCanonCaches=false "
 
-java $VMARGS -jar "$FLEX_HOME/lib/optimizer.jar" +flexlib="$FLEX_HOME/frameworks" "$@"
+java $VMARGS $D32 -jar "$FLEX_HOME/lib/optimizer.jar" +flexlib="$FLEX_HOME/frameworks" "$@"

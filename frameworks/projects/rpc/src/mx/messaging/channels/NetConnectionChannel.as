@@ -45,6 +45,12 @@ use namespace mx_internal;
 /**
  *  This NetConnectionChannel provides the basic NetConnection support for messaging.
  *  The AMFChannel and RTMPChannel both extend this class.
+ *  
+ *  @langversion 3.0
+ *  @playerversion Flash 9
+ *  @playerversion AIR 1.1
+ *  @productversion BlazeDS 4
+ *  @productversion LCDS 3 
  */
 public class NetConnectionChannel extends PollingChannel
 {
@@ -67,6 +73,12 @@ public class NetConnectionChannel extends PollingChannel
      *  @param id The id of this Channel.
      *
      *  @param uri The uri for this Channel.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion BlazeDS 4
+     *  @productversion LCDS 3 
      */
     public function NetConnectionChannel(id:String = null, uri:String = null)
     {
@@ -105,6 +117,12 @@ public class NetConnectionChannel extends PollingChannel
 
     /**
      *  Provides access to the associated NetConnection for this Channel.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion BlazeDS 4
+     *  @productversion LCDS 3 
      */
     public function get netConnection():NetConnection
     {
@@ -200,6 +218,11 @@ public class NetConnectionChannel extends PollingChannel
             _nc.close();
         }
 
+        // Propagate our requestTimeout for those platforms
+        // supporting the httpIdleTimeout property on NetConnection.
+        if ("httpIdleTimeout" in _nc && requestTimeout > 0)
+            _nc["httpIdleTimeout"] = requestTimeout * 1000;
+        
         _nc.addEventListener(NetStatusEvent.NET_STATUS, statusHandler);
         _nc.addEventListener(SecurityErrorEvent.SECURITY_ERROR, securityErrorHandler);
         _nc.addEventListener(IOErrorEvent.IO_ERROR, ioErrorHandler);
@@ -207,14 +230,13 @@ public class NetConnectionChannel extends PollingChannel
 
         try
         {
-            if (NetworkMonitor.isMonitoring())
-            {
-                var redirectedUrl:String = NetworkMonitor.adjustNetConnectionURL(LoaderConfig.url, url);
-                if(redirectedUrl != null)
-                {
-                    url = redirectedUrl;
-                }
-            }
+			if (NetworkMonitor.isMonitoring())
+			{
+				var redirectedUrl:String = NetworkMonitor.adjustNetConnectionURL(LoaderConfig.url, url);
+				if(redirectedUrl != null){
+					url = redirectedUrl;
+				}
+			}
             _nc.connect(url);
         }
         catch(e:Error)
@@ -474,6 +496,12 @@ class NetConnectionMessageResponder extends MessageResponder
      *  @param msg The outbound message.
      *
      *  @param channel The channel this responder is using.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion BlazeDS 4
+     *  @productversion LCDS 3 
      */
     public function NetConnectionMessageResponder(agent:MessageAgent,
                                     msg:IMessage, channel:NetConnectionChannel)

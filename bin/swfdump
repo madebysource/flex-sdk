@@ -1,0 +1,53 @@
+#!/bin/sh
+
+################################################################################
+##
+##  ADOBE SYSTEMS INCORPORATED
+##  Copyright 2007 Adobe Systems Incorporated
+##  All Rights Reserved.
+##
+##  NOTICE: Adobe permits you to use, modify, and distribute this file
+##  in accordance with the terms of the license agreement accompanying it.
+##
+################################################################################
+
+#
+# swfdump launch script for unix.  On windows, swfdump.exe is used and
+# java settings are managed in jvm.config in this directory.
+#
+
+case `uname` in
+		CYGWIN*)
+			OS="Windows"
+		;;
+		*)
+			OS=Unix
+esac
+
+D32=''
+
+if [ $OS = "Windows" ]; then
+	# set FLEX_HOME relative to swfdump if not set
+	test "$FLEX_HOME" = "" && {
+	FLEX_HOME=`dirname $0`/..
+    	FLEX_HOME=`cygpath -m $FLEX_HOME`
+	}
+
+elif [ $OS = "Unix" ]; then
+
+	# set FLEX_HOME relative to swfdump if not set
+	test "$FLEX_HOME" = "" && {
+	FLEX_HOME=`dirname $0`/..
+	}
+
+	check64="`java -version 2>&1 | grep -i 64-Bit`"
+	isOSX="`uname | grep -i Darwin`"
+	
+	if [ "$isOSX" != "" -a "$HOSTTYPE" = "x86_64" -a "$check64" != "" ]; then
+		D32='-d32'
+	fi
+fi
+
+VMARGS="-ea -Dapplication.home=$FLEX_HOME -Xms32m -Xmx384m "
+
+java $VMARGS $D32 -jar "$FLEX_HOME/lib/swfdump.jar" "$@"

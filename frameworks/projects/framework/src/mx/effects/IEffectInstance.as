@@ -13,6 +13,7 @@ package mx.effects
 {
 
 import flash.events.Event;
+
 import mx.effects.effectClasses.PropertyChanges;
 
 /**
@@ -30,6 +31,11 @@ import mx.effects.effectClasses.PropertyChanges;
  *  for their custom effects.</p>
  *
  *  @see mx.effects.Effect
+ *  
+ *  @langversion 3.0
+ *  @playerversion Flash 9
+ *  @playerversion AIR 1.1
+ *  @productversion Flex 3
  */
 public interface IEffectInstance
 {
@@ -52,6 +58,11 @@ public interface IEffectInstance
      *  If you need the qualified name, use the 
      *  <code>getQualifiedClassName()</code> method
      *  in the flash.utils package.</p>
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     function get className():String;
     
@@ -63,6 +74,11 @@ public interface IEffectInstance
      *  The duration of the effect, in milliseconds.
      *
      *  @default 500
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     function get duration():Number;
     
@@ -77,6 +93,11 @@ public interface IEffectInstance
 
     /**
      *  The IEffect object that created this IEffectInstance object.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     function get effect():IEffect;
     
@@ -95,6 +116,11 @@ public interface IEffectInstance
      *  This property enables an instance of an effect class
      *  to communicate with the  list-based control
      *  on which the effect is playing. 
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     function get effectTargetHost():IEffectTargetHost;
     
@@ -121,6 +147,11 @@ public interface IEffectInstance
      *  <p>For subclasses of Effect, the default value is <code>false</code>. 
      *  For subclasses of MaskEffect, the default value is <code>true</code>.
      *  </p>
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     function get hideFocusRing():Boolean;
     
@@ -134,12 +165,22 @@ public interface IEffectInstance
     //----------------------------------
 
     /**
-     *  Current position in time of the effect.
-     *  This property has a value between 0 and the actual duration 
-     *  (which includes the value of the <code>startDelay</code>, 
-     *  <code>repeatCount</code>, and <code>repeatDelay</code> properties).
+     *  Current time position of the effect.
+     *  This property has a value between 0 and the total duration, 
+     *  which includes the Effect's <code>startDelay</code>, 
+     *  <code>repeatCount</code>, and <code>repeatDelay</code>.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     function get playheadTime():Number;
+    
+    /**
+     * @private
+     */
+    function set playheadTime(value:Number):void;
     
     //----------------------------------
     //  propertyChanges
@@ -163,6 +204,11 @@ public interface IEffectInstance
      *  the start and end values of the effect.</p>
      *
      *  @see mx.effects.effectClasses.PropertyChanges
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     function get propertyChanges():PropertyChanges;
     
@@ -181,6 +227,11 @@ public interface IEffectInstance
      *  
      *  @default 1
      *  @see mx.effects.Effect#repeatCount
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     function get repeatCount():int;
     
@@ -199,6 +250,11 @@ public interface IEffectInstance
      *  
      *  @default 0
      *  @see mx.effects.Effect#repeatDelay
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     function get repeatDelay():int;
     
@@ -220,6 +276,11 @@ public interface IEffectInstance
      *  only the first time the effect is played.
      *
      *  @default 0
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     function get startDelay():int;
     
@@ -240,6 +301,11 @@ public interface IEffectInstance
      *  
      *  @default false
      *  @see mx.effects.Effect#suspendBackgroundProcessing
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     function get suspendBackgroundProcessing():Boolean;
     
@@ -256,6 +322,11 @@ public interface IEffectInstance
      *  The UIComponent object to which this effect is applied.
      *
      *  @see mx.effects.Effect#target
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     function get target():Object;
     
@@ -276,6 +347,11 @@ public interface IEffectInstance
      *  <p>If the effect was played programmatically by a call to the 
      *  <code>play()</code> method, rather than being triggered by an event,
      *  this property is <code>null</code>.</p>
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     function get triggerEvent():Event;
     
@@ -300,15 +376,25 @@ public interface IEffectInstance
      *  to trigger the effect.
      *  For example, if the trigger was a mouseDownEffect, the event
      *  would be a MouseEvent with type equal to MouseEvent.MOUSEDOWN. 
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     function initEffect(event:Event):void;
-    
+
     /**
      *  Plays the effect instance on the target after the
      *  <code>startDelay</code> period has elapsed.
      *  Called by the Effect class.
      *  Use this function instead of the <code>play()</code> method
      *  when starting an EffectInstance.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     function startEffect():void;
     
@@ -321,11 +407,21 @@ public interface IEffectInstance
      *  The override must call the <code>super.play()</code> method 
      *  so that an <code>effectStart</code> event is dispatched
      *  from the target.</p>
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     function play():void;
     
     /**
      *  Pauses the effect until you call the <code>resume()</code> method.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     function pause():void;
     
@@ -338,18 +434,33 @@ public interface IEffectInstance
      *
      *  <p>The effect instance dispatches an <code>effectEnd</code> event
      *  when you call this method as part of ending the effect.</p>
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     function stop():void;
 
     /**
      *  Resumes the effect after it has been paused 
      *  by a call to the <code>pause()</code> method. 
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     function resume():void;
     
     /**
      *  Plays the effect in reverse, starting from
      *  the current position of the effect.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     function reverse():void;
     
@@ -371,6 +482,11 @@ public interface IEffectInstance
      *  from the end of your override, after your logic.</p>
      *
      *  @see mx.effects.Effect#end()
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     function end():void;
 
@@ -385,6 +501,11 @@ public interface IEffectInstance
      *  but you may need to call it if you create an effect subclass.</p>
      *
      *  @see mx.events.EffectEvent
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     function finishEffect():void;
     
@@ -393,6 +514,11 @@ public interface IEffectInstance
      *
      *  <p>You do not have to override this method in a subclass.
      *  You do not need to call this method when using effects.</p>
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     function finishRepeat():void;
     

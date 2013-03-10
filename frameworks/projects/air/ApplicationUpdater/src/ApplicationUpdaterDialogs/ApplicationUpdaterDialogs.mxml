@@ -27,31 +27,34 @@ written permission of Adobe.
 	<mx:Style source="assets/styles.css"/>
 	<mx:Script>
 		<![CDATA[
-			import mx.core.UIComponent;
-			import mx.controls.Alert;
-			import flash.filesystem.FileMode;
-			import flash.filesystem.FileStream;
-			import mx.managers.FocusManager;
-			import mx.utils.StringUtil;
-			import com.adobe.utils.LocaleUtil;
-			import air.update.locale.UpdaterResourceManager;
-			import mx.core.Container;
-			import flash.filesystem.File;
+			import air.update.ApplicationUpdater;
+			import air.update.events.DownloadErrorEvent;
 			import air.update.events.StatusFileUpdateErrorEvent;
 			import air.update.events.StatusFileUpdateEvent;
-			import mx.resources.ResourceBundle;
-			import mx.resources.IResourceBundle;
-			import flash.desktop.NativeApplication;
-			import mx.effects.effectClasses.HideShowEffectTargetFilter;
-			import mx.events.ResizeEvent;
-			import mx.events.StateChangeEvent;
-			import air.update.events.DownloadErrorEvent;
 			import air.update.events.StatusUpdateErrorEvent;
 			import air.update.events.StatusUpdateEvent;
 			import air.update.events.UpdateEvent;
-			import air.update.ApplicationUpdater;
+			import air.update.locale.UpdaterResourceManager;
+			
+			import com.adobe.utils.LocaleUtil;
+			
+			import flash.desktop.NativeApplication;
+			import flash.filesystem.File;
+			import flash.filesystem.FileMode;
+			import flash.filesystem.FileStream;
+			
+			import mx.controls.Alert;
 			import mx.controls.Text;
+			import mx.core.Container;
+			import mx.core.UIComponent;
 			import mx.effects.easing.Bounce;
+			import mx.effects.effectClasses.HideShowEffectTargetFilter;
+			import mx.events.ResizeEvent;
+			import mx.events.StateChangeEvent;
+			import mx.managers.FocusManager;
+			import mx.resources.IResourceBundle;
+			import mx.resources.ResourceBundle;
+			import mx.utils.StringUtil;
 			
 			//
 			private var AIR_UI_LANGUAGES:Array = ["en_US","de","es","fr","it","ja","ko","pt","ru","zh_Hans","zh_Hant","cs","nl","pl","sv","tr"];			
@@ -74,9 +77,9 @@ written permission of Adobe.
 			private var errorID:String = "";
 			
 			private var applicationName:String = "";
-			private var applicationVersion:String = "";
+			private var applicationVersionLabel:String = "";
 			//
-			private var updateVersion:String = "";
+			private var updateVersionLabel:String = "";
 			private var updaterResourceManager:UpdaterResourceManager = new UpdaterResourceManager();
 			private var details:Array = [];
 			//
@@ -159,7 +162,7 @@ written permission of Adobe.
 				{
 					arr.push(key);
 				}
-				updaterResourceManager.localeChain = arr;
+				resourceManager.localeChain = arr;
 				log("Locale changed: ", arr);
 			}
 			
@@ -284,7 +287,7 @@ written permission of Adobe.
 						currentState = "InstallUpdate";
 						setHeight(303);
 						installLinkButton.styleName="applicationUpdaterLinkClose";
-						break;					
+						break;
 				}
 			}
 			
@@ -303,8 +306,7 @@ written permission of Adobe.
 				//
 				_applicationUpdater.addEventListener(StatusFileUpdateEvent.FILE_UPDATE_STATUS, appFileStatus);
 				_applicationUpdater.addEventListener(StatusFileUpdateErrorEvent.FILE_UPDATE_ERROR, appFileError);
-				_applicationUpdater.addEventListener(UpdateEvent.BEFORE_INSTALL, appBeforeInstall);					
-				
+				_applicationUpdater.addEventListener(UpdateEvent.BEFORE_INSTALL, appBeforeInstall);				
 				//
 				_applicationUpdater.addEventListener(ErrorEvent.ERROR, appUnhandledError);				
 			}
@@ -323,10 +325,10 @@ written permission of Adobe.
 					_applicationUpdater.removeEventListener(UpdateEvent.DOWNLOAD_COMPLETE, appDownloadComplete);
 					_applicationUpdater.removeEventListener(StatusFileUpdateEvent.FILE_UPDATE_STATUS, appFileStatus);
 					_applicationUpdater.removeEventListener(StatusFileUpdateErrorEvent.FILE_UPDATE_ERROR, appFileError);
-					_applicationUpdater.removeEventListener(UpdateEvent.BEFORE_INSTALL, appBeforeInstall);				
+					_applicationUpdater.removeEventListener(UpdateEvent.BEFORE_INSTALL, appBeforeInstall);
 					//
 					_applicationUpdater.removeEventListener(ErrorEvent.ERROR, appUnhandledError);
-				}				
+				}		
 			}
 			
 			//
@@ -380,15 +382,14 @@ written permission of Adobe.
 			
 			private function showWindow():void
 			{
-				
 				log("ShowWindow: " + currentState + " [" + (isDialogVisible(currentState) ? " visible" : "hidden") + "]");
 				if (isDialogVisible(currentState)) {
 					// set stage dimensions
 					updateWindow();
-					stage.nativeWindow.visible = true;
+					visible = true;
 					stage.nativeWindow.activate();
 				} else {
-					stage.nativeWindow.visible = false;
+					visible = false;
 				}
 			}
 			
@@ -419,7 +420,7 @@ written permission of Adobe.
 			}
 			
 			//
-			private function appCheckForUpdate(event:UpdateEvent):void
+			private function appCheckForUpdate(event:Event):void
 			{
 				log("appCheckForUpdate", event);
 				isInstallPostponed = false;
@@ -434,40 +435,49 @@ written permission of Adobe.
 				showWindow();
 			}
 			
-			private function appCheckStatus(event:StatusUpdateEvent):void
+			private function appCheckStatus(event:Event):void
 			{
+                var updateEvent:StatusUpdateEvent = new StatusUpdateEvent(event.type, event.bubbles, event.cancelable,
+																event["available"], event["version"], event["details"], event["versionLabel"]);
 				log("appCheckStatus", event);
-				if (event.available) {
+				if (updateEvent.available) {
 					currentState = "UpdateAvailable";
-					if (isDialogVisible(currentState)) 
-					{
-						event.preventDefault();	
-					}
 					txtUpdateApplication.text = getApplicationName();
-					txtUpdateCurrentVersion.text = getApplicationVersion();
-					txtUpdateNewVersion.text = event.version;
+					txtUpdateCurrentVersion.text = getApplicationVersionLabel();
+					txtUpdateNewVersion.text = updateEvent.versionLabel;
 					updateLinkButton.styleName="applicationUpdaterLinkClose";
 					// set text in all textareas
-					details = event.details;
+					details = updateEvent.details;
 					setDetails();
-					updateVersion = event.version;
+					updateVersionLabel = updateEvent.versionLabel;
 				} else {
 					currentState = "NoUpdates";
 					txtNoUpdateApplication.text = getApplicationName();
 				}
+
+				if (isDialogVisible(currentState)) 
+				{
+					event.preventDefault();	
+				}
+
 				showWindow();				
 			}
-			
-			private function appCheckError(event:StatusUpdateErrorEvent):void {
-				log("appCheckError", event);
+
+			// StatusUpdateErrorEvent
+			private function appCheckError(event:ErrorEvent):void {
+                log("appCheckError", event);
 				currentState = "ConnectionError";
 				errorID = event.errorID.toString();
 				txtCheckError.text = _T('msgCheckError', [errorID]);
+				if (isDialogVisible(currentState)) 
+				{
+					event.preventDefault();	
+				}
 				showWindow();
 			}
 			
-			private function appDownloadStart(event:UpdateEvent):void {
-				//log("appDownloadStart", event);
+			private function appDownloadStart(event:Event):void {
+                //log("appDownloadStart", event);
 				if (currentState.indexOf("_More") >= 0) {
 					currentState = "DownloadProgress_More";	
 					downloadLinkButton.styleName="applicationUpdaterLinkOpen";
@@ -480,22 +490,22 @@ written permission of Adobe.
 				btnCancelDownload.label = _T('btnCancel');
 				progressBar.styleName = "applicationUpdaterProgressPending";
 
-				
 				showWindow();
 			}
 			
 			private function appDownloadProgress(event:ProgressEvent):void {
 				//log("Progress: state=" + currentState + " download: " + event.bytesLoaded + "/" + event.bytesTotal); 
-				if (stage.nativeWindow.visible && (currentState == "DownloadProgress" || currentState == "DownloadProgress_More"))
+				if (visible && (currentState == "DownloadProgress" || currentState == "DownloadProgress_More"))
 				{
 					//log("Set progress bar:" + progressBar.percentComplete);
 					progressBar.setProgress(event.bytesLoaded, event.bytesTotal);
 				}
 			}
 			
-			private function appDownloadError(event:DownloadErrorEvent):void {
+			// DownloadErrorEvent
+			private function appDownloadError(event:ErrorEvent):void {
 				log("appDownloadError", event);
-				if (stage.nativeWindow.visible)
+				if (visible)
 				{
 					// this is needed only if download progress is visible
 					if (currentState == "DownloadProgress" || currentState == "DownloadProgress_More")
@@ -518,11 +528,18 @@ written permission of Adobe.
 						messageProgress.text = _T('msgDownloadError', [errorID]);
 						btnCancelDownload.label = _T('btnClose');
 				}
+
+				if (isDialogVisible(currentState)) 
+				{
+					event.preventDefault();	
+				}
+
 				showWindow();
 			}
 			
-			private function appDownloadComplete(event:UpdateEvent):void {
+			private function appDownloadComplete(event:Event):void {
 				log("appDownloadComplete", event);
+
 				if (currentState.indexOf("_More") >= 0) {
 					currentState = "InstallUpdate_More";
 					installLinkButton.styleName="applicationUpdaterLinkOpen";
@@ -531,67 +548,79 @@ written permission of Adobe.
 					installLinkButton.styleName="applicationUpdaterLinkClose";
 				}
 				txtInstallApplication.text = getApplicationName();
-				txtInstallCurrentVersion.text = getApplicationVersion();
-				txtInstallNewVersion.text = updateVersion;
-				
+				txtInstallCurrentVersion.text = getApplicationVersionLabel();
+				txtInstallNewVersion.text = updateVersionLabel;
+
 				if (isDialogVisible(currentState)) 
 				{
 					event.preventDefault();	
-				}				
-				showWindow();		
+				}
+				showWindow();
 			}
-			
+
 			private function appUnhandledError(event:ErrorEvent):void
 			{
 				log("appUnhandledError", event);
 				currentState = "UnexpectedError";
 				txtUnexpectedError.text = _T('msgUnexpectedError', event.errorID);
-				showWindow();				
-			}
-			
-			private function appFileStatus(event:StatusFileUpdateEvent):void
-			{
-				log("appFileStatus", event);
-				if (event.available)
+				if (isDialogVisible(currentState))
 				{
-					currentState = "FileUpdateAvailable";
-					if (isDialogVisible(currentState)) 
-					{
-						event.preventDefault();	
-					}					
-					txtFileApplication.text = getApplicationName();
-					txtFileName.text = new File(event.path).name;
-					txtFileCurrentVersion.text = getApplicationVersion();
-					txtFileNewVersion.text = event.version;
-				} else {
-					currentState = "FileNoUpdates";
-					txtNoFileName.text = new File(event.path).name;
-				} 
+					event.preventDefault();
+				}
 				showWindow();
 			}
-			
-			private function appFileError(event:StatusFileUpdateErrorEvent):void
+
+			private function appFileStatus(event:Event):void
+			{
+                var updateEvent:StatusFileUpdateEvent = new StatusFileUpdateEvent(event.type, event.bubbles, event.cancelable,
+                                                        event["available"], event["version"], event["path"], event["versionLabel"]);
+				log("appFileStatus", event);
+				if (updateEvent.available)
+				{
+					currentState = "FileUpdateAvailable";
+					txtFileApplication.text = getApplicationName();
+					txtFileName.text = new File(updateEvent.path).name;
+					txtFileCurrentVersion.text = getApplicationVersionLabel();
+					txtFileNewVersion.text = updateEvent.versionLabel;
+				} else {
+					currentState = "FileNoUpdates";
+					txtNoFileName.text = new File(updateEvent.path).name;
+				}
+
+				if (isDialogVisible(currentState)) 
+				{
+					event.preventDefault();
+				}
+
+				showWindow();
+			}
+
+			// StatusFileUpdateErrorEvent
+			private function appFileError(event:ErrorEvent):void
 			{
 				log("appFileError", event);
 				currentState = "FileError";
 				msgFileError.text = _T('msgFileError', [event.errorID]);
+				if(isDialogVisible(currentState))
+				{
+					event.preventDefault();
+				}
 				showWindow();				
 			}
-			
-			private function appBeforeInstall(event:UpdateEvent):void
+
+			private function appBeforeInstall(event:Event):void
 			{
 				log("appBeforeInstall", event);
 				if (isInstallPostponed) event.preventDefault();
 			}
-			
-			
+
 			private function onClose():void
 			{
 				log("onClose");
 				currentState = null;
 				if (_applicationUpdater != null && !isInstallPostponed) _applicationUpdater.cancelUpdate();
 				
-			}		
+			}
 			
 			private function onCheckForUpdates():void
 			{
@@ -619,7 +648,7 @@ written permission of Adobe.
 				// we just need to hide the window
 				// because the update will be install at next restart
 				isInstallPostponed = true;
-				stage.nativeWindow.visible = false;
+				visible = false;
 				if (_applicationUpdater != null) _applicationUpdater.installUpdate();
 			}
 			
@@ -685,18 +714,26 @@ written permission of Adobe.
 				return applicationName;
 			}
 			
-			private function getApplicationVersion():String
+			private function getApplicationVersionLabel():String
 			{
-				if (applicationVersion)
+				if (applicationVersionLabel)
 				{
-					return applicationVersion;
+					return applicationVersionLabel;
 				}
 				var appXML:XML = NativeApplication.nativeApplication.applicationDescriptor;
 				var ns:Namespace = appXML.namespace();
-				applicationVersion = appXML.ns::version; 
-				return applicationVersion;
+				//if <version> is undefined , namespace is >=2.5
+				if(appXML.ns::version == undefined)
+				{
+					applicationVersionLabel = ((appXML.ns::versionLabel == undefined) ? (appXML.ns::versionNumber) : (appXML.ns::versionLabel)); 
+				}
+				else
+				{
+					applicationVersionLabel = appXML.ns::version;
+				}
+				return applicationVersionLabel;
 			}			
-			
+		
 			private function get windowTitle():String
 			{
 				if (m_title != null) return m_title;
@@ -733,9 +770,9 @@ written permission of Adobe.
 					text = description[sorted[0]];
 				}
 				//
-				updateText.text = text;
-				downloadText.text = text;
-				installText.text = text;
+				if (updateText) updateText.text = text;
+				if (downloadText) downloadText.text = text;
+				if (installText) installText.text = text;
 			}
 			
 			/** TEST-ONLY for generating UI strings */
@@ -752,7 +789,7 @@ written permission of Adobe.
 					appDownloadError(new DownloadErrorEvent(DownloadErrorEvent.DOWNLOAD_ERROR, false, false, "", 16827 ));
 				}else if( state.indexOf("UpdateError")!=-1 ){
 					currentState = "UpdateAvailable";
-					stage.nativeWindow.visible = false;
+					visible = false;
 					appDownloadError(new DownloadErrorEvent(DownloadErrorEvent.DOWNLOAD_ERROR, false, false, "", 16827));
 				}else if(state == "DownloadProgress"){
 					currentState = "CheckForUpdate";
@@ -769,19 +806,19 @@ written permission of Adobe.
 					case "UpdateAvailable":
 					case "UpdateAvailable_More":
 						txtUpdateApplication.text = getApplicationName();
-						txtUpdateCurrentVersion.text = getApplicationVersion();
+						txtUpdateCurrentVersion.text = getApplicationVersionLabel();
 						txtUpdateNewVersion.text = "2.0";
 						break;			
 					case "InstallUpdate":
 					case "InstallUpdate_More":
 						txtInstallApplication.text = getApplicationName();
-						txtInstallCurrentVersion.text = getApplicationVersion();
+						txtInstallCurrentVersion.text = getApplicationVersionLabel();
 						txtInstallNewVersion.text = "2.0";
 						break;
 					case "FileUpdateAvailable":
 						txtFileApplication.text = getApplicationName();
 						txtFileName.text = "TestUpdateFile.air";
-						txtFileCurrentVersion.text = getApplicationVersion();
+						txtFileCurrentVersion.text = getApplicationVersionLabel();
 						txtFileNewVersion.text = "2.0";
 						break;
 					case "FileNoUpdates":
@@ -795,13 +832,20 @@ written permission of Adobe.
 				return true;
 			}
 			*/
+
+			protected function hideFromAccessibility( obj : DisplayObject ) : void {
+				var acc : AccessibilityProperties = new AccessibilityProperties(); 
+				acc.silent = true;
+				obj.accessibilityProperties =  acc;
+			}
+
 		]]>
 	</mx:Script>
 	
 	<components:ApplicationUpdaterVBox id="upperBox" width="100%" height="100%" styleName="applicationUpdaterUpperBox">
 		<components:ApplicationUpdaterHBox horizontalGap="10" width="100%" height="100%">
-			<components:ApplicationUpdaterVBox id="imageBox" styleName="applicationUpdaterImageBox">
-				<components:ApplicationUpdaterImage id="iconImage" source="@Embed('assets/UpdateIcon.png')" width='81' height='74'/>
+			<components:ApplicationUpdaterVBox id="imageBox" styleName="applicationUpdaterImageBox" creationComplete="hideFromAccessibility(imageBox)" >
+				<components:ApplicationUpdaterImage id="iconImage" source="@Embed('assets/UpdateIcon.png')" width='81' height='74' creationComplete="hideFromAccessibility(iconImage)" />
 			</components:ApplicationUpdaterVBox>
 			<components:ApplicationUpdaterVBox id="contentBox" styleName="applicationUpdaterTopContentBox" width="100%" height="100%" horizontalScrollPolicy="off" verticalScrollPolicy="auto">
 			</components:ApplicationUpdaterVBox>
@@ -898,7 +942,7 @@ written permission of Adobe.
 			</mx:AddChild>
 			<mx:AddChild relativeTo="{upperBox}" creationPolicy="all">
 				<components:ApplicationUpdaterVBox width="100%" id="releaseBox" verticalGap="0" styleName="applicationUpdaterReleaseBox">
-					<components:ApplicationUpdaterHRule width="100%" height="2" />
+					<components:ApplicationUpdaterHRule id="updateAvailableHRule" width="100%" height="2" creationComplete="hideFromAccessibility(updateAvailableHRule)" />
        			 	<components:ApplicationUpdaterLinkButton id="updateLinkButton" label="{_T('lnkReleaseNotes')}" styleName="applicationUpdaterLinkClose" click="onToggleReleaseNotes()" />
 				</components:ApplicationUpdaterVBox>				
 			</mx:AddChild>
@@ -921,7 +965,7 @@ written permission of Adobe.
 					<components:ApplicationUpdaterLabel id="titleDownloadProgress" styleName="applicationUpdaterH1" condenseWhite="true" width="100%"/>
 					<components:ApplicationUpdaterText id="messageProgress" styleName="applicationUpdaterH2" condenseWhite="true" width="100%"/>
 					<components:ApplicationUpdaterSpacer height="14" />
-					<components:ApplicationUpdaterProgressBar width="90%" id="progressBar" label="" labelPlacement="bottom" mode="manual" styleName="applicationUpdaterProgressPending" trackHeight="12"/>
+					<components:ApplicationUpdaterProgressBar width="90%" id="progressBar" label="" labelPlacement="bottom" mode="manual" styleName="applicationUpdaterProgressPending" trackHeight="12" creationComplete="hideFromAccessibility(progressBar)" />
 					<components:ApplicationUpdaterSpacer height="100%" />
 					<components:OSButtonBarHBox width="100%" styleName="applicationUpdaterButtonRow">
 						<components:ApplicationUpdaterButton id="btnCancelDownload" click="onClose()"/>
@@ -953,7 +997,7 @@ written permission of Adobe.
 					<components:ApplicationUpdaterLabel styleName="applicationUpdaterH1" condenseWhite="true" text="{_T('titleInstall')}" width="100%"/>
 					<components:ApplicationUpdaterText styleName="applicationUpdaterH2" condenseWhite="true" htmlText="{_T('msgInstall')}" width="100%"/>
 					<components:ApplicationUpdaterSpacer height="14" />			
-					<components:ApplicationUpdaterProgressBar width="90%" id="installProgressBar" label="" labelWidth="0" fontSize="0" labelPlacement="left" mode="manual" styleName="applicationUpdaterProgressComplete" trackHeight="12"/>
+					<components:ApplicationUpdaterProgressBar width="90%" id="installProgressBar" label="" labelWidth="0" fontSize="0" labelPlacement="left" mode="manual" styleName="applicationUpdaterProgressComplete" trackHeight="12" creationComplete="hideFromAccessibility(installProgressBar)" />
 					<components:ApplicationUpdaterForm width="100%" verticalGap="-2">
 						<components:ApplicationUpdaterFormItem label="{_T('lblApplication')}" width="100%" textAlign="left">
 							<components:TruncatedLabel id="txtInstallApplication" styleName="applicationUpdaterFormItemText" condenseWhite="true" maxWidth="200" text="" />	
@@ -974,7 +1018,7 @@ written permission of Adobe.
 			</mx:AddChild>
 			<mx:AddChild relativeTo="{ upperBox }"  creationPolicy="all">
 				<components:ApplicationUpdaterVBox width="100%" id="installBox" verticalGap="0" styleName="applicationUpdaterReleaseBox">
-					<components:ApplicationUpdaterHRule width="100%" height="2" />
+					<components:ApplicationUpdaterHRule id="installUpdateHRule" width="100%" height="2"  creationComplete="hideFromAccessibility(installUpdateHRule)" />
         		 	<components:ApplicationUpdaterLinkButton id="installLinkButton" label="{_T('lnkReleaseNotes')}" styleName="applicationUpdaterLinkClose" click="onToggleReleaseNotes()" />
 				</components:ApplicationUpdaterVBox>				
 			</mx:AddChild>			
@@ -1048,7 +1092,7 @@ written permission of Adobe.
 					</components:OSButtonBarHBox>
 				</components:ApplicationUpdaterVBox>
 			</mx:AddChild>
-		</mx:State>			
+		</mx:State>
 		
 	</components:states>
 </components:ApplicationUpdaterApplication>

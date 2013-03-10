@@ -14,11 +14,14 @@ package mx.rpc.events
 
 import flash.events.Event;
 
-[ExcludeClass]
-
 /**
  * The XMLLoadEvent class is a base class for events that are dispatched when an RPC service
  * successfully loaded an XML document.
+ *  
+ *  @langversion 3.0
+ *  @playerversion Flash 9
+ *  @playerversion AIR 1.1
+ *  @productversion Flex 3
  */
 public class XMLLoadEvent extends Event
 {
@@ -34,6 +37,11 @@ public class XMLLoadEvent extends Event
      * @param xml The XML document loaded.
      *
      * @param location The path used to load the document.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function XMLLoadEvent(type:String, bubbles:Boolean = false, 
         cancelable:Boolean = true, xml:XML = null, location:String = null)
@@ -48,11 +56,21 @@ public class XMLLoadEvent extends Event
 
     /**
      * The raw XML document.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public var xml:XML;
 
     /**
      * The location from which the document was loaded.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public var location:String;
 
@@ -60,6 +78,11 @@ public class XMLLoadEvent extends Event
      *  Returns a copy of this XMLLoadEvent object.
      *
      *  @return A copy of this XMLLoadEvent object.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     override public function clone():Event
     {
@@ -70,6 +93,11 @@ public class XMLLoadEvent extends Event
      *  Returns a String representation of this XMLLoadEvent object.
      *
      *  @return A String representation of this XMLLoadEvent object.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     override public function toString():String
     {
@@ -108,6 +136,11 @@ public class XMLLoadEvent extends Event
      * </table>
      *     
      * @eventType result      
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public static const LOAD:String = "xmlLoad";
 }

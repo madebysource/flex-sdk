@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+
+    ADOBE SYSTEMS INCORPORATED
+    Copyright 2010 Adobe Systems Incorporated
+    All Rights Reserved.
+
+    NOTICE: Adobe permits you to use, modify, and distribute this file
+    in accordance with the terms of the license agreement accompanying it.
+
+-->
+<Graphic version="2.0" xmlns="http://ns.adobe.com/fxg/2008"
+    scaleGridLeft="4" scaleGridRight="24" scaleGridTop="4" scaleGridBottom="24">
+
+    <!-- invisible fix for scaling -->
+    <Rect x="0" y="0" width="28" height="28">
+        <fill>
+            <SolidColor color="#ffffff" alpha="0"/>
+        </fill>
+    </Rect>
+
+    <!-- chromeColor fill -->
+      <Rect x="0.666504" y="0.666504" width="26.667" height="26.667" radiusX="3.33487" radiusY="3.33487">
+        <fill>
+          <SolidColor color="#484848"/>
+        </fill>
+      </Rect>
+
+</Graphic>

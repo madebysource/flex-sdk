@@ -22,6 +22,11 @@ import flash.events.IEventDispatcher;
  *  instance subclasses.
  *
  *  @see mx.effects.IEffectInstance
+ *  
+ *  @langversion 3.0
+ *  @playerversion Flash 9
+ *  @playerversion AIR 1.1
+ *  @productversion Flex 3
  */
 public interface IEffect extends IAbstractEffect
 {
@@ -43,6 +48,11 @@ public interface IEffect extends IAbstractEffect
      *  If you need the qualified name, use the 
      *  <code>getQualifiedClassName()</code> method
      *  in the flash.utils package.</p>
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     function get className():String;
 
@@ -67,6 +77,11 @@ public interface IEffect extends IAbstractEffect
      *  @default null
      *
      *  @see mx.effects.EffectTargetFilter
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     function get customFilter():EffectTargetFilter;
     
@@ -95,6 +110,11 @@ public interface IEffect extends IAbstractEffect
      *  the effect takes a total of 6000 ms (6 seconds) to play.</p>
      *
      *  @default 500
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     function get duration():Number;
     
@@ -112,6 +132,11 @@ public interface IEffect extends IAbstractEffect
      *  of a data effect. 
      *  This property enables an instance of an effect class to communicate
      *  with the list-based control on which the effect is playing. 
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     function get effectTargetHost():IEffectTargetHost;
     
@@ -175,6 +200,11 @@ public interface IEffect extends IAbstractEffect
      *  </ul>
      *
      *  @default null
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     function get filter():String;
     
@@ -193,7 +223,7 @@ public interface IEffect extends IAbstractEffect
      *  The effect target is responsible for the hiding the focus ring. 
      *  Subclasses of the UIComponent class hide the focus ring automatically. 
      *  If the effect target is not a subclass of the UIComponent class,
-     *  you must add functionality to it to hide the focus ring.
+     *  add functionality to it to hide the focus ring.
      *
      *  <p>Set this property to <code>true</code>
      *  to hide the focus ring during the effect.</p>
@@ -201,6 +231,11 @@ public interface IEffect extends IAbstractEffect
      *  <p>For subclasses of Effect, the default value is <code>false</code>. 
      *  For subclasses of MaskEffect, the default value is <code>true</code>.
      *  </p>
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     function get hideFocusRing():Boolean;
     
@@ -216,6 +251,11 @@ public interface IEffect extends IAbstractEffect
     /**
      *  A read-only flag which is true if any instances of the effect
      *  are currently playing, and false if none are.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     function get isPlaying():Boolean;
 
@@ -228,6 +268,11 @@ public interface IEffect extends IAbstractEffect
      *  after the first target of the effect.
      *  This value is added to the value
      *  of the <code>startDelay</code> property.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */ 
     function get perElementOffset():Number;
     
@@ -247,6 +292,11 @@ public interface IEffect extends IAbstractEffect
      *
      *  <p>The default value is equal to the Array returned by 
      *  the <code>getAffectedProperties()</code> method.</p>
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     function get relevantProperties():Array /* of String */;
 
@@ -266,6 +316,11 @@ public interface IEffect extends IAbstractEffect
      *
      *  <p>The default value is equal to the Array returned by 
      *  the <code>getAffectedProperties()</code> method.</p>
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     function get relevantStyles():Array /* of String */;
     
@@ -280,10 +335,15 @@ public interface IEffect extends IAbstractEffect
     //----------------------------------
 
     /** 
-     *  The UIComponent object to which this effect is applied.
+     *  The object to which this effect is applied.
      *  When an effect is triggered by an effect trigger, 
      *  the <code>target</code> property is automatically set to be 
      *  the object that triggers the effect.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     function get target():Object;
     
@@ -297,13 +357,18 @@ public interface IEffect extends IAbstractEffect
     //----------------------------------
 
     /**
-     *  An Array of UIComponent objects that are targets for the effect.
+     *  An Array of objects that are targets for the effect.
      *  When the effect is playing, it performs the effect on each target
      *  in parallel. 
      *  Setting the <code>target</code> property replaces all objects
      *  in this Array. 
      *  When the <code>targets</code> property is set, the <code>target</code>
      *  property returns the first item in this Array. 
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     function get targets():Array;
     
@@ -321,6 +386,11 @@ public interface IEffect extends IAbstractEffect
      *  by the EffectManager when an effect is triggered,
      *  or <code>null</code> if the effect is not being
      *  played by the EffectManager.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     function get triggerEvent():Event;
     
@@ -328,6 +398,28 @@ public interface IEffect extends IAbstractEffect
      *  @private
      */
     function set triggerEvent(value:Event):void;
+
+    //----------------------------------
+    //  playheadTime
+    //----------------------------------
+
+    /**
+     *  Current time position of the effect.
+     *  This property has a value between 0 and the total duration, 
+     *  which includes the Effect's <code>startDelay</code>, 
+     *  <code>repeatCount</code>, and <code>repeatDelay</code>.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
+     */
+    function get playheadTime():Number;
+    
+    /**
+     * @private
+     */
+    function set playheadTime(value:Number):void;
 
     //--------------------------------------------------------------------------
     //
@@ -337,17 +429,22 @@ public interface IEffect extends IAbstractEffect
 
     /**
      *  Returns an Array of Strings, where each String is the name
-     *  of a property that is changed by this effect.
+     *  of a property changed by this effect.
      *  For example, the Move effect returns an Array that contains
      *  <code>"x"</code> and <code>"y"</code>.
      *
      *  <p>Every subclass of Effect must implement this method.
-     *  The method is used by the EffectManager 
+     *  The EffectManager uses this method 
      *  to ensure that no two effects are trying to animate
      *  the same property of the same object at the same time.</p>
      *
      *  @return An Array of Strings specifying the names of the 
      *  properties modified by this effect.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     function getAffectedProperties():Array /* of String */;
 
@@ -359,6 +456,11 @@ public interface IEffect extends IAbstractEffect
      *
      *  @return Array of effect instance objects, one per target,
      *  for the effect.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     function createInstances(targets:Array = null):Array /* of EffectInstance */;
 
@@ -378,7 +480,7 @@ public interface IEffect extends IAbstractEffect
      * 
      *  <p>Calling the <code>createInstance()</code> method 
      *  does not play the effect.
-     *  You must call the <code>startEffect()</code> method
+     *  Call the <code>startEffect()</code> method
      *  on the returned effect instance. </p>
      *
      *  <p>This function is automatically called by the 
@@ -387,12 +489,24 @@ public interface IEffect extends IAbstractEffect
      *  @param target Object to animate with this effect.
      *
      *  @return The effect instance object for the effect.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     function createInstance(target:Object = null):IEffectInstance;
 
     /**
      *  Removes event listeners from an instance
      *  and removes it from the list of instances.
+     *
+     *  @param instance The effect instance.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     function deleteInstance(instance:IEffectInstance):void;
 
@@ -414,6 +528,11 @@ public interface IEffect extends IAbstractEffect
      *
      *  @return Array of EffectInstance objects, one per target,
      *  for the effect.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */ 
     function play(targets:Array = null,
                   playReversedFromEnd:Boolean = false):
@@ -421,6 +540,11 @@ public interface IEffect extends IAbstractEffect
 
     /**
      *  Pauses the effect until you call the <code>resume()</code> method.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     function pause():void;
 
@@ -437,19 +561,34 @@ public interface IEffect extends IAbstractEffect
      *  <p>For mask effects, the mask is not removed automatically
      *  when the effect is stopped.
      *  Running further mask effects on the same target(s)
-     *  without first removing the mask may produce unexpected results.</p>
+     *  without first removing the mask can produce unexpected results.</p>
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     function stop():void;
 
     /**
      *  Resumes the effect after it has been paused 
      *  by a call to the <code>pause()</code> method. 
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     function resume():void;
 
     /**
      *  Plays the effect in reverse, if the effect is currently playing,
      *  starting from the current position of the effect.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     function reverse():void;
 
@@ -470,6 +609,11 @@ public interface IEffect extends IAbstractEffect
      *  @param effectInstance EffectInstance to terminate.
      *
      *  @see mx.effects.EffectInstance#end()
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     function end(effectInstance:IEffectInstance = null):void;
 
@@ -498,6 +642,11 @@ public interface IEffect extends IAbstractEffect
      *      Effect developers can use the <code>propertyChanges</code> property 
      *      to retrieve the start and end values for their effect.</li>
      *  </ol>
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     function captureStartValues():void;
     
@@ -505,10 +654,15 @@ public interface IEffect extends IAbstractEffect
      *  Captures the current values of the relevant properties
      *  of an additional set of targets
      * 
-     *  <p>This function is used by Flex when a data change
+     *  <p>Flex uses this function when a data change
      *  effect is run.</p>
      * 
-     *  @param targets Array of targets for which values will be captured
+     *  @param targets Array of targets for which values are captured
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     function captureMoreStartValues(targets:Array):void;
 
@@ -518,6 +672,11 @@ public interface IEffect extends IAbstractEffect
      *  
      *  <p>Flex automatically calls the <code>captureEndValues()</code> method
      *  when the effect is part of a data change effect.</p>
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     function captureEndValues():void;
 }

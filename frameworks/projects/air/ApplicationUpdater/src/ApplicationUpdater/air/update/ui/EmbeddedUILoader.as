@@ -11,6 +11,7 @@ accordance with such agreement.
 package air.update.ui
 {
 	import air.update.logging.Logger;
+	import air.update.ui.ResourceManagerReflection;
 	
 	import flash.desktop.NativeApplication;
 	import flash.display.Loader;
@@ -72,7 +73,11 @@ package air.update.ui
 				dispatchEvent(new IOErrorEvent(IOErrorEvent.IO_ERROR));
 				return;
 			}
-			var ctx:LoaderContext = new LoaderContext(false,ApplicationDomain.currentDomain);
+            
+            // load the UI swf into a sibling ApplicationDomain to isolate its classes
+            // from the classes used by the running application.
+			var ctx:LoaderContext = new LoaderContext(false, new ApplicationDomain());
+//			var ctx:LoaderContext = new LoaderContext(false, ApplicationDomain.currentDomain);
 			ctx.allowLoadBytesCodeExecution = true;
 			showWindow();
 			loader.loadBytes(dlgBytes, ctx);
@@ -119,28 +124,25 @@ package air.update.ui
 		{
 			logger.fine("Exiting: " + uiWindow);	
 			isExiting = true;
-			if (uiWindow != null && !uiWindow.closed) 
+			unload();
+		}
+
+		public function unload():void
+		{
+			logger.fine("unload " + uiWindow);
+			if (uiWindow != null && !uiWindow.closed)
 			{
-				if (this.appUpdater.currentState != "PENDING_INSTALLING") this.appUpdater.cancelUpdate();				
+				if (this.appUpdater.currentState != "PENDING_INSTALLING")
+				{
+					this.appUpdater.cancelUpdate();	
+				}
+				applicationDialogs.setApplicationUpdater(null);
 				uiWindow.close();
 				uiWindow = null;
 				//NativeApplication.nativeApplication.exit();
 			}
 		}
-		
-		public function unload():void
-		{
-			logger.fine("unload " + uiWindow);
-			appUpdater.cancelUpdate();
-			applicationDialogs.setApplicationUpdater(null);
-			if (uiWindow != null && !uiWindow.closed) 
-			{
-				uiWindow.close();
-				uiWindow = null;
-				//NativeApplication.nativeApplication.exit();
-			}			
-		}
-		
+
 		private function onUILoadError(event:Event):void
 		{
 			logger.severe("SWF Loading complete");
@@ -152,16 +154,61 @@ package air.update.ui
 			logger.fine("SWF Loading complete. Waiting for ApplicationComplete");
 			// using the string name directly to avoid dependency on Flex framework
 			// dispatched when the application UI is loaded
-			loader.content.addEventListener("applicationComplete", onUIApplicationComplete);
+			loader.content.addEventListener("windowComplete", onUIApplicationComplete, true);
 		}
 
 		private function onUIApplicationComplete(event:Event):void
 		{
 			logger.fine("Application loading complete.");
-			applicationDialogs = (event.target as Object).application;
+			applicationDialogs = (event.currentTarget as Object).application;
 			applicationDialogs.setApplicationUpdater(appUpdater);
+
+			setupResourceManager();
+			
 			_initialized = true;
 			dispatchEvent(new Event(Event.COMPLETE));
+		}
+		
+		// If the application updater UI is included into a Flex application, loading the
+		// ApplicationUpdaterDialogs.swf into a separate application domain causes the
+		// Flex 'manager' singletons to become separated (previously, the UI dialogs shared
+		// these singleton objects with the Flex framework included in the application)
+		// This function is meant to synchronize the application ResourceManager with the
+		// ResourceManager in the updater dialogs. However, the Updater UI needs to avoid
+		// any dependencies on the application Flex framework, so it is all done through
+		// reflection. 
+		// This function listens for 'change' events on the application ResourceManager
+		// and dispatches them further to the ResourceManager in the updater dialogs.
+		// Furthermore, each time a change event occurs, it passes any Dialogs related
+		// resources into the ApplicationUpdaterDialogs - there is no reliable way to
+		// monitor all changes to these resources and push them on a per bundle basis
+		private function setupResourceManager() : void {
+			var resMgr : ResourceManagerReflection = ResourceManagerReflection.getInstance();
+			if (!resMgr.hasResourceManager())
+				return;
+			
+			resMgr.addEventListener(Event.CHANGE, function(ev : Event) : void {
+				addApplicationResourceBundles();
+				setLocaleChain(resMgr.localeChain);
+			});
+			
+			var RESOURCE_BUNDLE_NAME : String = "ApplicationUpdaterDialogs";
+			function addApplicationResourceBundles() : void {
+				var locales : Array = resMgr.getLocales();
+
+				for (var i : int = 0; i < locales.length; ++i) {
+					var content : Object = resMgr.getResourceBundleContent(locales[i], RESOURCE_BUNDLE_NAME);
+					if (content)
+						addResources(locales[i], content);
+				}
+			}
+			
+			// Add all bundles at startup
+			// Flex does not replace existing resource bundles at startup.
+			// ResourceBundles compiled into the Flex application through the <metadata> tag
+			// override any existing resources built into the Updater UI
+			addApplicationResourceBundles();
+			setLocaleChain(resMgr.localeChain);
 		}
 		
 		public function get initialized():Boolean
@@ -242,7 +289,7 @@ package air.update.ui
 				applicationDialogs.addResources(lang, res);
 			}
 		}
-		
+
 		/** TEST-ONLY for generating UI screens */
 		/*
 		public function get _applicationDialogs():Object{

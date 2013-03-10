@@ -20,14 +20,13 @@ package
  */
 internal class AIRFrameworkClasses
 {
-	import mx.managers.NativeDragManagerImpl; NativeDragManagerImpl;
-	import mx.skins.halo.StatusBarBackgroundSkin; StatusBarBackgroundSkin;
-	import mx.skins.halo.WindowBackground; WindowBackground
-	import mx.skins.halo.ApplicationTitleBarBackgroundSkin; ApplicationTitleBarBackgroundSkin;
-	import mx.skins.halo.WindowCloseButtonSkin; WindowCloseButtonSkin;
-	import mx.skins.halo.WindowMinimizeButtonSkin; WindowMinimizeButtonSkin;
-	import mx.skins.halo.WindowMaximizeButtonSkin; WindowMaximizeButtonSkin;
-	import mx.skins.halo.WindowRestoreButtonSkin; WindowRestoreButtonSkin;
+    import mx.managers.NativeDragManagerImpl; NativeDragManagerImpl;
+    import mx.skins.halo.StatusBarBackgroundSkin; StatusBarBackgroundSkin;
+    import mx.skins.halo.ApplicationTitleBarBackgroundSkin; ApplicationTitleBarBackgroundSkin;
+    import mx.skins.halo.WindowCloseButtonSkin; WindowCloseButtonSkin;
+    import mx.skins.halo.WindowMinimizeButtonSkin; WindowMinimizeButtonSkin;
+    import mx.skins.halo.WindowMaximizeButtonSkin; WindowMaximizeButtonSkin;
+    import mx.skins.halo.WindowRestoreButtonSkin; WindowRestoreButtonSkin;
 }
 
 }

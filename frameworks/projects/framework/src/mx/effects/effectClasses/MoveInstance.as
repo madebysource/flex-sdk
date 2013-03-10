@@ -13,13 +13,15 @@ package mx.effects.effectClasses
 {
 
 import flash.events.Event;
-import mx.core.Container;
 import mx.core.EdgeMetrics;
+import mx.core.IContainer;
 import mx.core.IUIComponent;
 import mx.core.mx_internal;
 import mx.effects.EffectManager;
 import mx.events.MoveEvent;
 import mx.styles.IStyleClient;
+
+use namespace mx_internal;
 
 /**
  *  The MoveInstance class implements the instance class
@@ -52,6 +54,11 @@ import mx.styles.IStyleClient;
  *
  *  @see mx.effects.Move
  *  @see mx.events.TweenEvent
+ *  
+ *  @langversion 3.0
+ *  @playerversion Flash 9
+ *  @playerversion AIR 1.1
+ *  @productversion Flex 3
  */  
 public class MoveInstance extends TweenEffectInstance
 {
@@ -67,6 +74,11 @@ public class MoveInstance extends TweenEffectInstance
 	 *  Constructor.
 	 *
 	 *  @param target The Object to animate with this effect.
+	 *  
+	 *  @langversion 3.0
+	 *  @playerversion Flash 9
+	 *  @playerversion AIR 1.1
+	 *  @productversion Flex 3
 	 */
 	public function MoveInstance(target:Object)
 	{
@@ -141,6 +153,11 @@ public class MoveInstance extends TweenEffectInstance
 	/** 
 	 *  Number of pixels to move the components along the x axis.
 	 *  Values can be negative. 
+	 *  
+	 *  @langversion 3.0
+	 *  @playerversion Flash 9
+	 *  @playerversion AIR 1.1
+	 *  @productversion Flex 3
 	 */
 	public var xBy:Number;
 	
@@ -150,6 +167,11 @@ public class MoveInstance extends TweenEffectInstance
 
 	/** 
 	 *  Initial position's x coordinate.
+	 *  
+	 *  @langversion 3.0
+	 *  @playerversion Flash 9
+	 *  @playerversion AIR 1.1
+	 *  @productversion Flex 3
 	 */
 	public var xFrom:Number;
 	
@@ -159,6 +181,11 @@ public class MoveInstance extends TweenEffectInstance
 
 	/** 
 	 *  Destination position's x coordinate.
+	 *  
+	 *  @langversion 3.0
+	 *  @playerversion Flash 9
+	 *  @playerversion AIR 1.1
+	 *  @productversion Flex 3
 	 */
 	public var xTo:Number;
 	
@@ -169,6 +196,11 @@ public class MoveInstance extends TweenEffectInstance
 	/** 
 	 *  Number of pixels to move the components along the y axis.
 	 *  Values can be negative. 	
+	 *  
+	 *  @langversion 3.0
+	 *  @playerversion Flash 9
+	 *  @playerversion AIR 1.1
+	 *  @productversion Flex 3
 	 */
 	public var yBy:Number;
 
@@ -178,6 +210,11 @@ public class MoveInstance extends TweenEffectInstance
 
 	/**
 	 *  Initial position's y coordinate.
+	 *  
+	 *  @langversion 3.0
+	 *  @playerversion Flash 9
+	 *  @playerversion AIR 1.1
+	 *  @productversion Flex 3
 	 */
 	public var yFrom:Number;
 	
@@ -187,6 +224,11 @@ public class MoveInstance extends TweenEffectInstance
 
 	/** 
 	 *  Destination position's y coordinate.
+	 *  
+	 *  @langversion 3.0
+	 *  @playerversion Flash 9
+	 *  @playerversion AIR 1.1
+	 *  @productversion Flex 3
 	 */
 	public var yTo:Number;
 	
@@ -230,7 +272,7 @@ public class MoveInstance extends TweenEffectInstance
 		super.play();
 		
 		// Try to cache the target as a bitmap.
-		EffectManager.mx_internal::startBitmapEffect(IUIComponent(target));
+		EffectManager.startBitmapEffect(IUIComponent(target));
 
 		// The user may have supplied some combination of xFrom, xTo, and xBy.
 		// If either xFrom or xTo is not explicitly defined, calculate its
@@ -273,7 +315,7 @@ public class MoveInstance extends TweenEffectInstance
 										 [ xTo, yTo ], duration);
 		
 		// Set back to initial position before the screen refreshes
-		var p:Container = target.parent as Container;
+		var p:IContainer = target.parent as IContainer;
 		
 		if (p)
 		{
@@ -289,12 +331,13 @@ public class MoveInstance extends TweenEffectInstance
 				yFrom + target.height > b || yTo + target.height > b)
 			{
 				forceClipping = true;
-				p.mx_internal::forceClipping = true;
+                if ("forceClipping" in p)
+				    p["forceClipping"] = true;
 			}
 		
 		}
 		
-		mx_internal::applyTweenStartValues();
+		applyTweenStartValues();
 		
 		if (target is IStyleClient)
 		{
@@ -350,7 +393,7 @@ public class MoveInstance extends TweenEffectInstance
 		
 		if (!forceClipping && checkClipping)
 		{
-			var p:Container = target.parent as Container;
+			var p:IContainer = target.parent as IContainer;
 			
 			if (p)
 			{
@@ -364,7 +407,8 @@ public class MoveInstance extends TweenEffectInstance
 					value[1] < t || value[1] + target.height > b)
 				{
 					forceClipping = true;
-					p.mx_internal::forceClipping = true;
+                    if ("forceClipping" in p)
+                        p["forceClipping"] = true;
 				}
 			}
 		}
@@ -378,7 +422,7 @@ public class MoveInstance extends TweenEffectInstance
 	 */
 	override public function onTweenEnd(value:Object):void
 	{	
-		EffectManager.mx_internal::endBitmapEffect(IUIComponent(target));
+		EffectManager.endBitmapEffect(IUIComponent(target));
 		
 		if (left != undefined)
 			target.setStyle("left", left);
@@ -405,12 +449,13 @@ public class MoveInstance extends TweenEffectInstance
 		
 		if (forceClipping)
 		{
-			var p:Container = target.parent as Container;
+			var p:IContainer = target.parent as IContainer;
 			
 			if (p) 
 			{
 				forceClipping = false;
-				p.mx_internal::forceClipping = false;
+                if ("forceClipping" in p)
+                    p["forceClipping"] = false;
 			}
 		}	
 		

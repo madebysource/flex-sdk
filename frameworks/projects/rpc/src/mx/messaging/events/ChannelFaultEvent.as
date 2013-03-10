@@ -18,6 +18,12 @@ import mx.messaging.messages.ErrorMessage;
 
 /**
  *  The ChannelFaultEvent class is used to propagate channel fault events within the messaging system.
+ *  
+ *  @langversion 3.0
+ *  @playerversion Flash 9
+ *  @playerversion AIR 1.1
+ *  @productversion BlazeDS 4
+ *  @productversion LCDS 3 
  */
 public class ChannelFaultEvent extends ChannelEvent
 {
@@ -57,6 +63,12 @@ public class ChannelFaultEvent extends ChannelEvent
      *       Object listening for the event.</td></tr>
      *  </table>
      *  @eventType channelFault
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion BlazeDS 4
+     *  @productversion LCDS 3 
      */        
     public static const FAULT:String = "channelFault";    
 
@@ -88,6 +100,12 @@ public class ChannelFaultEvent extends ChannelEvent
      *  is already connected.
      * 
      *  @return New ChannelFaultEvent.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion BlazeDS 4
+     *  @productversion LCDS 3 
      */
     public static function createEvent(channel:Channel, reconnecting:Boolean = false, 
             code:String = null, level:String = null, description:String = null,
@@ -132,6 +150,12 @@ public class ChannelFaultEvent extends ChannelEvent
      * 
      *  @param connected Indicates whether the Channel that generated this event 
      *  is already connected.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion BlazeDS 4
+     *  @productversion LCDS 3 
      */
     public function ChannelFaultEvent(type:String, bubbles:Boolean = false, cancelable:Boolean = false,
             channel:Channel = null, reconnecting:Boolean = false, code:String = null, level:String = null, description:String = null,
@@ -156,11 +180,26 @@ public class ChannelFaultEvent extends ChannelEvent
      *  <code>faultDetails</code> properties.
      *
      *  <p>The format of the fault codes are provided by the remote destination, 
-     *  but will typically have the following form: <i>host.operation.error</i> 
-     *  e.g. <code>"Server.Connect.Failed"</code></p>
+     *  but will typically have the following form: <code>host.operation.error</code>
+     * or <code>Channel.operation.error</code>.
+     *  For example, <code>"Server.Connect.Failed"</code> and <code>Channel.Connect.Failed</code>.</p>
+     *  <p>
+     * Channel.Connect.Failed is issued by the Channel class and its subclasses
+     * (RTMPChannel, AMFChannel, HTTPChannel, and so forth) whenever there is an issue
+     * in a Channel's connect attempts to the remote destination. Channel.Call.Failed is
+     * issued by the AMFChannel when the channel is already connected but it gets a
+     * Call.Failed code from its underlying NetConnection.
+     * Only the AMFChannel class listens for NetConnection.Call.Failed, which gets
+     * converted to Channel.Call.Failed.</p>     
      *
      *  @see #faultString
      *  @see #faultDetail
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion BlazeDS 4
+     *  @productversion LCDS 3 
      */
     public var faultCode:String;
 
@@ -172,6 +211,12 @@ public class ChannelFaultEvent extends ChannelEvent
      *
      *  @see #faultString
      *  @see #faultCode
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion BlazeDS 4
+     *  @productversion LCDS 3 
      */
     public var faultDetail:String;
 
@@ -180,12 +225,24 @@ public class ChannelFaultEvent extends ChannelEvent
      *
      *  @see #faultCode
      *  @see #faultDetail
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion BlazeDS 4
+     *  @productversion LCDS 3 
      */
     public var faultString:String;
 
     /**
      * Provides access to the underlying reason for the failure if the channel did
      * not raise the failure itself.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion BlazeDS 4
+     *  @productversion LCDS 3 
      */
     public var rootCause:Object;
 
@@ -199,6 +256,12 @@ public class ChannelFaultEvent extends ChannelEvent
      *  Clones the ChannelFaultEvent.
      *
      *  @return Copy of this ChannelFaultEvent.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion BlazeDS 4
+     *  @productversion LCDS 3 
      */
     override public function clone():Event
     {
@@ -211,6 +274,12 @@ public class ChannelFaultEvent extends ChannelEvent
      *  Returns a string representation of the ChannelFaultEvent.
      *
      *  @return String representation of the ChannelFaultEvent.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion BlazeDS 4
+     *  @productversion LCDS 3 
      */
     override public function toString():String
     {
@@ -229,6 +298,12 @@ public class ChannelFaultEvent extends ChannelEvent
      *  the faultCode, faultString, faultDetail and rootCause to the new ErrorMessage.
      * 
      *  @return The ErrorMessage.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion BlazeDS 4
+     *  @productversion LCDS 3 
      */
     public function createErrorMessage():ErrorMessage
     {

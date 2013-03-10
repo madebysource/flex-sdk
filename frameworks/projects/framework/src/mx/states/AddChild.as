@@ -13,14 +13,11 @@ package mx.states
 {
 
 import flash.display.DisplayObject;
-import mx.containers.ApplicationControlBar;
-import mx.containers.ControlBar;
-import mx.containers.Panel;
-import mx.core.Application;
+import flash.display.DisplayObjectContainer;
 import mx.core.ContainerCreationPolicy;
 import mx.core.IDeferredInstance;
-import mx.core.UIComponent;
 import mx.core.mx_internal;
+import mx.core.UIComponent;
 import mx.resources.IResourceManager;
 import mx.resources.ResourceManager;
 
@@ -78,8 +75,13 @@ use namespace mx_internal;
  *  @see mx.effects.AddChildAction
  *
  *  @includeExample examples/StatesExample.mxml
+ *  
+ *  @langversion 3.0
+ *  @playerversion Flash 9
+ *  @playerversion AIR 1.1
+ *  @productversion Flex 3
  */
- public class AddChild implements IOverride
+ public class AddChild extends OverrideBase 
 {
     include "../core/Version.as";
 
@@ -100,6 +102,11 @@ use namespace mx_internal;
      *  @param position the location in the display list of the <code>target</code>
      *  relative to the <code>relativeTo</code> component. Must be one of the following:
      *  "firstChild", "lastChild", "before" or "after".
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function AddChild(relativeTo:UIComponent = null,
                              target:DisplayObject = null,
@@ -173,6 +180,11 @@ use namespace mx_internal;
      * </table>
      *
      *  @default "auto"
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get creationPolicy():String
     {
@@ -203,6 +215,11 @@ use namespace mx_internal;
      *  <code>"firstChild"</code>, and <code>"lastChild"</code>.
      *
      *  @default "lastChild"
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public var position:String;
 
@@ -220,8 +237,13 @@ use namespace mx_internal;
      *  object, that is, the component that has the <code>states</code>
      *  property, or <code>&lt;mx:states&gt;</code>tag that specifies the State
      *  object.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
-    public var relativeTo:UIComponent;
+    public var relativeTo:Object;
 
     //------------------------------------
     //  target
@@ -244,6 +266,11 @@ use namespace mx_internal;
      *
      *  <p>Do not set this property if you set the <code>targetFactory</code>
      *  property.</p>
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get target():DisplayObject
     {
@@ -295,6 +322,11 @@ use namespace mx_internal;
      *  This propety is the <code>AddChild</code> class default property.
      *  Setting this property with a <code>creationPolicy</code> of "all"
      *  is equivalent to setting a <code>target</code> property.</p>
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get targetFactory():IDeferredInstance
     {
@@ -326,6 +358,11 @@ use namespace mx_internal;
      *  property value is <code>"auto"</code> or <code>"all"</code>.
      *  If you call this method multiple times, the child instance is
      *  created only on the first call.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function createInstance():void
     {
@@ -340,8 +377,13 @@ use namespace mx_internal;
 
     /**
      *  @inheritDoc
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
-    public function initialize():void
+    override public function initialize():void
     {
         if (creationPolicy == ContainerCreationPolicy.AUTO)
             createInstance();
@@ -349,17 +391,36 @@ use namespace mx_internal;
 
     /**
      *  @inheritDoc
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
-    public function apply(parent:UIComponent):void
+    override public function apply(parent:UIComponent):void
     {
-        var obj:UIComponent = relativeTo ? relativeTo : parent;
+        var obj:* = getOverrideContext(relativeTo, parent);
 
+        parentContext = parent;
         added = false;
-
-        // Early exit if child is null
-        if (!target)
+        
+        // Early exit if child is null or not a valid container.
+        if (!target || !(obj is DisplayObjectContainer))
+        {
+            if (relativeTo != null && !applied)
+            {
+                // Our destination context is unavailable so we attempt to register
+                // a listener on our parent document to detect when/if it becomes
+                // valid.
+                addContextListener(relativeTo);
+            }
+            applied = true;
             return;
+        }
 
+        applied = true;
+        relativeTo = obj;
+        
         // Can't reparent. Must remove before adding.
         if (target.parent)
         {
@@ -395,20 +456,6 @@ use namespace mx_internal;
             default:
             {
                 obj.addChild(target);
-                
-                // Hopefully this is a temporary fix for SDK-9478. If the child is a control bar, and 
-                // the parent is a Panel, call createComponentsFromDescriptors() so the ControlBar will
-                // be recognized by the Panel.
-                // This should be changed when we get a proper API for adding/removing a ControlBar
-                if (target is ControlBar && obj is Panel)
-                {
-                    Panel(obj).createComponentsFromDescriptors();
-                }
-                else if (target is ApplicationControlBar && ApplicationControlBar(target).dock && obj is Application)
-                {
-                    ApplicationControlBar(target).resetDock(true);
-                }
-                
                 break;
             }
         }
@@ -418,13 +465,29 @@ use namespace mx_internal;
 
     /**
      *  @inheritDoc
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
-    public function remove(parent:UIComponent):void
+    override public function remove(parent:UIComponent):void
     {
-        var obj:UIComponent = relativeTo ? relativeTo : parent;
-
-        if (!added)
+        var obj:* = getOverrideContext(relativeTo, parent);
+                
+        if (!added || !(obj is DisplayObjectContainer))
+        {
+            if (obj == null)
+            {
+                // It seems our override is no longer active, but we were never
+                // able to successfully apply ourselves, so remove our context
+                // listener if applicable.
+                removeContextListener();
+                applied = false;
+                parentContext = null;
+            }
             return;
+        }
 
         switch (position)
         {
@@ -439,20 +502,7 @@ use namespace mx_internal;
             case "lastChild":
             default:
             {
-                // Hopefully this is a temporary fix for SDK-9478. If the child is a ControlBar,
-                // it needs to be removed from the rawChildren list.
-                // This should be changed when we get a proper API for adding/removing a ControlBar
-                if (target is ControlBar && obj is Panel)
-                {
-                    Panel(obj).rawChildren.removeChild(target);
-                    Panel(obj).createComponentsFromDescriptors();
-                }
-                else if (target is ApplicationControlBar && ApplicationControlBar(target).dock)
-                {
-                    Application(obj).dockControlBar(ApplicationControlBar(target), false);
-                    Application(obj).removeChild(target);
-                }
-                else if (obj == target.parent)
+                if (obj == target.parent)
                 {
                     obj.removeChild(target);
                 }
@@ -460,7 +510,10 @@ use namespace mx_internal;
             }
         }
 
+        // Clear our flags and override context.
         added = false;
+        applied = false;
+        parentContext = null;
     }
 }
 

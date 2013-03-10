@@ -16,12 +16,15 @@ import flash.display.DisplayObject;
 import flash.display.DisplayObjectContainer;
 import flash.display.Sprite;
 import flash.events.Event;
+import flash.geom.Matrix;
 import flash.text.TextField;
+import flash.text.TextFieldType;
 import flash.text.TextFormat;
+import flash.text.TextFormatAlign;
 import flash.text.TextLineMetrics;
-import flash.utils.getQualifiedClassName;
+
 import mx.automation.IAutomationObject;
-import mx.core.FlexVersion;
+import mx.core.LayoutDirection;
 import mx.managers.ISystemManager;
 import mx.managers.IToolTipManagerClient;
 import mx.managers.SystemManager;
@@ -30,8 +33,11 @@ import mx.resources.IResourceManager;
 import mx.resources.ResourceManager;
 import mx.styles.ISimpleStyleClient;
 import mx.styles.IStyleClient;
+import mx.styles.IStyleManager2;
 import mx.styles.StyleManager;
 import mx.styles.StyleProtoChain;
+import mx.utils.MatrixUtil;
+import mx.utils.NameUtil;
 import mx.utils.StringUtil;
 
 use namespace mx_internal;
@@ -39,6 +45,16 @@ use namespace mx_internal;
 include "../styles/metadata/LeadingStyle.as"
 include "../styles/metadata/PaddingStyles.as"
 include "../styles/metadata/TextStyles.as"
+
+//--------------------------------------
+//  Excluded APIs
+//--------------------------------------
+
+[Exclude(name="direction", kind="style")]
+
+//--------------------------------------
+//  Other metadata
+//--------------------------------------
 
 [ResourceBundle("core")]
     
@@ -53,9 +69,18 @@ include "../styles/metadata/TextStyles.as"
  *  invalidation/measurement/layout, enabling/disabling, tooltips, and IME
  *  (Input Method Editor) support for entering Chinese, Japanese, and
  *  Korean text.</p>
+ * 
+ *  <p>Warning: if UITextField inherits <code>layoutDirection="rtl"</code>, it 
+ *  will modify its own <code>transform.matrix</code> to restore the default
+ *  coordinate system locally.</p>
  *
  *  @see flash.text.TextField
  *  @see mx.core.UITextFormat
+ *  
+ *  @langversion 3.0
+ *  @playerversion Flash 9
+ *  @playerversion AIR 1.1
+ *  @productversion Flex 3
  */
 public class UITextField extends FlexTextField
                          implements IAutomationObject, IIMESupport,
@@ -212,6 +237,8 @@ public class UITextField extends FlexTextField
     //  embeddedFontRegistry
     //----------------------------------
 
+    private static var noEmbeddedFonts:Boolean;
+
     /**
      *  @private
      *  Storage for the _embeddedFontRegistry property.
@@ -229,10 +256,17 @@ public class UITextField extends FlexTextField
      */
     private static function get embeddedFontRegistry():IEmbeddedFontRegistry
     {
-        if (!_embeddedFontRegistry)
+        if (!_embeddedFontRegistry && !noEmbeddedFonts)
         {
-            _embeddedFontRegistry = IEmbeddedFontRegistry(
-                Singleton.getInstance("mx.core::IEmbeddedFontRegistry"));
+            try
+            {
+                _embeddedFontRegistry = IEmbeddedFontRegistry(
+                    Singleton.getInstance("mx.core::IEmbeddedFontRegistry"));
+            }
+            catch (e:Error)
+            {
+                noEmbeddedFonts = true;
+            }
         }
 
         return _embeddedFontRegistry;
@@ -246,6 +280,11 @@ public class UITextField extends FlexTextField
 
     /**
      *  Constructor.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function UITextField()
     {
@@ -290,13 +329,6 @@ public class UITextField extends FlexTextField
      */
     private var cachedTextFormat:TextFormat;
 
-    /**
-     * @private
-     * 
-     * Cache last value of embedded font.
-     */
-    private var cachedEmbeddedFont:EmbeddedFont = null;
-     
     /**
      *  @private
      */
@@ -350,12 +382,67 @@ public class UITextField extends FlexTextField
      *  @private
      */
     private var untruncatedText:String;
+    
+    /**
+     *  @private
+     *  True if we've inherited layoutDirection="rtl".  
+     */
+    private var mirror:Boolean = false;
 
     //--------------------------------------------------------------------------
     //
     //  Overridden properties
     //
     //--------------------------------------------------------------------------
+    
+    //----------------------------------
+    //  x
+    //----------------------------------
+    
+    private var _x:Number = 0;
+    
+    /**
+     *  @private
+     */
+    override public function set x(value:Number):void
+    {
+        _x = value;
+        super.x = value;
+        if (mirror)
+            validateTransformMatrix();
+    }
+    
+    /**
+     *  @private
+     */
+    override public function get x():Number
+    {
+        // TODO(hmuller): by default get x returns transform.matrix.tx rounded to the nearest 20th.
+        // should do the same here, if we're returning _x.
+        return (mirror) ? _x : super.x;
+    }
+    
+    //----------------------------------
+    //  width
+    //----------------------------------
+    
+    /**
+     *  @private
+     */
+    override public function set width(value:Number):void  
+    {
+        var changed:Boolean = super.width != value;
+        
+        super.width = value;
+        if (mirror)
+            validateTransformMatrix();
+        
+        // Since changing the width may reflow the text which can
+        // change the textWidth and/or textHeight dispatch an event so 
+        // that listeners can react to this.
+        if (changed)
+            dispatchEvent(new Event("textFieldWidthChange"));
+    }
     
     //----------------------------------
     //  htmlText
@@ -381,7 +468,7 @@ public class UITextField extends FlexTextField
             defaultTextFormat = cachedTextFormat;
             
         super.htmlText = value;
-
+        
         // Remember the htmlText that we've set,
         // because the TextField doesn't remember it for us.
         // We need it so that we can re-apply the HTML markup
@@ -413,6 +500,11 @@ public class UITextField extends FlexTextField
 
     /**
      *  The parent container or component for this component.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     override public function get parent():DisplayObjectContainer
     {
@@ -447,6 +539,18 @@ public class UITextField extends FlexTextField
             validateNow();
     }
 
+	//----------------------------------
+	//  textColor
+	//----------------------------------
+	
+	/**
+	 *  @private
+	 */
+	override public function set textColor(value:uint):void
+	{
+		setColor(value);
+	}
+	
     //--------------------------------------------------------------------------
     //
     //  Properties
@@ -465,6 +569,11 @@ public class UITextField extends FlexTextField
     /**
      *  The delegate object which is handling the automation related functionality.
      * 
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get automationDelegate():Object
     {
@@ -491,6 +600,11 @@ public class UITextField extends FlexTextField
 
     /**
      *  @inheritDoc
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get automationName():String
     {
@@ -512,6 +626,11 @@ public class UITextField extends FlexTextField
 
     /**
      *  @inheritDoc
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get automationValue():Array
     {
@@ -520,6 +639,74 @@ public class UITextField extends FlexTextField
         
         return [""];
     }
+    
+    //----------------------------------
+    //  automationOwner
+    //----------------------------------
+    
+    /**
+     *  @inheritDoc
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 4
+     */
+    public function get automationOwner():DisplayObjectContainer
+    {
+        return owner;
+    }
+    
+    //----------------------------------
+    //  automationParent
+    //----------------------------------
+    
+    /**
+     *  @inheritDoc
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 4
+     */
+    public function get automationParent():DisplayObjectContainer
+    {
+        return parent;
+    }
+    
+    //----------------------------------
+    //  automationEnabled
+    //----------------------------------
+    
+    /**
+     *  @inheritDoc
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 4
+     */
+    public function get automationEnabled():Boolean
+    {
+        return enabled;
+    }
+    
+    //----------------------------------
+    //  automationVisible
+    //----------------------------------
+    
+    /**
+     *  @inheritDoc
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 4
+     */
+    public function get automationVisible():Boolean
+    {
+        return visible;
+    }
 
     //----------------------------------
     //  baselinePosition
@@ -527,16 +714,15 @@ public class UITextField extends FlexTextField
 
     /**
      *  The y-coordinate of the baseline of the first line of text.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get baselinePosition():Number
     {
         var tlm:TextLineMetrics;
-        
-        if (FlexVersion.compatibilityVersion < FlexVersion.VERSION_3_0)
-        {
-            tlm = getLineMetrics(0);;
-            return height - 4 - tlm.descent;
-        }
         
         // The text styles aren't known until there is a parent.
         if (!parent)
@@ -570,17 +756,15 @@ public class UITextField extends FlexTextField
      *  <code>getQualifiedClassName()</code> method in the flash.utils package.
      *  It will return a string such as
      *  <code>"mx.controls.dataGridClasses::DataGridItemRenderer"</code>.</p>
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get className():String
     {
-        var name:String = getQualifiedClassName(this);
-        
-        // If there is a package name, strip it off.
-        var index:int = name.indexOf("::");
-        if (index != -1)
-            name = name.substr(index + 2);
-                
-        return name;
+        return NameUtil.getUnqualifiedClassName(this);
     }
 
     //----------------------------------
@@ -597,6 +781,11 @@ public class UITextField extends FlexTextField
      *  A reference to the document object associated with this UITextField object. 
      *  A document object is an Object at the top of the hierarchy of a Flex application, 
      *  MXML component, or AS component.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get document():Object
     {
@@ -609,6 +798,24 @@ public class UITextField extends FlexTextField
     public function set document(value:Object):void
     {
         _document = value;
+    }
+
+    //----------------------------------
+    //  enableIME
+    //----------------------------------
+
+    /**
+     *  A flag that indicates whether the IME should
+     *  be enabled when the component receives focus.
+     *
+     *  @langversion 3.0
+     *  @playerversion Flash 10
+     *  @playerversion AIR 1.5
+     *  @productversion Flex 4
+     */
+    public function get enableIME():Boolean
+    {
+        return type == TextFieldType.INPUT;
     }
 
     //----------------------------------
@@ -630,6 +837,11 @@ public class UITextField extends FlexTextField
      *  
      *  @default true
      *  @see flash.text.TextField
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get enabled():Boolean
     {
@@ -659,6 +871,11 @@ public class UITextField extends FlexTextField
 
     /**
      *  @copy mx.core.UIComponent#explicitHeight
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get explicitHeight():Number
     {
@@ -687,6 +904,11 @@ public class UITextField extends FlexTextField
      *  @see mx.core.UIComponent#explicitMaxHeight
      *  
      *  @default NaN
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get explicitMaxHeight():Number
     {
@@ -707,6 +929,11 @@ public class UITextField extends FlexTextField
      *  @see mx.core.UIComponent#explicitMaxWidth
      *  
      *  @default NaN
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get explicitMaxWidth():Number
     {
@@ -719,6 +946,11 @@ public class UITextField extends FlexTextField
 
     /**
      *  @copy mx.core.UIComponent#explicitMinHeight
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get explicitMinHeight():Number
     {
@@ -731,6 +963,11 @@ public class UITextField extends FlexTextField
 
     /**
      *  @copy mx.core.UIComponent#explicitMinWidth
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get explicitMinWidth():Number
     {
@@ -749,6 +986,11 @@ public class UITextField extends FlexTextField
 
     /**
      *  @copy mx.core.UIComponent#explicitWidth
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get explicitWidth():Number
     {
@@ -769,6 +1011,11 @@ public class UITextField extends FlexTextField
 
     /**
      *  @inheritDoc
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get focusPane():Sprite
     {
@@ -798,6 +1045,11 @@ public class UITextField extends FlexTextField
      *  around the text of the component.
      *  
      *  @default true
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get ignorePadding():Boolean
     {
@@ -837,6 +1089,11 @@ public class UITextField extends FlexTextField
      *  @see flash.system.IMEConversionMode
      *
      *  @default null
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get imeMode():String
     {
@@ -863,6 +1120,11 @@ public class UITextField extends FlexTextField
 
     /**
      *  @copy mx.core.UIComponent#includeInLayout
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get includeInLayout():Boolean
     {
@@ -895,7 +1157,7 @@ public class UITextField extends FlexTextField
      *  @private
      *  Storage for the inheritingStyles property.
      */
-    private var _inheritingStyles:Object = UIComponent.STYLE_UNINITIALIZED;
+    private var _inheritingStyles:Object = StyleProtoChain.STYLE_UNINITIALIZED;
 
     /**
      *  The beginning of this UITextField's chain of inheriting styles.
@@ -904,6 +1166,11 @@ public class UITextField extends FlexTextField
      *  prototype-linked chain.
      *  This object is set up by the <code>initProtoChain()</code> method.
      *  You typically never need to access this property directly.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get inheritingStyles():Object
     {
@@ -931,6 +1198,11 @@ public class UITextField extends FlexTextField
     /**
      *  A flag that determines if an object has been through all three phases
      *  of layout validation (provided that any were required)
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get initialized():Boolean
     {
@@ -962,6 +1234,11 @@ public class UITextField extends FlexTextField
     //----------------------------------
     /**
      *  @copy mx.core.UIComponent#isPopUp
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get isPopUp():Boolean
     {
@@ -981,6 +1258,11 @@ public class UITextField extends FlexTextField
 
     /**
      *  @copy mx.core.UIComponent#maxHeight
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get maxHeight():Number
     {
@@ -993,6 +1275,11 @@ public class UITextField extends FlexTextField
 
     /**
      *  @copy mx.core.UIComponent#maxWidth
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get maxWidth():Number
     {
@@ -1005,15 +1292,25 @@ public class UITextField extends FlexTextField
 
     /**
      *  @copy mx.core.UIComponent#measuredHeight
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get measuredHeight():Number
     {
         validateNow();
         
-        if (!stage)
+        // If we use device fonts, then the unscaled height is 
+        // textHeight * scaleX / scaleY
+        
+        if (!stage || embedFonts)
             return textHeight + TEXT_HEIGHT_PADDING;
 
-        return textHeight * transform.concatenatedMatrix.a + TEXT_HEIGHT_PADDING;
+        const m:Matrix = transform.concatenatedMatrix;
+        
+        return Math.abs((textHeight * m.a / m.d)) + TEXT_HEIGHT_PADDING;
     }
 
     //----------------------------------
@@ -1022,6 +1319,11 @@ public class UITextField extends FlexTextField
 
     /**
      *  @copy mx.core.UIComponent#measuredMinHeight
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get measuredMinHeight():Number
     {
@@ -1041,6 +1343,11 @@ public class UITextField extends FlexTextField
 
     /**
      *  @copy mx.core.UIComponent#measuredMinWidth
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get measuredMinWidth():Number
     {
@@ -1060,15 +1367,25 @@ public class UITextField extends FlexTextField
 
     /**
      *  @copy mx.core.UIComponent#measuredWidth
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get measuredWidth():Number
     {
         validateNow();
         
-        if (!stage)
+        // If we use device fonts, then the unscaled width is 
+        // textWidth * scaleX / scaleY
+        
+        if (!stage || embedFonts)
             return textWidth + TEXT_WIDTH_PADDING;
 
-        return textWidth * transform.concatenatedMatrix.d + TEXT_WIDTH_PADDING;
+        const m:Matrix = transform.concatenatedMatrix;      
+        
+        return Math.abs((textWidth * m.a / m.d)) + TEXT_WIDTH_PADDING;
     }
 
     //----------------------------------
@@ -1077,6 +1394,11 @@ public class UITextField extends FlexTextField
 
     /**
      *  @copy mx.core.UIComponent#minHeight
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get minHeight():Number
     {
@@ -1089,6 +1411,11 @@ public class UITextField extends FlexTextField
 
     /**
      *  @copy mx.core.UIComponent#minWidth
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get minWidth():Number
     {
@@ -1110,6 +1437,11 @@ public class UITextField extends FlexTextField
     /**
      *  The moduleFactory that is used to create TextFields in the correct SWF context. This is necessary so that
      *  embedded fonts will work.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get moduleFactory():IFlexModuleFactory
     {
@@ -1122,6 +1454,7 @@ public class UITextField extends FlexTextField
     public function set moduleFactory(factory:IFlexModuleFactory):void
     {
         _moduleFactory = factory;
+        _styleManager = null;
     }
 
     //----------------------------------
@@ -1136,6 +1469,11 @@ public class UITextField extends FlexTextField
 
     /**
      *  @copy mx.core.UIComponent#nestLevel
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get nestLevel():int
     {
@@ -1170,7 +1508,7 @@ public class UITextField extends FlexTextField
      *  @private
      *  Storage for the nonInheritingStyles property.
      */
-    private var _nonInheritingStyles:Object = UIComponent.STYLE_UNINITIALIZED;
+    private var _nonInheritingStyles:Object = StyleProtoChain.STYLE_UNINITIALIZED;
 
     /**
      *  The beginning of this UITextField's chain of non-inheriting styles.
@@ -1179,6 +1517,11 @@ public class UITextField extends FlexTextField
      *  prototype-linked chain.
      *  This object is set up by the <code>initProtoChain()</code> method.
      *  You typically never need to access this property directly.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get nonInheritingStyles():Object
     {
@@ -1199,6 +1542,11 @@ public class UITextField extends FlexTextField
 
     /**
      *  @copy mx.core.UIComponent#percentHeight
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get percentHeight():Number
     {
@@ -1218,6 +1566,11 @@ public class UITextField extends FlexTextField
 
     /**
      *  @copy mx.core.UIComponent#percentWidth
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get percentWidth():Number
     {
@@ -1243,6 +1596,11 @@ public class UITextField extends FlexTextField
     /**
      *  Set to <code>true</code> after the <code>createChildren()</code>
      *  method creates any internal component children.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get processedDescriptors():Boolean
     {
@@ -1258,6 +1616,34 @@ public class UITextField extends FlexTextField
     }
 
     //----------------------------------
+    //  styleManager
+    //----------------------------------
+    
+    /**
+     *  @private
+     */
+    private var _styleManager:IStyleManager2;
+
+    /**
+     *  @private
+     * 
+     *  Returns the style manager used by this component.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 10
+     *  @playerversion AIR 1.5
+     *  @productversion Flex 4
+     */
+    public function get styleManager():IStyleManager2
+    {
+        if (!_styleManager)
+        {
+            _styleManager = StyleManager.getStyleManager(moduleFactory);
+        }
+        return _styleManager;
+    }
+    
+    //----------------------------------
     //  styleName
     //----------------------------------
 
@@ -1269,6 +1655,11 @@ public class UITextField extends FlexTextField
 
     /**
      *  @copy mx.core.UIComponent#styleName
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get styleName():Object /* String, CSSStyleDeclaration, or UIComponent */
     {
@@ -1302,6 +1693,11 @@ public class UITextField extends FlexTextField
 
     /**
      *  @copy mx.core.UIComponent#systemManager
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get systemManager():ISystemManager
     {
@@ -1335,6 +1731,11 @@ public class UITextField extends FlexTextField
      *  even when the text is empty.
      *  In this case, it returns what the textHeight would be
      *  if the text weren't empty.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get nonZeroTextHeight():Number
     {
@@ -1350,6 +1751,26 @@ public class UITextField extends FlexTextField
     }
  
     //----------------------------------
+    //  textHeight
+    //----------------------------------
+    
+    /**
+     *  @private
+     *  TextField does not take into account the leading on the final
+     *  line of text when measuring itself, yet will scroll if it is
+     *  not given this extra height. This is a player bug bug that
+     *  has been retired.
+     */
+    override public function get textHeight():Number
+    {
+        var result:Number = super.textHeight;
+        if (numLines > 1)
+            result += getLineMetrics(1).leading;
+        
+        return result;
+    }
+    
+    //----------------------------------
     //  toolTip
     //----------------------------------
 
@@ -1361,6 +1782,11 @@ public class UITextField extends FlexTextField
 
     /**
      *  @copy mx.core.UIComponent#toolTip
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get toolTip():String
     {
@@ -1384,6 +1810,11 @@ public class UITextField extends FlexTextField
 
     /**
      *  @copy mx.core.UIComponent#tweeningProperties
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get tweeningProperties():Array
     {
@@ -1410,6 +1841,11 @@ public class UITextField extends FlexTextField
     /**
      *  A flag that determines if an object has been through all three phases
      *  of layout validation (provided that any were required)
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get updateCompletePendingFlag():Boolean
     {
@@ -1483,6 +1919,11 @@ public class UITextField extends FlexTextField
      *
      *  <p>This method is required by the IUIComponent interface,
      *  but it actually does nothing for a UITextField.</p>
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function initialize():void
     {
@@ -1490,6 +1931,11 @@ public class UITextField extends FlexTextField
 
     /**
      *  @copy mx.core.UIComponent#getExplicitOrMeasuredWidth()
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function getExplicitOrMeasuredWidth():Number
     {
@@ -1498,6 +1944,11 @@ public class UITextField extends FlexTextField
 
     /**
      *  @copy mx.core.UIComponent#getExplicitOrMeasuredHeight()
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function getExplicitOrMeasuredHeight():Number
     {
@@ -1511,6 +1962,11 @@ public class UITextField extends FlexTextField
      *  and <code>false</code> to make it invisible.
      *
      *  @param noEvent <code>true</code> to suppress generating an event when you change visibility.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function setVisible(visible:Boolean, noEvent:Boolean = false):void
     {
@@ -1519,6 +1975,11 @@ public class UITextField extends FlexTextField
 
     /**
      *  @copy mx.core.UIComponent#setFocus()
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function setFocus():void
     {
@@ -1538,6 +1999,11 @@ public class UITextField extends FlexTextField
      *
      *  @see mx.core.UITextFormat
      *  @see flash.text.TextField
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function getUITextFormat():UITextFormat
     {
@@ -1558,6 +2024,11 @@ public class UITextField extends FlexTextField
 
     /**
      *  @copy mx.core.UIComponent#move()
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function move(x:Number, y:Number):void
     {
@@ -1571,6 +2042,11 @@ public class UITextField extends FlexTextField
 
     /**
      *  @copy mx.core.UIComponent#setActualSize()
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function setActualSize(w:Number, h:Number):void
     {
@@ -1584,10 +2060,15 @@ public class UITextField extends FlexTextField
 
     /**
      *  @copy mx.core.UIComponent#getStyle()
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function getStyle(styleProp:String):*
     {
-        if (StyleManager.inheritingStyles[styleProp])
+        if (styleManager.inheritingStyles[styleProp])
         {        
             return inheritingStyles ?
                    inheritingStyles[styleProp] :
@@ -1608,6 +2089,11 @@ public class UITextField extends FlexTextField
      *  @param styleProp Name of the style property.
      *
      *  @param newValue New value for the style.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function setStyle(styleProp:String, value:*):void
     {
@@ -1619,6 +2105,11 @@ public class UITextField extends FlexTextField
      *  You typically never need to call this method.
      *
      *  @param p The parent of this UITextField object.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function parentChanged(p:DisplayObjectContainer):void
     {
@@ -1643,6 +2134,11 @@ public class UITextField extends FlexTextField
 
     /**
      *  @copy mx.core.UIComponent#styleChanged()
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function styleChanged(styleProp:String):void
     {
@@ -1658,6 +2154,11 @@ public class UITextField extends FlexTextField
 
     /**
      *  @copy mx.core.UIComponent#validateNow()
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function validateNow():void
     {
@@ -1666,45 +2167,43 @@ public class UITextField extends FlexTextField
         // be called again when parentChanged is called.
         if (!parent)
             return;
-
+        
+        // If mirroring, setting width can change the transform matrix.
         if (!isNaN(explicitWidth) && super.width != explicitWidth)
-            super.width = (explicitWidth > 4) ? explicitWidth : 4;
+            width = (explicitWidth > 4) ? explicitWidth : 4;
 
         if (!isNaN(explicitHeight) && super.height != explicitHeight)
             super.height = explicitHeight;
+        
+        // Update transform.matrix to compensate for layout mirroring
+        if (styleChangedFlag)
+        {
+            const oldMirror:Boolean = mirror;
+            mirror = getStyle("layoutDirection") == LayoutDirection.RTL;
+            if (mirror || oldMirror)
+                validateTransformMatrix();
+        }
 
-          // Set the text format.
+        // Set the text format.
         if (styleChangedFlag)
         {
             var textFormat:TextFormat = getTextStyles();
             if (textFormat.font)
             {
-                var embeddedFont:EmbeddedFont = getEmbeddedFont(
-                    textFormat.font, textFormat.bold, textFormat.italic);
-                
-                var fontModuleFactory:IFlexModuleFactory = 
+                var fontModuleFactory:IFlexModuleFactory = (noEmbeddedFonts || !embeddedFontRegistry) ? 
+                    null : 
                     embeddedFontRegistry.getAssociatedModuleFactory(
-                        embeddedFont, moduleFactory);
+                        textFormat.font, textFormat.bold, textFormat.italic,
+                        this, moduleFactory, creatingSystemManager(), false);
     
-                // if we found the font, then it is embedded. 
-                // Some fonts are not listed in info(), so are not in the above registry.
-                // Call isFontFaceEmbedded() which get the list of embedded fonts from the player.
-                if (fontModuleFactory != null) 
-                {
-                    embedFonts = true;
-                }
-                else
-                {
-                    var sm:ISystemManager = creatingSystemManager();
-                    embedFonts = sm != null && sm.isFontFaceEmbedded(textFormat);
-                }
+                embedFonts = (fontModuleFactory != null);
             }
             else
             {
                 embedFonts = getStyle("embedFonts");
             }
 
-            if (getStyle("fontAntiAliasType") != undefined)
+            if (embedFonts && getStyle("fontAntiAliasType") != undefined)
             {
                 antiAliasType = getStyle("fontAntiAliasType");
                 gridFitType = getStyle("fontGridFitType");
@@ -1726,7 +2225,29 @@ public class UITextField extends FlexTextField
         styleChangedFlag = false;
         invalidateDisplayListFlag = false;
     }
-
+    /**
+     *  @private
+     *  Update the transform.matrix based on the mirror flag.  This method must be 
+     *  called when x, width, or layoutDirection changes.
+     */
+    private function validateTransformMatrix():void
+    {
+        if (mirror)
+        {
+            const mirrorMatrix:Matrix = this.transform.matrix;
+            mirrorMatrix.a = -1;
+            mirrorMatrix.tx = _x + width;
+            transform.matrix = mirrorMatrix;
+        }
+        else // layoutDirection changed, mirror=false, reset transform.matrix to its default
+        {
+            const defaultMatrix:Matrix = new Matrix();
+            defaultMatrix.tx = _x;
+            defaultMatrix.ty = y;
+            transform.matrix = defaultMatrix;
+        }
+    }
+    
     /**
      *  Returns the TextFormat object that represents 
      *  character formatting information for this UITextField object.
@@ -1734,12 +2255,27 @@ public class UITextField extends FlexTextField
      *  @return A TextFormat object. 
      *
      *  @see flash.text.TextFormat
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function getTextStyles():TextFormat
     {
         var textFormat:TextFormat = new TextFormat();
 
-        textFormat.align = getStyle("textAlign");
+        var textAlign:String = getStyle("textAlign");
+        // Map new Spark values that might be set in a selector
+        // affecting both Halo and Spark components.
+        var direction:String = getStyle("direction");
+        if (textAlign == "start")
+            textAlign = direction == "ltr" ? TextFormatAlign.LEFT : TextFormatAlign.RIGHT;
+        else if (textAlign == "end")
+            textAlign = direction == "ltr" ? TextFormatAlign.RIGHT : TextFormatAlign.LEFT;
+        else if (textAlign == "justify" && direction == "rtl")
+            textAlign = TextFormatAlign.RIGHT;
+        textFormat.align = textAlign; 
         textFormat.bold = getStyle("fontWeight") == "bold";
         if (enabled)
         {
@@ -1755,7 +2291,34 @@ public class UITextField extends FlexTextField
         textFormat.font = StringUtil.trimArrayElements(getStyle("fontFamily"),",");
         textFormat.indent = getStyle("textIndent");
         textFormat.italic = getStyle("fontStyle") == "italic";
-        textFormat.kerning = getStyle("kerning");
+        var kerning:* = getStyle("kerning");
+        // In Halo components based on TextField,
+        // kerning is supposed to be true or false.
+        // The default in TextField and Flex 3 is false
+        // because kerning doesn't work for device fonts
+        // and is slow for embedded fonts.
+        // In Spark components based on TLF and FTE,
+        // kerning is "auto", "on", or, "off".
+        // The default in TLF and FTE is "auto"
+        // (which means kern non-Asian characters)
+        // because kerning works even on device fonts
+        // and has miminal performance impact.
+        // Since a CSS selector or parent container
+        // can affect both Halo and Spark components,
+        // we need to map "auto" and "on" to true
+        // and "off" to false for Halo components
+        // here and in UIFTETextField.
+        // For Spark components, Label and CSSTextLayoutFormat,
+        // do the opposite mapping of true to "on" and false to "off".
+        // We also support a value of "default"
+        // (which we set in the global selector)
+        // to mean false for Halo and "auto" for Spark,
+        // to get the recommended behavior in both sets of components.
+        if (kerning == "auto" || kerning == "on")
+            kerning = true;
+        else if (kerning == "default" || kerning == "off")
+            kerning = false;
+        textFormat.kerning = kerning;
         textFormat.leading = getStyle("leading");
         textFormat.leftMargin = ignorePadding ? 0 : getStyle("paddingLeft");
         textFormat.letterSpacing = getStyle("letterSpacing");
@@ -1771,6 +2334,11 @@ public class UITextField extends FlexTextField
      *  Sets the font color of the text.
      *
      *  @param color The new font color.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function setColor(color:uint):void
     {
@@ -1783,6 +2351,11 @@ public class UITextField extends FlexTextField
 
     /**
      *  @copy mx.core.UIComponent#invalidateSize()
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function invalidateSize():void
     {
@@ -1791,6 +2364,11 @@ public class UITextField extends FlexTextField
 
     /**
      *  @copy mx.core.UIComponent#invalidateDisplayList()
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function invalidateDisplayList():void
     {
@@ -1799,6 +2377,11 @@ public class UITextField extends FlexTextField
 
     /**
      *  @copy mx.core.UIComponent#invalidateProperties()
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function invalidateProperties():void
     {
@@ -1813,6 +2396,11 @@ public class UITextField extends FlexTextField
      *  such as <code>"..."</code> will be used.
      *
      *  @return <code>true</code> if the text needed truncation.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function truncateToFit(truncationIndicator:String = null):Boolean
     {
@@ -1914,6 +2502,11 @@ public class UITextField extends FlexTextField
      *  @return <code>true</code> if the child is parented or owned by this UITextField object.
      * 
      *  @see #owner
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function owns(child:DisplayObject):Boolean
     {
@@ -1942,6 +2535,11 @@ public class UITextField extends FlexTextField
      *  to the component that popped it up.</p>
      * 
      *  <p>The default value is the value of the <code>parent</code> property.</p>
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get owner():DisplayObjectContainer
     {
@@ -1960,34 +2558,17 @@ public class UITextField extends FlexTextField
                 : systemManager;
     }
     
-    /**
-     * @private
-     * 
-     * Get the embedded font for a set of font attributes.
-     */ 
-    private function getEmbeddedFont(fontName:String, bold:Boolean, italic:Boolean):EmbeddedFont
-    {
-        // Check if we can reuse a cached value.
-        if (cachedEmbeddedFont)
-        {
-            if (cachedEmbeddedFont.fontName == fontName &&
-                cachedEmbeddedFont.fontStyle == EmbeddedFontRegistry.getFontStyle(bold, italic))
-            {
-                return cachedEmbeddedFont;
-            }   
-        }
-        
-        cachedEmbeddedFont = new EmbeddedFont(fontName, bold, italic);      
-        
-        return cachedEmbeddedFont;
-    }
-
     //----------------------------------
     //  IAutomationObject interface
     //----------------------------------
 
     /**
      *  @inheritDoc
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function replayAutomatableEvent(event:Event):Boolean
     {
@@ -2000,6 +2581,15 @@ public class UITextField extends FlexTextField
      *  @private
      */
     public function createAutomationIDPart(child:IAutomationObject):Object
+    {
+        return null;
+    }
+    
+    /**
+     *  @private
+     */
+    public function createAutomationIDPartWithRequiredProperties(child:IAutomationObject, 
+                                                                 properties:Array):Object
     {
         return null;
     }
@@ -2016,6 +2606,14 @@ public class UITextField extends FlexTextField
      *  @private
      */
     public function getAutomationChildAt(index:int):IAutomationObject
+    {
+        return null;
+    }
+    
+    /**
+     *  @private
+     */
+    public function getAutomationChildren():Array
     {
         return null;
     }

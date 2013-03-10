@@ -12,7 +12,7 @@
 package flex.ant.config;
 
 /**
- *
+ * A value object which contains a prefix, name and alias.
  */
 public class OptionSpec
 {

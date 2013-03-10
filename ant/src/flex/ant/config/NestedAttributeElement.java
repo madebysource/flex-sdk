@@ -15,24 +15,51 @@ import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.DynamicAttribute;
 import org.apache.tools.ant.types.Commandline;
 
+import flex.ant.FlexTask;
+
 /**
- *
+ * This class supports setting configuration option parameters via
+ * child tag attributes.  For example:
+ * </code>
+ *     &lt;namespace uri="http://www.adobe.com/2006/mxml" manifest="${basedir}/manifest.xml"/&gt;
+ * </code>
  */
 public class NestedAttributeElement implements DynamicAttribute, OptionSource
 {
     private final static String COMMA = ",";
-
+    
     private String[] attribs;
     private String[] values;
-    private OptionSpec spec;
+    protected OptionSpec spec;
     private boolean valueHasComma;
-
+    private FlexTask task;
+    private boolean isAppend;
+    
+    // Although "append" is a special-case attribute, we still need to throw error if "append" is not
+    // expected on the element.
+    private final boolean allowAppendAttribute ;
+    
     public NestedAttributeElement(String attrib, OptionSpec spec)
     {
-        this(new String[] { attrib }, spec);
+        this(new String[] { attrib }, spec, null);
     }
 
     public NestedAttributeElement(String[] attribs, OptionSpec spec)
+    {
+        this(attribs, spec, null);
+    }
+
+    public NestedAttributeElement(String attrib, OptionSpec spec, FlexTask task)
+    {
+        this(new String[] { attrib }, spec, task);
+    }
+
+    public NestedAttributeElement(String[] attribs, OptionSpec spec, FlexTask task)
+    {
+        this(attribs, spec, task, false);
+    }
+    
+    public NestedAttributeElement(String[] attribs, OptionSpec spec, FlexTask task, boolean allowAppend)
     {
         /*
          * Note: Do not try and be clever and sort attribs in order to increase
@@ -42,10 +69,17 @@ public class NestedAttributeElement implements DynamicAttribute, OptionSource
         this.attribs = attribs;
         this.values = new String[attribs.length];
         this.spec = spec;
+        this.task = task;
+        this.allowAppendAttribute = allowAppend;
+        this.isAppend = false;
     }
-
+    
     public void addText(String value)
     {
+        // if we have a task then replace any ant properties in the value.
+        if (task != null)
+            value = task.getProject().replaceProperties(value);
+
         values[0] = value;
 
         if (value.indexOf(COMMA) != -1)
@@ -54,15 +88,29 @@ public class NestedAttributeElement implements DynamicAttribute, OptionSource
         }
     }
 
+    /**
+     * Assign attribute value. If {@code name} is in the expected attribute list, the {@code value} will
+     * be recorded. Otherwise, throw exception about unknown attribute.
+     * <p>
+     * "append" attribute is a special case. If <code>append="true"</code>, the command-line argument will
+     * use <code>+=</code> instead of <code>=</code>.
+     * @param name attribute name
+     * @param value attribute value
+     */
     public void setDynamicAttribute(String name, String value)
     {
+    	if (allowAppendAttribute && name.equals("append")) {
+        	isAppend = Boolean.parseBoolean(value);
+        	return;
+        }
+    	
         boolean isSet = false;
 
         for (int i = 0; i < attribs.length && !isSet; i++) {
             if (attribs[i].equals(name)) {
                 values[i] = value;
                 isSet = true;
-            }
+            } 
         }
 
         if (value.indexOf(COMMA) != -1)
@@ -92,7 +140,7 @@ public class NestedAttributeElement implements DynamicAttribute, OptionSource
         }
         else
         {
-            StringBuffer stringBuffer = new StringBuffer();
+            StringBuilder stringBuffer = new StringBuilder();
 
             for (int i = 0; i < attribs.length; i++)
             {
@@ -107,7 +155,12 @@ public class NestedAttributeElement implements DynamicAttribute, OptionSource
                 }
             }
             
-            cmdl.createArgument().setValue("-" + spec.getFullName() + "=" + stringBuffer);
+            final String cmdLineArgument = String.format(
+            		"-%s%s=%s", 
+            		spec.getFullName(),
+            		isAppend ? "+" : "",
+    				stringBuffer);
+			cmdl.createArgument().setValue(cmdLineArgument);
         }
     }
-} //End of NestedAttributeElement
+} 

@@ -25,6 +25,11 @@ import mx.collections.IList;
  *  You do not create instances of ObjectUtil;
  *  instead you simply call static methods such as the 
  *  <code>ObjectUtil.isSimple()</code> method.
+ *  
+ *  @langversion 3.0
+ *  @playerversion Flash 9
+ *  @playerversion AIR 1.1
+ *  @productversion Flex 3
  */
 public class ObjectUtil
 {
@@ -32,6 +37,11 @@ public class ObjectUtil
     
     /**
     *  Array of properties to exclude from debugging output.
+    *  
+    *  @langversion 3.0
+    *  @playerversion Flash 9
+    *  @playerversion AIR 1.1
+    *  @productversion Flex 3
     */
     private static var defaultToStringExcludes:Array = ["password", "credentials"];
 
@@ -73,6 +83,11 @@ public class ObjectUtil
      *  @return Return 0 if a and b are null, NaN, or equal. 
      *  Return 1 if a is null or greater than b. 
      *  Return -1 if b is null or greater than a. 
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public static function compare(a:Object, b:Object, depth:int = -1):int
     {
@@ -93,6 +108,11 @@ public class ObjectUtil
      *  @param value Object that should be copied.
      * 
      *  @return Copy of the specified Object.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */ 
     public static function copy(value:Object):Object
     {
@@ -102,7 +122,55 @@ public class ObjectUtil
         var result:Object = buffer.readObject();
         return result;
     }
-    
+
+    /**
+     *  Clones the specified Object and returns a reference to the clone.
+     *  The clone is made using a native serialization technique. 
+     *  This means that custom serialization will be respected during the
+     *  cloning.  clone() differs from copy() in that the uid property of
+     *  each object instance is retained.
+     *
+     *  <p>This method is designed for cloning data objects, 
+     *  such as elements of a collection. It is not intended for cloning 
+     *  a UIComponent object, such as a TextInput control. If you want to clone
+     *  specific UIComponent objects, you can create a subclass of the component
+     *  and implement a <code>clone()</code> method.</p>
+     * 
+     *  @param value Object that should be cloned.
+     * 
+     *  @return Clone of the specified Object.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 4
+     */ 
+    public static function clone(value:Object):Object
+    {
+        var result:Object = copy(value);
+        cloneInternal(result, value);
+        return result;
+    }
+
+    /**
+     *  Recursive helper used by the public clone method. 
+     *  @private
+     */    
+    private static function cloneInternal(result:Object, value:Object):void
+    {
+        if (value && value.hasOwnProperty("uid"))
+            result.uid = value.uid;
+
+        var classInfo:Object = getClassInfo(value);
+        var v:Object;
+        for each (var p:* in classInfo.properties) 
+        {
+            v = value[p];
+            if (v && v.hasOwnProperty("uid")) 
+                cloneInternal(result[p], v);
+        }
+    }
+   
     /**
      *  Returns <code>true</code> if the object reference specified
      *  is a simple data type. The simple data types include the following:
@@ -120,6 +188,11 @@ public class ObjectUtil
      *
      *  @return <code>true</code> if the object specified
      *  is one of the types above; <code>false</code> otherwise.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public static function isSimple(value:Object):Boolean
     {
@@ -154,6 +227,11 @@ public class ObjectUtil
      *  -1 if only <code>b</code> is a NaN.
      *  -1 if <code>a</code> is less than <code>b</code>.
      *  1 if <code>a</code> is greater than <code>b</code>.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public static function numericCompare(a:Number, b:Number):int
     {
@@ -190,6 +268,11 @@ public class ObjectUtil
      *  -1 if only <code>b</code> is null.
      *  -1 if <code>a</code> precedes <code>b</code>.
      *  1 if <code>b</code> precedes <code>a</code>.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public static function stringCompare(a:String, b:String,
                                          caseInsensitive:Boolean = false):int
@@ -229,12 +312,17 @@ public class ObjectUtil
      *
      *  @param b Date object.
      *
-     *  @return 0 if <code>a</code> and <code>b</code>
-     *  are <code>null</code> or equal; 
-     *  1 if <code>a</code> is <code>null</code>
-     *  or before <code>b</code>; 
-     *  -1 if <code>b</code> is <code>null</code>
-     *  or before <code>a</code>. 
+     *  @return 0 if <code>a</code> and <code>b</code> are equal
+     *  (or both are <code>null</code>);
+     *  -1 if <code>a</code> is before <code>b</code>
+     *  (or <code>b</code> is <code>null</code>);
+     *  1 if <code>a</code> is after <code>b</code>
+     *  (or <code>a</code> is <code>null</code>).     
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public static function dateCompare(a:Date, b:Date):int
     {
@@ -428,6 +516,11 @@ public class ObjectUtil
      *     num = 2
      * 
      * </pre>
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public static function toString(value:Object, 
                                     namespaceURIs:Array = null, 
@@ -677,10 +770,10 @@ public class ObjectUtil
                     
                     if (aRef == bRef)
                         return 0;
-					// the cool thing about our dictionary is that if 
-					// we've seen objects and determined that they are inequal, then 
-					// we would've already exited out of this compare() call.  So the 
-					// only info in the dictionary are sets of equal items
+                    // the cool thing about our dictionary is that if 
+                    // we've seen objects and determined that they are inequal, then 
+                    // we would've already exited out of this compare() call.  So the 
+                    // only info in the dictionary are sets of equal items
                     
                     // let's first define them as equal
                     // this stops an "infinite loop" problem where A.i = B and B.i = A
@@ -718,19 +811,7 @@ public class ObjectUtil
                         
                         // if the objects are dynamic they could have different 
                         // # of properties and should be treated on that basis first
-                        var isDynamicObject:Boolean = true;
-                        try
-                        {
-							// this test for checking whether an object is dynamic or not is 
-							// pretty hacky, but it assumes that no-one actually has a 
-							// property defined called "wootHackwoot"
-                            a["wootHackwoot"];
-                        }
-                        catch (e:Error)
-                        {
-                            // our object isn't from a dynamic class
-                            isDynamicObject = false;
-                        }
+                        var isDynamicObject:Boolean = isDynamicObject(a);
                         
                         // if it's dynamic, check to see that they have all the same properties
                         if (isDynamicObject)
@@ -805,10 +886,16 @@ public class ObjectUtil
      * 
      *  @return An Object containing the following properties:
      *  <ul>
-     *    <li><code>name</code>: String containing the name of the class;</li>
+     *    <li><code>name</code>: String containing the name of the class.</li>
      *    <li><code>properties</code>: Sorted list of the property names of the specified object,
-     *    or references to the original key if the specified object is a Dictionary</li>
+     *    or references to the original key if the specified object is a Dictionary. The individual
+     *    array elements are QName instances, which contain both the local name of the property as well as the URI.</li>
      *  </ul>
+    *  
+    *  @langversion 3.0
+    *  @playerversion Flash 9
+    *  @playerversion AIR 1.1
+    *  @productversion Flex 3
     */
     public static function getClassInfo(obj:Object,
                                         excludes:Array = null,
@@ -883,7 +970,7 @@ public class ObjectUtil
             }
         }
 
-        //TODO this seems slightly fragile, why not use the 'is' operator?
+        // TODO (pfarland): this seems slightly fragile, why not use the 'is' operator?
         var isArray:Boolean = (className == "Array");
         var isDict:Boolean  = (className == "flash.utils::Dictionary");
         
@@ -1047,6 +1134,11 @@ public class ObjectUtil
      * @param excludes If any properties need to be excluded when generating class info. (Optional)
      * @param options If any options flags need to changed when generating class info. (Optional)
      * @return true if the property has the specified metadata.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public static function hasMetadata(obj:Object, 
                 propName:String, 
@@ -1059,6 +1151,35 @@ public class ObjectUtil
         return internalHasMetadata(metadataInfo, propName, metadataName);
     }
 
+    /**
+     *  Returns <code>true</code> if the object is an instance of a dynamic class.
+     *
+     *  @param obj The object.
+     *
+     *  @return <code>true</code> if the object is an instance of a dynamic class.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
+     */
+    public static function isDynamicObject(obj:Object):Boolean
+    {
+        try
+        {
+            // this test for checking whether an object is dynamic or not is 
+            // pretty hacky, but it assumes that no-one actually has a 
+            // property defined called "wootHackwoot"
+            obj["wootHackwoot"];
+        }
+        catch (e:Error)
+        {
+            // our object isn't from a dynamic class
+            return false;
+        }
+        return true;
+    }
+    
     /**
      *  @private
      */
@@ -1287,8 +1408,8 @@ public class ObjectUtil
     
     /**
      * @private
-	 * This is the "find" for our union-find algorithm when doing object searches.
-	 * The dictionary keeps track of sets of equal objects
+     * This is the "find" for our union-find algorithm when doing object searches.
+     * The dictionary keeps track of sets of equal objects
      */
     private static function getRef(o:Object, refs:Dictionary):Object
     {

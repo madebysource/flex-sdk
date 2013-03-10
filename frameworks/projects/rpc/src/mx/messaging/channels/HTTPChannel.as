@@ -84,6 +84,12 @@ use namespace mx_internal;
  *  property in the configuration file must be set to <code>true</code>, or the
  *  <code>pollingEnabled</code> property of the Channel must be set to <code>true</code>.
  *  </p>
+ *  
+ *  @langversion 3.0
+ *  @playerversion Flash 9
+ *  @playerversion AIR 1.1
+ *  @productversion BlazeDS 4
+ *  @productversion LCDS 3 
  */
 public class HTTPChannel extends PollingChannel
 {
@@ -98,6 +104,12 @@ public class HTTPChannel extends PollingChannel
      *
      *  @param id The id of this Channel.
      *  @param uri The uri for this Channel.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion BlazeDS 4
+     *  @productversion LCDS 3 
      */
     public function HTTPChannel(id:String = null, uri:String = null)
     {
@@ -157,6 +169,12 @@ public class HTTPChannel extends PollingChannel
 
     /**
      *  Reports whether the channel is actively polling.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion BlazeDS 4
+     *  @productversion LCDS 3 
      */
     public function get polling():Boolean
     {
@@ -172,6 +190,12 @@ public class HTTPChannel extends PollingChannel
      *  with regular outbound messages when an outstanding poll is not in
      *  progress. This allows the server to piggyback data for the client
      *  along with its response to client's message.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion BlazeDS 4
+     *  @productversion LCDS 3 
      */
     public function get piggybackingEnabled():Boolean
     {
@@ -192,6 +216,12 @@ public class HTTPChannel extends PollingChannel
 
     /**
      *  Indicates whether this channel is enabled to poll.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion BlazeDS 4
+     *  @productversion LCDS 3 
      */
     public function get pollingEnabled():Boolean
     {
@@ -218,6 +248,12 @@ public class HTTPChannel extends PollingChannel
      *
      *  @throws ArgumentError If the pollingInterval is assigned a value of 0 or
      *                        less.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion BlazeDS 4
+     *  @productversion LCDS 3 
      */
     public function get pollingInterval():Number
     {
@@ -238,6 +274,12 @@ public class HTTPChannel extends PollingChannel
 
     /**
      *  Returns the protocol for this channel (http).
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion BlazeDS 4
+     *  @productversion LCDS 3 
      */
     override public function get protocol():String
     {
@@ -333,7 +375,7 @@ public class HTTPChannel extends PollingChannel
         }
 
         // Report the messaging version for this Channel.
-        msg.headers[CommandMessage.MESSAGING_VERSION] = messagingVersion;
+        // msg.headers[CommandMessage.MESSAGING_VERSION] = messagingVersion;
 
         // Indicate if requesting the dynamic configuration from the server.
         if (ServerConfig.needsConfig(this))
@@ -478,33 +520,38 @@ public class HTTPChannel extends PollingChannel
             result.url = endpoint + _appendToURL;
         else
             result.url = endpoint;
-            
-        monitorRpcMessage(message, result);
-
+        
+        // Propagate our requestTimeout for those platforms
+        // supporting the idleTimeout property on URLRequest.
+        if ("idleTimeout" in result && requestTimeout > 0)
+            result["idleTimeout"] = requestTimeout * 1000;
+                
+        monitorRpcMessage(message, result); 
+        
         result.contentType = HTTPRequestMessage.CONTENT_TYPE_XML;
 
         var packet:XML = _encoder.encode(message, null);
         result.data = packet.toString();
         result.method = "POST";
-
+        
         return result;
     }
-
-    /**
-     * Change the result url to redirect request to Network Monitor
-     */
-    private function monitorRpcMessage(message:IMessage, result:URLRequest):void
-    {
-        if (NetworkMonitor.isMonitoring())
-        {
-            var redirectedUrl:String = NetworkMonitor.adjustNetConnectionURL(LoaderConfig.url, result.url);
-            if (redirectedUrl != null)
-            {
-                result.url = redirectedUrl;
-            }
-        }
-    }
-
+	
+	/**
+	 * change the result url to redirect request to Network Monitor
+	 */
+	
+	private function monitorRpcMessage(message:IMessage, result:URLRequest):void
+	{
+		if (NetworkMonitor.isMonitoring())
+		{		
+			var redirectedUrl:String = NetworkMonitor.adjustNetConnectionURL(LoaderConfig.url, result.url);
+			if(redirectedUrl != null){				
+				result.url = redirectedUrl;
+			}		
+		}
+	}
+	
     //--------------------------------------------------------------------------
     //
     // Protected Methods
@@ -859,6 +906,12 @@ class HTTPMessageResponder extends MessageResponder
 
     /**
      *  The loader associated with this responder.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion BlazeDS 4
+     *  @productversion LCDS 3 
      */
     public var urlLoader:ChannelRequestLoader;
 

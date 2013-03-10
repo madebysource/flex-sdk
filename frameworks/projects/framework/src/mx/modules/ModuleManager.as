@@ -13,7 +13,9 @@ package mx.modules
 {
 
 import flash.utils.ByteArray;
+
 import mx.core.IFlexModuleFactory;
+import mx.events.Request;
 
 /**
  *  The ModuleManager class centrally manages dynamically loaded modules.
@@ -24,6 +26,11 @@ import mx.core.IFlexModuleFactory;
  *  Clients can register event handlers and then call the 
  *  <code>load()</code> method, which dispatches events when the factory is ready
  *  (or immediately, if it was already loaded).
+ *  
+ *  @langversion 3.0
+ *  @playerversion Flash 9
+ *  @playerversion AIR 1.1
+ *  @productversion Flex 3
  */
 public class ModuleManager
 {
@@ -43,6 +50,11 @@ public class ModuleManager
      *  @param url A URL that represents the location of the module.
      *  
      *  @return The IModuleInfo interface associated with a particular URL.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public static function getModule(url:String):IModuleInfo
     {
@@ -57,6 +69,11 @@ public class ModuleManager
      * 
      *  @return Returns the IFlexModuleFactory implementation, or <code>null</code>
      *  if the object type cannot be created from the factory.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public static function getAssociatedFactory(
                                 object:Object):IFlexModuleFactory
@@ -95,6 +112,7 @@ import flash.utils.ByteArray;
 import flash.utils.Dictionary;
 import flash.utils.getDefinitionByName;
 import flash.utils.getQualifiedClassName;
+
 import mx.core.IFlexModuleFactory;
 import mx.events.ModuleEvent;
 import mx.modules.IModuleInfo;
@@ -104,6 +122,7 @@ import mx.modules.IModuleInfo;
 //  Helper class: ModuleManagerImpl
 //
 ////////////////////////////////////////////////////////////////////////////////
+import mx.events.Request;
 
 /**
  *  @private
@@ -121,6 +140,11 @@ class ModuleManagerImpl extends EventDispatcher
 
     /**
      *  Constructor.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function ModuleManagerImpl()
     {
@@ -136,7 +160,7 @@ class ModuleManagerImpl extends EventDispatcher
     /**
      *  @private
      */
-    private var moduleList:Object = {};
+    private var moduleDictionary:Dictionary = new Dictionary(true);
 
     //--------------------------------------------------------------------------
     //
@@ -150,8 +174,8 @@ class ModuleManagerImpl extends EventDispatcher
     public function getAssociatedFactory(object:Object):IFlexModuleFactory
     {
         var className:String = getQualifiedClassName(object);
-
-        for each (var m:Object in moduleList)
+        
+        for (var m:Object in moduleDictionary)
         {
             var info:ModuleInfo = m as ModuleInfo;
 
@@ -159,15 +183,12 @@ class ModuleManagerImpl extends EventDispatcher
                 continue;
 
             var domain:ApplicationDomain = info.applicationDomain;
-
-            try
+            
+            if (domain.hasDefinition(className))
             {
                 var cls:Class = Class(domain.getDefinition(className));
-                if (object is cls)
+                if (cls && (object is cls))
                     return info.factory;
-            }
-            catch(error:Error)
-            {
             }
         }
 
@@ -179,12 +200,22 @@ class ModuleManagerImpl extends EventDispatcher
      */
     public function getModule(url:String):IModuleInfo
     {
-        var info:ModuleInfo = moduleList[url] as ModuleInfo;
+        var info:ModuleInfo = null;
+
+        for (var m:Object in moduleDictionary)
+        {
+            var mi:ModuleInfo = m as ModuleInfo;
+            if (moduleDictionary[mi] == url)
+            {
+                info = mi;
+                break;
+            }
+        }
 
         if (!info)
         {
             info = new ModuleInfo(url);
-            moduleList[url] = info;
+            moduleDictionary[info] = url;
         }
 
         return new ModuleInfoProxy(info);
@@ -196,6 +227,7 @@ class ModuleManagerImpl extends EventDispatcher
 //  Helper class: ModuleInfo
 //
 ////////////////////////////////////////////////////////////////////////////////
+
 
 /**
  *  @private
@@ -217,6 +249,11 @@ class ModuleInfo extends EventDispatcher
 
     /**
      *  Constructor.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function ModuleInfo(url:String)
     {
@@ -239,11 +276,6 @@ class ModuleInfo extends EventDispatcher
     /**
      *  @private
      */
-    private var limbo:Dictionary;
-
-    /**
-     *  @private
-     */
     private var loader:Loader;
 
     /**
@@ -251,7 +283,11 @@ class ModuleInfo extends EventDispatcher
      */
     private var numReferences:int = 0;
 
-
+    /**
+     *  @private
+     */
+    private var parentModuleFactory:IFlexModuleFactory;
+    
     //--------------------------------------------------------------------------
     //
     //  Properties
@@ -267,7 +303,7 @@ class ModuleInfo extends EventDispatcher
      */
     public function get applicationDomain():ApplicationDomain
     {
-        return !limbo && factoryInfo ? factoryInfo.applicationDomain : null;
+        return factoryInfo ? factoryInfo.applicationDomain : null;
     }
 
     //----------------------------------
@@ -285,7 +321,7 @@ class ModuleInfo extends EventDispatcher
      */
     public function get error():Boolean
     {
-        return !limbo ? _error : false;
+        return _error;
     }
 
     //----------------------------------
@@ -297,7 +333,7 @@ class ModuleInfo extends EventDispatcher
      */
     public function get factory():IFlexModuleFactory
     {
-        return !limbo && factoryInfo ? factoryInfo.factory : null;
+        return factoryInfo ? factoryInfo.factory : null;
     }
 
     //----------------------------------
@@ -315,7 +351,7 @@ class ModuleInfo extends EventDispatcher
      */
     public function get loaded():Boolean
     {
-        return !limbo ? _loaded : false;
+        return _loaded;
     }
 
     //----------------------------------
@@ -333,7 +369,7 @@ class ModuleInfo extends EventDispatcher
      */
     public function get ready():Boolean
     {
-        return !limbo ? _ready : false;
+        return _ready;
     }
 
     //----------------------------------
@@ -351,7 +387,7 @@ class ModuleInfo extends EventDispatcher
      */
     public function get setup():Boolean
     {
-        return !limbo ? _setup : false;
+        return _setup;
     }
 
     //----------------------------------
@@ -363,7 +399,7 @@ class ModuleInfo extends EventDispatcher
      */
     public function get size():int
     {
-        return !limbo && factoryInfo ? factoryInfo.bytesTotal : 0;
+        return factoryInfo ? factoryInfo.bytesTotal : 0;
     }
 
     //----------------------------------
@@ -395,15 +431,16 @@ class ModuleInfo extends EventDispatcher
      */
     public function load(applicationDomain:ApplicationDomain = null,
                          securityDomain:SecurityDomain = null,
-                         bytes:ByteArray = null):void
+                         bytes:ByteArray = null,
+                         moduleFactory:IFlexModuleFactory = null):void
     {
         if (_loaded)
             return;
 
         _loaded = true;
 
-        limbo = null;
-
+        parentModuleFactory = moduleFactory;
+        
         // If bytes are supplied, then load the bytes instead of loading
         // from the url.
         if (bytes)
@@ -439,7 +476,7 @@ class ModuleInfo extends EventDispatcher
             IOErrorEvent.IO_ERROR, errorHandler);
         loader.contentLoaderInfo.addEventListener(
             SecurityErrorEvent.SECURITY_ERROR, errorHandler);
-
+        
         loader.load(r, c);
     }
 
@@ -478,19 +515,15 @@ class ModuleInfo extends EventDispatcher
      */
     public function resurrect():void
     {
-        if (!factoryInfo && limbo)
-        {
-            //trace("trying to resurrect ", _url, "...");
-            for (var f:Object in limbo)
-            {
-                //trace("found it!");
-                factoryInfo = f as FactoryInfo;
-                break;
-            }
-
-            limbo = null;
-        }
-
+        // If the module is not ready then don't try to resurrect it.
+        // You can only resurrect a module that is in the ready state.
+        // We return here and do not destroy the current state because
+        // we may have started loading a module that is not yet ready.
+        if (!_ready)
+            return;
+        
+        //trace("Module[", url, "] resurrect");
+        
         if (!factoryInfo)
         {
             if (_loaded)
@@ -509,15 +542,9 @@ class ModuleInfo extends EventDispatcher
      */
     public function release():void
     {
-        if (_ready && !limbo)
-        {
-            // We can try to keep a fully functional factory around
-            //trace("putting factory for ", _url, " on ice...");
-            limbo = new Dictionary(true);
-            limbo[factoryInfo] = 1;
-            factoryInfo = null;
-        }
-        else
+        // If the module is ready, then keep it in the 
+        // module dictionary.
+        if (!_ready)
         {
             // Otherwise we just drop it
             unload();
@@ -594,8 +621,8 @@ class ModuleInfo extends EventDispatcher
         if (_loaded)
             dispatchEvent(new ModuleEvent(ModuleEvent.UNLOAD));
 
-        limbo = null;
         factoryInfo = null;
+        parentModuleFactory = null;
         _loaded = false;
         _setup = false;
         _ready = false;
@@ -679,6 +706,8 @@ class ModuleInfo extends EventDispatcher
 
         loader.content.addEventListener("ready", readyHandler);
         loader.content.addEventListener("error", moduleErrorHandler);
+        loader.content.addEventListener(Request.GET_PARENT_FLEX_MODULE_FACTORY_REQUEST, 
+                                        getFlexModuleFactoryRequestHandler, false, 0, true);            
 
         try
         {
@@ -736,6 +765,14 @@ class ModuleInfo extends EventDispatcher
         //trace("child load of " + _url + " generated an error " + event);
     }
 
+    /**
+     *  @private
+     */
+    public function getFlexModuleFactoryRequestHandler(request:Request):void
+    {
+        request.value = parentModuleFactory;
+    }
+    
     /**
      *  @private
      */
@@ -800,6 +837,11 @@ class FactoryInfo
 
     /**
      *  Constructor.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function FactoryInfo()
     {
@@ -862,6 +904,11 @@ class ModuleInfoProxy extends EventDispatcher implements IModuleInfo
 
     /**
      *  Constructor.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function ModuleInfoProxy(info:ModuleInfo)
     {
@@ -1015,7 +1062,8 @@ class ModuleInfoProxy extends EventDispatcher implements IModuleInfo
      */
     public function load(applicationDomain:ApplicationDomain = null,
                          securityDomain:SecurityDomain = null,
-                         bytes:ByteArray = null):void
+                         bytes:ByteArray = null,
+                         moduleFactory:IFlexModuleFactory = null):void
     {
         info.resurrect();
 
@@ -1057,7 +1105,7 @@ class ModuleInfoProxy extends EventDispatcher implements IModuleInfo
         }
         else
         {
-            info.load(applicationDomain, securityDomain, bytes);
+            info.load(applicationDomain, securityDomain, bytes, moduleFactory);
         }
     }
 

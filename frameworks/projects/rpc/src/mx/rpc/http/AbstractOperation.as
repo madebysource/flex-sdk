@@ -59,6 +59,11 @@ use namespace mx_internal;
  * 
  * <p>The exact way in which the HTTP operation arguments is put into the HTTP body is determined
  * by the serializationFilter used.</p>
+ *  
+ *  @langversion 3.0
+ *  @playerversion Flash 9
+ *  @playerversion AIR 1.1
+ *  @productversion Flex 3
  */
 public class AbstractOperation extends mx.rpc.AbstractOperation
 {
@@ -69,6 +74,18 @@ public class AbstractOperation extends mx.rpc.AbstractOperation
     /**
      *  Creates a new Operation. 
      * 
+     *  @param service The object defining the type of service, such as 
+     *  HTTPMultiService, WebService, or RemoteObject.
+     *
+     *  @param name The name of the service.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
+
+     *  Creates a new Operation. 
+     *
      *  @param service The object defining the type of service, such as 
      *  HTTPMultiService, WebService, or RemoteObject.
      *
@@ -85,17 +102,32 @@ public class AbstractOperation extends mx.rpc.AbstractOperation
 
     /**
      *  The result format "e4x" specifies that the value returned is an XML instance, which can be accessed using ECMAScript for XML (E4X) expressions.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     mx_internal static const RESULT_FORMAT_E4X:String = "e4x";
 
     /**
      *  The result format "flashvars" specifies that the value returned is text containing name=value pairs
      *  separated by ampersands, which is parsed into an ActionScript object.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     mx_internal static const RESULT_FORMAT_FLASHVARS:String = "flashvars";
 
     /**
      *  The result format "object" specifies that the value returned is XML but is parsed as a tree of ActionScript objects. This is the default.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     mx_internal static const RESULT_FORMAT_OBJECT:String = "object";
 
@@ -103,44 +135,84 @@ public class AbstractOperation extends mx.rpc.AbstractOperation
      *  The result format "array" is similar to "object" however the value returned is always an Array such
      *  that if the result returned from result format "object" is not an Array already the item will be
      *  added as the first item to a new Array.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     mx_internal static const RESULT_FORMAT_ARRAY:String = "array";
 
     /**
      *  The result format "text" specifies that the HTTPService result text should be an unprocessed String.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     mx_internal static const RESULT_FORMAT_TEXT:String = "text";
 
     /**
      *  The result format "xml" specifies that results should be returned as an flash.xml.XMLNode instance pointing to
      *  the first child of the parent flash.xml.XMLDocument.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     mx_internal static const RESULT_FORMAT_XML:String = "xml";
 
     /**
      *  Indicates that the data being sent by the HTTP service is encoded as application/xml.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     mx_internal static const CONTENT_TYPE_XML:String = "application/xml";
     
     /**
      *  Indicates that the data being sent by the HTTP service is encoded as application/x-www-form-urlencoded.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     mx_internal static const CONTENT_TYPE_FORM:String = "application/x-www-form-urlencoded";
 
     // Constants for error codes
     /**
      *  Indicates that the useProxy property was set to false but a url was not provided.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     private static const ERROR_URL_REQUIRED:String = "Client.URLRequired";
     
     /**
      *  Indicates that an XML formatted result could not be parsed into an XML instance
      *  or decoded into an Object.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     private static const ERROR_DECODING:String = "Client.CouldNotDecode";
     
     /**
      *  Indicates that an input parameter could not be encoded as XML.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     private static const ERROR_ENCODING:String = "Client.CouldNotEncode";    
 
@@ -152,6 +224,11 @@ public class AbstractOperation extends mx.rpc.AbstractOperation
      * An ordered list of the names of the arguments to pass to a method invocation.  Since the arguments object is
      * a hashmap with no guaranteed ordering, this array helps put everything together correctly.
      * It will be set automatically by the MXML compiler, if necessary, when the Operation is used in tag form.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public var argumentNames:Array;
 
@@ -164,6 +241,11 @@ public class AbstractOperation extends mx.rpc.AbstractOperation
      *  HTTP method for sending the request. Permitted values are <code>GET</code>, <code>POST</code>, <code>HEAD</code>,
      *  <code>OPTIONS</code>, <code>PUT</code>, <code>TRACE</code> and <code>DELETE</code>.
      *  Lowercase letters are converted to uppercase letters. The default value is <code>GET</code>.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get method():String
     {
@@ -186,6 +268,11 @@ public class AbstractOperation extends mx.rpc.AbstractOperation
      * multiple requests generate a fault.</li>
      * <li><code>last</code> Making a request cancels any existing request.</li>
      * </ul>
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get concurrency():String
     {
@@ -200,6 +287,41 @@ public class AbstractOperation extends mx.rpc.AbstractOperation
         _concurrency = c;
     }
 
+    //----------------------------------
+    //  requestTimeout
+    //----------------------------------
+    
+    /**
+     *  @private
+     */
+    private var _requestTimeout:int = -1;
+
+    /**
+     *  Provides access to the request timeout in seconds for sent messages.
+     *  If an acknowledgement, response or fault is not received from the
+     *  remote destination before the timeout is reached the message is faulted
+     *  on the client. A value less than or equal to zero prevents request timeout.
+     *
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion BlazeDS 4
+     *  @productversion LCDS 3           
+     */
+    public function get requestTimeout():int
+    {
+        return _requestTimeout;
+    }
+
+    /**
+     *  @private
+     */
+    public function set requestTimeout(value:int):void
+    {
+        if (_requestTimeout != value)
+            _requestTimeout = value;
+    }
+    
     /**
      *  @private
      */
@@ -233,6 +355,11 @@ public class AbstractOperation extends mx.rpc.AbstractOperation
      *    in an ActionScript XML object, which can be accessed using ECMAScript for 
      *    XML (E4X) expressions.</li>
      *  </ul>
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get resultFormat():String
     {
@@ -284,6 +411,11 @@ public class AbstractOperation extends mx.rpc.AbstractOperation
      * of the HTTP request.  It also controls how the results are converted into ActionScript
      * objects.  It can be set either explicitly using this property or indirectly using the
      * resultFormat property.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public var serializationFilter:SerializationFilter;
 
@@ -307,6 +439,11 @@ public class AbstractOperation extends mx.rpc.AbstractOperation
     /**
      *  Object of name-value pairs used as parameters to the URL. If
      *  the <code>contentType</code> property is set to <code>application/xml</code>, it should be an XML document.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public var request:Object = {};
 
@@ -324,6 +461,11 @@ public class AbstractOperation extends mx.rpc.AbstractOperation
     /**
      *  Location of the service. If you specify the <code>url</code> and a non-default destination,
      *  your destination in the services-config.xml file must allow the specified URL.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get url():String
     {
@@ -355,6 +497,11 @@ public class AbstractOperation extends mx.rpc.AbstractOperation
      *  <code>useProxy</code> property is set to <code>false</code>.
      *
      *  @default false    
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get useProxy():Boolean
     {
@@ -422,6 +569,16 @@ function xmlDecoder (myXML)
 }
 </pre>
 
+     *  
+
+     *  @langversion 3.0
+
+     *  @playerversion Flash 9
+
+     *  @playerversion AIR 1.1
+
+     *  @productversion Flex 3
+
      */
     public var xmlDecode:Function;
 
@@ -464,6 +621,16 @@ function xmlEncoder (myObj)
 }
 </pre>
 
+     *  
+
+     *  @langversion 3.0
+
+     *  @playerversion Flash 9
+
+     *  @playerversion AIR 1.1
+
+     *  @productversion Flex 3
+
      */
     public var xmlEncode:Function;
 
@@ -475,6 +642,11 @@ function xmlEncoder (myObj)
     /**
      *  Custom HTTP headers to be sent to the third party endpoint. If multiple headers need to
      *  be sent with the same name the value should be specified as an Array.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public var headers:Object = {};
     
@@ -492,6 +664,11 @@ function xmlEncoder (myObj)
      *  The default is <code>application/x-www-form-urlencoded</code> which sends requests
      *  like a normal HTTP POST with name-value pairs. <code>application/xml</code> send
      *  requests as XML.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get contentType():String
     {
@@ -501,7 +678,7 @@ function xmlEncoder (myObj)
     {
         _contentType = ct;
     }
-
+    
     //----------------------------------
     //  showBusyCursor
     //----------------------------------
@@ -510,6 +687,11 @@ function xmlEncoder (myObj)
     /**
     * If <code>true</code>, a busy cursor is displayed while a service is executing. The default
     * value is <code>false</code>.
+    *  
+    *  @langversion 3.0
+    *  @playerversion Flash 9
+    *  @playerversion AIR 1.1
+    *  @productversion Flex 3
     */
     public function get showBusyCursor():Boolean
     {
@@ -537,6 +719,11 @@ function xmlEncoder (myObj)
      *  based on the location of the SWF running this application.
      *  If not set explicitly <code>rootURL</code> is automatically set to the URL of
      *  mx.messaging.config.LoaderConfig.url.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get rootURL():String
     {
@@ -571,16 +758,6 @@ function xmlEncoder (myObj)
         return super.cancel(id);
     }
 
-	/**
-	 *  Executes the http request for this operation. The parameters are optional, but if specified should
-     *  be an Object containing name-value pairs or an XML object depending on the <code>contentType</code>.
-     *
-     *  @param parameters An Object containing name-value pairs or an
-     *  XML object, depending on the content type for service requests.
-     * 
-     *  @return An object representing the asynchronous completion token. It is the same object
-     *  available in the <code>result</code> or <code>fault</code> event's <code>token</code> property.
-	 */
     public function sendBody(parameters:Object):AsyncToken
     {
         var filter:SerializationFilter = getSerializationFilter();
@@ -1000,7 +1177,9 @@ function xmlEncoder (myObj)
         if (_directChannelSet == null)
         {
             var dcs:ChannelSet = new ChannelSet();
-            dcs.addChannel(new DirectHTTPChannel("direct_http_channel"));
+            var dhc:DirectHTTPChannel = new DirectHTTPChannel("direct_http_channel");
+            dhc.requestTimeout = requestTimeout;
+            dcs.addChannel(dhc);
             _directChannelSet = dcs;            
         }
         return _directChannelSet;  

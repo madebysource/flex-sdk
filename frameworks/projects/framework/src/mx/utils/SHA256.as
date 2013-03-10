@@ -17,11 +17,21 @@ package mx.utils
      * Implementation of SHA-256 hash algorithm as described in
      * Federal Information Processing Standards Publication 180-2
      * at http://csrc.nist.gov/publications/fips/fips180-2/fips180-2.pdf
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public class SHA256
     {     
         /**
         *  Identifies this hash is of type "SHA-256".
+        *  
+        *  @langversion 3.0
+        *  @playerversion Flash 9
+        *  @playerversion AIR 1.1
+        *  @productversion Flex 3
         */
         public static const TYPE_ID:String = "SHA-256";
         
@@ -43,10 +53,20 @@ package mx.utils
         * 
         * return String - 64 character hexidecimal representation of the digest.
         * 
+        *  
+        *  @langversion 3.0
+        *  @playerversion Flash 9
+        *  @playerversion AIR 1.1
+        *  @productversion Flex 3
         */   
         public static function computeDigest(byteArray:ByteArray):String
         {
             // Preprocessing
+            
+            // 0. Set the ByteArray's position to zero
+            var originalPosition:uint = byteArray.position;
+            byteArray.position = 0;
+            
             // 1. Pad the message
             var paddingLength:int = byteArray.length % 64;
 
@@ -235,6 +255,9 @@ package mx.utils
 
             }
             
+            // Reset the ByteArray's position to where it was previously
+            byteArray.position = originalPosition;
+            
             //trace("messageSchTime = " + messageSchTime);
             //trace("hashTime = " + hashTime);
             
@@ -252,6 +275,11 @@ package mx.utils
         *
         * @param byteArray - message
         * @param m - message block (output)
+        *  
+        *  @langversion 3.0
+        *  @playerversion Flash 9
+        *  @playerversion AIR 1.1
+        *  @productversion Flex 3
         */
         private static function getMessageBlock(byteArray:ByteArray, m:ByteArray):void
         {
@@ -334,6 +362,11 @@ package mx.utils
         {
             return x >>> n;
         }
+*  
+*  @langversion 3.0
+*  @playerversion Flash 9
+*  @playerversion AIR 1.1
+*  @productversion Flex 3
 */
     }
 }

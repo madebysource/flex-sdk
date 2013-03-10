@@ -13,6 +13,8 @@ package mx.effects.effectClasses
 {
 
 import flash.events.Event;
+import flash.system.ApplicationDomain;
+
 import mx.core.mx_internal;
 import mx.effects.EffectInstance;
 import mx.effects.IEffectInstance;
@@ -20,7 +22,7 @@ import mx.effects.Tween;
 import mx.events.EffectEvent;
 
 use namespace mx_internal;
-	
+    
 /**
  *  The CompositeEffectInstance class implements the instance class
  *  for the CompositeEffect class.
@@ -28,343 +30,432 @@ use namespace mx_internal;
  *  you do not create one yourself.
  *
  *  @see mx.effects.CompositeEffect
+ *  
+ *  @langversion 3.0
+ *  @playerversion Flash 9
+ *  @playerversion AIR 1.1
+ *  @productversion Flex 3
  */
 public class CompositeEffectInstance extends EffectInstance
 {
     include "../../core/Version.as";
 
-	//--------------------------------------------------------------------------
-	//
-	//  Constructor
-	//
-	//--------------------------------------------------------------------------
+    //--------------------------------------------------------------------------
+    //
+    //  Constructor
+    //
+    //--------------------------------------------------------------------------
 
-	/**
-	 *  Constructor.  
-	 *
-	 *  @param target This argument is ignored for Composite effects.
-	 *  It is included only for consistency with other types of effects.
-	 */
-	public function CompositeEffectInstance(target:Object)
-	{
-		super(target);
-	}
+    /**
+     *  Constructor.  
+     *
+     *  @param target This argument is ignored for Composite effects.
+     *  It is included only for consistency with other types of effects.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
+     */
+    public function CompositeEffectInstance(target:Object)
+    {
+        super(target);
+    }
 
-	//--------------------------------------------------------------------------
-	//
-	//  Variables
-	//
-	//--------------------------------------------------------------------------
+    //--------------------------------------------------------------------------
+    //
+    //  Variables
+    //
+    //--------------------------------------------------------------------------
 
-	/**
-	 *  @private 
-	 *  Internal queue of EffectInstances that are currently playing or waiting to be played.
-	 *  Used internally by subclasses. 
-	 */
-	mx_internal var activeEffectQueue:Array /* of EffectInstance */ = [];
+    /**
+     *  @private 
+     *  Internal queue of EffectInstances that are currently playing or waiting to be played.
+     *  Used internally by subclasses. 
+     */
+    mx_internal var activeEffectQueue:Array /* of EffectInstance */ = [];
 
-	//--------------------------------------------------------------------------
-	//
-	//  Overridden properties
-	//
-	//--------------------------------------------------------------------------
+    //--------------------------------------------------------------------------
+    //
+    //  Overridden properties
+    //
+    //--------------------------------------------------------------------------
 
-	//----------------------------------
-	//  actualDuration
-	//----------------------------------
+    //----------------------------------
+    //  actualDuration
+    //----------------------------------
 
-	/**
-	 *  @private
-	 *  Used internally to retrieve the actual duration,
-	 *  which includes startDelay, repeatCount, and repeatDelay.
-	 */
-	override mx_internal function get actualDuration():Number
-	{
-		var value:Number = NaN;
+    /**
+     *  @private
+     *  Used internally to retrieve the actual duration,
+     *  which includes startDelay, repeatCount, and repeatDelay.
+     */
+    override mx_internal function get actualDuration():Number
+    {
+        var value:Number = NaN;
 
-		if (repeatCount > 0)
-		{
-			value = durationWithoutRepeat * repeatCount +
-					(repeatDelay * repeatCount - 1) + startDelay;
-		}
-		
-		return value;
-	}	
-	
-	//----------------------------------
-	//  playheadTime
-	//----------------------------------
+        if (repeatCount > 0)
+        {
+            value = durationWithoutRepeat * repeatCount +
+                    (repeatDelay * (repeatCount - 1)) + startDelay;
+        }
+        
+        return value;
+    }   
+    
+    //----------------------------------
+    //  playheadTime
+    //----------------------------------
 
-	/**
-	 *  @private
-	 */	
-	private var _playheadTime:Number = 0;
-	
-	/**
-	 *  @private
-	 */	
-	override public function get playheadTime():Number
-	{
-		return _playheadTime + super.playheadTime;
-	}
-	
-	//--------------------------------------------------------------------------
-	//
-	//  Properties
-	//
-	//--------------------------------------------------------------------------
+    /**
+     *  @private
+     */ 
+    private var _playheadTime:Number = 0;
+    
+    /**
+     *  @private
+     */ 
+    override public function get playheadTime():Number
+    {
+        return _playheadTime;
+    }
+    
+    /**
+     *  Current time position of the effect.
+     *  This property has a value between 0 and the total duration, 
+     *  which includes the Effect's <code>startDelay</code>, 
+     *  <code>repeatCount</code>, and <code>repeatDelay</code>.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
+     */
+    override public function set playheadTime(value:Number):void
+    {
+        // Subclasses should tell their child effects to seek
+        // appropriately. This logic just sets the internal time on
+        // the overall CompositeEffectInstance.
+        if (timerTween)
+            timerTween.seek(value);
+        else
+            _playheadTime = value;
+        super.playheadTime = value;
+    }
 
-	//----------------------------------
-	//  childSets
-	//----------------------------------
+    //--------------------------------------------------------------------------
+    //
+    //  Properties
+    //
+    //--------------------------------------------------------------------------
 
-	/**
-	 *  @private
-	 */
-	mx_internal var childSets:Array = [];
-	
-	//----------------------------------
-	//  durationWithoutRepeat
-	//----------------------------------
+    //----------------------------------
+    //  childSets
+    //----------------------------------
 
-	/**
-	 *  @private
-	 *  Used internally to calculate the duration from the children effects
-	 *  for one repetition of this effect.
-	 */
-	mx_internal function get durationWithoutRepeat():Number
-	{
-		return 0;
-	}
-	
-	//----------------------------------
-	//  endEffectCalled
-	//----------------------------------
+    /**
+     *  @private
+     */
+    mx_internal var childSets:Array = [];
+    
+    //----------------------------------
+    //  durationWithoutRepeat
+    //----------------------------------
 
-	/**
-	 *  @private
-	 */
-	mx_internal var endEffectCalled:Boolean;
-	
-	//----------------------------------
-	//  timerTween
-	//----------------------------------
+    /**
+     *  @private
+     *  Used internally to calculate the duration from the children effects
+     *  for one repetition of this effect.
+     */
+    mx_internal function get durationWithoutRepeat():Number
+    {
+        return 0;
+    }
+    
+    //----------------------------------
+    //  endEffectCalled
+    //----------------------------------
 
-	/**
-	 *  @private
-	 *  Used internally to obtain the playheadTime for the composite effect.
-	 */
-	mx_internal var timerTween:Tween;
-	
-	//--------------------------------------------------------------------------
-	//
-	//  Overridden methods
-	//
-	//--------------------------------------------------------------------------
+    /**
+     *  @private
+     */
+    mx_internal var endEffectCalled:Boolean;
+    
+    //----------------------------------
+    //  timerTween
+    //----------------------------------
 
-	/**
-	 *  @private
-	 */
-	override public function play():void
-	{
-		timerTween = new Tween(this,0,0,durationWithoutRepeat);
-		
-		super.play();
-	}
-		
-	/**
-	 *  @private
-	 */
-	override public function pause():void
-	{	
-		super.pause();
-		
-		if (timerTween)
-			timerTween.pause();
-	}
-	
-	/**
-	 *  @private
-	 */
-	override public function stop():void
-	{	
-		super.stop();
-		
-		if (timerTween)
-			timerTween.stop();
-	}
+    /**
+     *  @private
+     *  Used internally to obtain the playheadTime for the composite effect.
+     */
+    mx_internal var timerTween:Tween;
+    
+    //--------------------------------------------------------------------------
+    //
+    //  Overridden methods
+    //
+    //--------------------------------------------------------------------------
 
-	/**
-	 *  @private
-	 */
-	override public function resume():void
-	{
-		super.resume();
-		
-		if (timerTween)
-			timerTween.resume();
-	}
-		
-	/**
-	 *  @private
-	 */
-	override public function reverse():void
-	{
-		super.reverse();
-		
-		super.playReversed = !playReversed;
-		
-		if (timerTween)
-			timerTween.reverse();
-	}
-	
-	/**
-	 *  @private
-	 */
-	override public function finishEffect():void
-	{
-		activeEffectQueue = null;
-		
-		super.finishEffect();
-	}
-	
-	//--------------------------------------------------------------------------
-	//
-	//  Methods
-	//
-	//--------------------------------------------------------------------------
+    /**
+     *  @private
+     */
+    override public function play():void
+    {
+        timerTween = new Tween(this,0,0,durationWithoutRepeat);
+        
+        super.play();
+    }
+        
+    /**
+     *  @private
+     */
+    override public function pause():void
+    {   
+        super.pause();
+        
+        if (timerTween)
+            timerTween.pause();
+    }
+    
+    /**
+     *  @private
+     */
+    override public function stop():void
+    {   
+        super.stop();
+        
+        if (timerTween)
+            timerTween.stop();
+    }
 
-	/**
-	 *  Adds a new set of child effects to this Composite effect.
-	 *  A Sequence effect plays each child effect set one at a time,
-	 *  in the order that it is added.
-	 *  A Parallel effect plays all child effect sets simultaneously;
-	 *  the order in which they are added doesn't matter.
-	 *
-	 *  @param childSet Array of child effects to be added
-	 *  to the CompositeEffect.
-	 */
-	public function addChildSet(childSet:Array):void
-	{
-		if (childSet)
-		{
-			var n:int = childSet.length;
-			if (n > 0)
-			{
-				if (!childSets)
-					childSets = [ childSet ];
-				else
-					childSets.push(childSet);
-		
-				
-				for (var i:int = 0; i < n; i++)
-				{
-					childSet[i].addEventListener(EffectEvent.EFFECT_END,
-												 effectEndHandler);
-					childSet[i].mx_internal::parentCompositeEffectInstance =
-						this;
-				}
-			}
-		}
-	}
-	
-	/**
-	 *  @private
-	 *  Check if we have a RotateInstance in one of our childSets array elements
-	 */
-	mx_internal function hasRotateInstance():Boolean
-	{
-		if (childSets)
-		{
-			for (var i:int = 0; i < childSets.length; i++)
-			{
-				if (childSets[i].length > 0)
-				{
-					var compChild:CompositeEffectInstance = childSets[i][0] as CompositeEffectInstance;
-					
-					if (childSets[i][0] is RotateInstance || (compChild && compChild.hasRotateInstance()))
-					{
-						return true;
-					}
-				}
-			}
-		}
-		
-		return false;
-	}
+    /**
+     *  @private
+     */
+    override public function end():void
+    {   
+        super.end();
+        
+        if (timerTween)
+            timerTween.endTween();
+    }
 
-	/**
-	 *  @private
-	 */		
-	override mx_internal function playWithNoDuration():void
-	{
-		super.playWithNoDuration();
-		end();
-	}
-	
-	/**
-	 *  Called each time one of the child effects has finished playing. 
-	 *  Subclasses must implement this function.
-	 *
-	 *  @param The child effect.
-	 */
-	protected function onEffectEnd(childEffect:IEffectInstance):void
-	{
-		// Needs to be overridden
-	}
-	
-	/**
-	 *  @private
-	 */		
-	public function onTweenUpdate(value:Object):void
-	{
-		_playheadTime = timerTween ?
-						timerTween.mx_internal::playheadTime :
-						_playheadTime;
-	}
-	
-	/**
-	 *  @private
-	 */		
-	public function onTweenEnd(value:Object):void
-	{
-		_playheadTime = timerTween ?
-						timerTween.mx_internal::playheadTime :
-						_playheadTime;
-	}
-		
-	//--------------------------------------------------------------------------
-	//
-	//  Overridden event handlers
-	//
-	//--------------------------------------------------------------------------
-	
-	/**
-	 *  @private
-	 */
-	override public function initEffect(event:Event):void
-	{
-		super.initEffect(event);
+    /**
+     *  @private
+     */
+    override public function resume():void
+    {
+        super.resume();
+        
+        if (timerTween)
+            timerTween.resume();
+    }
+        
+    /**
+     *  @private
+     */
+    override public function reverse():void
+    {
+        super.reverse();
+        
+        super.playReversed = !playReversed;
+        
+        if (timerTween)
+            timerTween.reverse();
+    }
+    
+    /**
+     *  @private
+     */
+    override public function finishEffect():void
+    {
+        activeEffectQueue = null;
+        
+        super.finishEffect();
+    }
+    
+    //--------------------------------------------------------------------------
+    //
+    //  Methods
+    //
+    //--------------------------------------------------------------------------
 
-		var n:int = childSets.length;
-		for (var i:int = 0; i < n; i++)
-		{
-			var instances:Array = childSets[i];
-			var m:int = instances.length;
-			for (var j:int = 0; j < m; j++)
-			{
-				instances[j].initEffect(event);
-			}
-		}
-	}
+    /**
+     *  Adds a new set of child effects to this Composite effect.
+     *  A Sequence effect plays each child effect set one at a time,
+     *  in the order that it is added.
+     *  A Parallel effect plays all child effect sets simultaneously;
+     *  the order in which they are added doesn't matter.
+     *
+     *  @param childSet Array of child effects to be added
+     *  to the CompositeEffect.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
+     */
+    public function addChildSet(childSet:Array):void
+    {
+        if (childSet)
+        {
+            var n:int = childSet.length;
+            if (n > 0)
+            {
+                if (!childSets)
+                    childSets = [ childSet ];
+                else
+                    childSets.push(childSet);
+        
+                
+                for (var i:int = 0; i < n; i++)
+                {
+                    childSet[i].addEventListener(EffectEvent.EFFECT_END,
+                                                 effectEndHandler);
+                    childSet[i].parentCompositeEffectInstance = this;
+                }
+            }
+        }
+    }
+    
+    /**
+     *  @private
+     *  Check if we have a RotateInstance in one of our childSets array elements
+     */
+    mx_internal function hasRotateInstance():Boolean
+    {
+        if (childSets)
+        {
+            for (var i:int = 0; i < childSets.length; i++)
+            {
+                if (childSets[i].length > 0)
+                {
+                    var compChild:CompositeEffectInstance = childSets[i][0] as CompositeEffectInstance;
+                    
+                    if (childSets[i][0] is RotateInstance || (compChild && compChild.hasRotateInstance()))
+                    {
+                        return true;
+                    }
+                }
+            }
+        }
+        
+        return false;
+    }
+    
+    private static var resizeEffectType:Class;
+    private static var resizeEffectLoaded:Boolean = false;
 
-	/**
-	 *  @private
-	 */
-	mx_internal function effectEndHandler(event:EffectEvent):void
-	{
-		onEffectEnd(event.effectInstance);
-	}
+    /**
+     *  @private
+     *  Check if we have a ResizeInstance in one of our childSets array elements
+     */
+    mx_internal function hasResizeInstance():Boolean
+    {
+        if (childSets)
+        {
+            if (!resizeEffectLoaded)
+            {
+                resizeEffectLoaded = true;
+                if (ApplicationDomain.currentDomain.hasDefinition("spark.effects.supportClasses.ResizeInstance"))
+                    resizeEffectType = Class(ApplicationDomain.currentDomain.
+                        getDefinition("spark.effects.supportClasses.ResizeInstance"));
+            }
+            if (resizeEffectType)
+                for (var i:int = 0; i < childSets.length; i++)
+                {
+                    if (childSets[i].length > 0)
+                    {
+                        var compChild:CompositeEffectInstance = childSets[i][0] as CompositeEffectInstance;
+                        
+                        if (childSets[i][0] is resizeEffectType || (compChild && compChild.hasResizeInstance()))
+                        {
+                            return true;
+                        }
+                    }
+                }
+        }
+        
+        return false;
+    }
+    
+    /**
+     *  @private
+     */     
+    override mx_internal function playWithNoDuration():void
+    {
+        super.playWithNoDuration();
+        end();
+    }
+    
+    /**
+     *  Called each time one of the child effects has finished playing. 
+     *  Subclasses must implement this function.
+     *
+     *  @param The child effect.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
+     */
+    protected function onEffectEnd(childEffect:IEffectInstance):void
+    {
+        // Needs to be overridden
+    }
+    
+    /**
+     *  @private
+     */     
+    public function onTweenUpdate(value:Object):void
+    {
+        _playheadTime = timerTween ?
+                        timerTween.playheadTime :
+                        _playheadTime;
+    }
+    
+    /**
+     *  @private
+     */     
+    public function onTweenEnd(value:Object):void
+    {
+        _playheadTime = timerTween ?
+                        timerTween.playheadTime :
+                        _playheadTime;
+    }
+        
+    //--------------------------------------------------------------------------
+    //
+    //  Overridden event handlers
+    //
+    //--------------------------------------------------------------------------
+    
+    /**
+     *  @private
+     */
+    override public function initEffect(event:Event):void
+    {
+        super.initEffect(event);
+
+        var n:int = childSets.length;
+        for (var i:int = 0; i < n; i++)
+        {
+            var instances:Array = childSets[i];
+            var m:int = instances.length;
+            for (var j:int = 0; j < m; j++)
+            {
+                instances[j].initEffect(event);
+            }
+        }
+    }
+
+    /**
+     *  @private
+     */
+    mx_internal function effectEndHandler(event:EffectEvent):void
+    {
+        onEffectEnd(event.effectInstance);
+    }
 }
 
 }

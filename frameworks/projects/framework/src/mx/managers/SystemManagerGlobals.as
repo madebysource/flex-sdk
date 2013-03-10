@@ -29,6 +29,19 @@ public class SystemManagerGlobals
 
 	public static var dispatchingEventToOtherSystemManagers:Boolean;
 
+    /**
+     *  @private
+     *  reference to the info() object from the first systemManager
+	 *  in the application..
+     */
+	public static var info:Object;
+
+    /**
+     *  @private
+     *  reference to the loaderInfo.parameters object from the first systemManager
+	 *  in the application..
+     */
+	public static var parameters:Object;
 }
 
 }

@@ -21,17 +21,22 @@ import flash.events.TimerEvent;
 import flash.geom.Point;
 import flash.geom.Rectangle;
 import flash.utils.Timer;
+
 import mx.controls.ToolTip;
-import mx.core.ApplicationGlobals;
+import mx.core.FlexGlobals;
+import mx.core.FlexVersion;
+import mx.core.IFlexModule;
 import mx.core.IInvalidating;
+import mx.core.ILayoutDirectionElement;
 import mx.core.IToolTip;
 import mx.core.IUIComponent;
+import mx.core.LayoutDirection;
 import mx.core.mx_internal;
-import mx.effects.IAbstractEffect;
 import mx.effects.EffectManager;
+import mx.effects.IAbstractEffect;
+import mx.events.DynamicEvent;
 import mx.events.EffectEvent;
 import mx.events.ToolTipEvent;
-import mx.events.InterManagerRequest;
 import mx.managers.IToolTipManagerClient;
 import mx.styles.IStyleClient;
 import mx.validators.IValidatorListener;
@@ -63,6 +68,13 @@ public class ToolTipManagerImpl extends EventDispatcher
      *  @private
      */
     private static var instance:IToolTipManager2;
+
+	/**
+	 * @private
+	 * 
+	 * Place to hook in additional classes
+	 */
+	public static var mixins:Array;
 
     //--------------------------------------------------------------------------
     //
@@ -97,14 +109,18 @@ public class ToolTipManagerImpl extends EventDispatcher
         if (instance)
             throw new Error("Instance already exists.");
 
-		this.systemManager = SystemManagerGlobals.topLevelSystemManagers[0] as ISystemManager;
-		sandboxRoot = this.systemManager.getSandboxRoot();
-		sandboxRoot.addEventListener(InterManagerRequest.TOOLTIP_MANAGER_REQUEST, marshalToolTipManagerHandler, false, 0, true);
-		var me:InterManagerRequest = new InterManagerRequest(InterManagerRequest.TOOLTIP_MANAGER_REQUEST);
-		me.name = "update";
-		// trace("--->update request for ToolTipManagerImpl", systemManager);
-		sandboxRoot.dispatchEvent(me);
-		// trace("<---update request for ToolTipManagerImpl", systemManager);
+		if (mixins)
+		{
+			var n:int = mixins.length;
+			for (var i:int = 0; i < n; i++)
+			{
+				new mixins[i](this);
+			}
+		}
+
+        if (hasEventListener("initialize"))
+    		dispatchEvent(new Event("initialize"));
+
     }
 
     //--------------------------------------------------------------------------
@@ -112,16 +128,6 @@ public class ToolTipManagerImpl extends EventDispatcher
     //  Variables
     //
     //--------------------------------------------------------------------------
-
-    /**
-     *  @private
-     */
-    private var systemManager:ISystemManager = null;
-    
-    /**
-     *  @private
-     */
-    private var sandboxRoot:IEventDispatcher = null;
 
     /**
      *  @private
@@ -181,6 +187,11 @@ public class ToolTipManagerImpl extends EventDispatcher
      *  that was most recently under the mouse.
      *  During much of the tool tip life cycle this property
      *  has the same value as the <code>currentTarget</code> property.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     mx_internal var previousTarget:DisplayObject;
 
@@ -202,6 +213,11 @@ public class ToolTipManagerImpl extends EventDispatcher
     /**
      *  The UIComponent that is currently displaying a ToolTip,
      *  or <code>null</code> if none is.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get currentTarget():DisplayObject
     {
@@ -223,11 +239,16 @@ public class ToolTipManagerImpl extends EventDispatcher
     /**
      *  @private
      */
-    private var _currentToolTip:DisplayObject;
+    mx_internal var _currentToolTip:DisplayObject;
 
     /**
      *  The ToolTip object that is currently visible,
      *  or <code>null</code> if none is shown.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get currentToolTip():IToolTip
     {
@@ -241,11 +262,8 @@ public class ToolTipManagerImpl extends EventDispatcher
     {
         _currentToolTip = value as DisplayObject;
 
-		var me:InterManagerRequest = new InterManagerRequest(InterManagerRequest.TOOLTIP_MANAGER_REQUEST);
-		me.name = "currentToolTip";
-		me.value = value;
-		// trace("-->dispatched currentToolTip for ToolTipManagerImpl", systemManager, value);
-		sandboxRoot.dispatchEvent(me);
+        if (hasEventListener("currentToolTip"))
+    		dispatchEvent(new Event("currentToolTip"));
     }
 
     //----------------------------------
@@ -263,6 +281,11 @@ public class ToolTipManagerImpl extends EventDispatcher
      *  If <code>false</code>, no ToolTips will be shown.
      *
      *  @default true
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get enabled():Boolean 
     {
@@ -296,6 +319,11 @@ public class ToolTipManagerImpl extends EventDispatcher
      *  such as moving the mouse off of the component.
      *
      *  @default 10000
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get hideDelay():Number 
     {
@@ -327,6 +355,11 @@ public class ToolTipManagerImpl extends EventDispatcher
 	 *  as they may not be supportable in different versions</p>
      *
      *  @default null
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get hideEffect():IAbstractEffect
     {
@@ -366,6 +399,11 @@ public class ToolTipManagerImpl extends EventDispatcher
      *  descriptions of their functionality.</p>
      *
      *  @default 100
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get scrubDelay():Number 
     {
@@ -396,6 +434,11 @@ public class ToolTipManagerImpl extends EventDispatcher
      *  To make the ToolTip appear instantly, set <code>showDelay</code> to 0.
      *
      *  @default 500
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get showDelay():Number 
     {
@@ -427,6 +470,11 @@ public class ToolTipManagerImpl extends EventDispatcher
 	 *  as they may not be supportable in different versions</p>
      *
      *  @default null
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get showEffect():IAbstractEffect
     {
@@ -459,6 +507,11 @@ public class ToolTipManagerImpl extends EventDispatcher
 	 *  for objects within themselves</p>
      *
      *  @default mx.controls.ToolTip
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get toolTipClass():Class 
     {
@@ -532,6 +585,11 @@ public class ToolTipManagerImpl extends EventDispatcher
      *  @param newToolTip The new text to display in the ToolTip.
      *  If null, no ToolTip will be displayed when the mouse hovers
      *  over the target.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function registerToolTip(target:DisplayObject,
                                     oldToolTip:String,
@@ -580,6 +638,11 @@ public class ToolTipManagerImpl extends EventDispatcher
      *  @param newErrorString The new text to display in the error tip.
      *  If null, no error tip will be displayed when the mouse hovers
      *  over the target.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function registerErrorString(target:DisplayObject,
                                         oldErrorString:String,
@@ -628,6 +691,9 @@ public class ToolTipManagerImpl extends EventDispatcher
     	//target hitTest will return true. 
     	if ((target.stage.mouseX == 0)	 && (target.stage.mouseY == 0))
     		return false;
+        
+        if (target is ILayoutManagerClient && !ILayoutManagerClient(target).initialized)
+            return false;
     		
     	return target.hitTestPoint(target.stage.mouseX,
     							   target.stage.mouseY, true);
@@ -665,6 +731,11 @@ public class ToolTipManagerImpl extends EventDispatcher
      *  If not, it removes the old ToolTip and displays the new one.</p>
      *
      *  @param displayObject The UIComponent or UITextField that is currently under the mouse.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     mx_internal function checkIfTargetChanged(displayObject:DisplayObject):void
     {
@@ -686,6 +757,11 @@ public class ToolTipManagerImpl extends EventDispatcher
      *  with a <code>toolTip</code> or <code>errorString</code> property.
      *  Treats an empty string as a valid <code>toolTip</code> property.
      *  Sets the <code>currentTarget</code> property.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     mx_internal function findTarget(displayObject:DisplayObject):void
     {
@@ -701,7 +777,12 @@ public class ToolTipManagerImpl extends EventDispatcher
             if (displayObject is IValidatorListener)
             {
                 currentText = IValidatorListener(displayObject).errorString;
-                if (currentText != null && currentText != "")
+                var showErrorTip:Boolean;
+                if (displayObject is IStyleClient)
+                    showErrorTip = FlexVersion.compatibilityVersion < FlexVersion.VERSION_4_0 ||
+                                   IStyleClient(displayObject).getStyle("showErrorTip");
+                                   ;
+                if (currentText != null && currentText != "" && showErrorTip)
                 {
                     currentTarget = displayObject;
                     isError = true;
@@ -731,6 +812,11 @@ public class ToolTipManagerImpl extends EventDispatcher
      *  Removes any ToolTip that is currently displayed and displays
      *  the ToolTip for the UIComponent that is currently under the mouse
      *  pointer, as determined by the <code>currentTarget</code> property.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     mx_internal function targetChanged():void
     {
@@ -750,10 +836,8 @@ public class ToolTipManagerImpl extends EventDispatcher
 			}
 			else
 			{
-				var me:InterManagerRequest = new InterManagerRequest(InterManagerRequest.TOOLTIP_MANAGER_REQUEST);
-				me.name = ToolTipEvent.TOOL_TIP_HIDE;
-				// trace("-->dispatched hide for ToolTipManagerImpl", systemManager);
-				sandboxRoot.dispatchEvent(me);
+                if (hasEventListener(ToolTipEvent.TOOL_TIP_HIDE))
+		    		dispatchEvent(new Event(ToolTipEvent.TOOL_TIP_HIDE));
 			}
         }   
             
@@ -812,6 +896,11 @@ public class ToolTipManagerImpl extends EventDispatcher
      *  <code>currentToolTip</code> property.
      *  It then uses addChild() to add this ToolTip to the
      *  SystemManager's toolTips layer.</p>
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     mx_internal function createTip():void
     {
@@ -828,8 +917,18 @@ public class ToolTipManagerImpl extends EventDispatcher
 
         currentToolTip.visible = false;
 
+        // Set the tooltip to be in the same module factory as the target to the
+        // correct style manager is used. Don't overwrite an existing module factory.
+        if (currentToolTip is IFlexModule && IFlexModule(currentToolTip).moduleFactory == null && 
+            currentTarget is IFlexModule)
+            IFlexModule(currentToolTip).moduleFactory = IFlexModule(currentTarget).moduleFactory;
+        
+        if (hasEventListener("createTip"))
+    		if (!dispatchEvent(new Event("createTip", false, true)))
+	    		return;
+
         var sm:ISystemManager = getSystemManager(currentTarget) as ISystemManager;
-       	sm.topLevelSystemManager.addChildToSandboxRoot("toolTipChildren", currentToolTip as DisplayObject);
+       	sm.topLevelSystemManager.toolTipChildren.addChild(currentToolTip as DisplayObject);
     }
 
     /**
@@ -853,6 +952,11 @@ public class ToolTipManagerImpl extends EventDispatcher
      *
      *  <p>This method also makes the ToolTip the appropriate
      *  size for the text that it needs to display.</p>
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     mx_internal function initializeTip():void
     {
@@ -911,57 +1015,107 @@ public class ToolTipManagerImpl extends EventDispatcher
      *  and <code>showTip()</code> after.</p>
      *
      *  <p>If a normal ToolTip is being displayed, this method positions
-     *  its upper-left corner near the lower-right of the arrow cursor.
-     *  This method ensures that the ToolTip is completely in view.
+     *  its upper-left (upper-right) corner near the lower-right (lower-left)
+     *  of the arrow cursor.  This method ensures that the ToolTip is 
+     *  completely in view.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     mx_internal function positionTip():void
     {
+        // Determine layoutDirection of the target component.
+        var layoutDirection:String;
+        if (currentTarget is ILayoutDirectionElement)
+            layoutDirection = ILayoutDirectionElement(currentTarget).layoutDirection;
+        else
+            layoutDirection = LayoutDirection.LTR;
+        
+        const mirror:Boolean = (layoutDirection == LayoutDirection.RTL);
+        
         var x:Number;
         var y:Number;
-
+        
         var screenWidth:Number = currentToolTip.screen.width;
         var screenHeight:Number = currentToolTip.screen.height;
-
+        
         if (isError)
         {
-            var targetGlobalBounds:Rectangle = getGlobalBounds(currentTarget, currentToolTip.root);
-
-            x = targetGlobalBounds.right + 4;
+            // Tooltips are laid out in the same direction as the target 
+            // component.
+            var tipElt:ILayoutDirectionElement = 
+                currentToolTip as ILayoutDirectionElement;
+                        
+            if (tipElt && 
+                tipElt.layoutDirection != layoutDirection)
+            {
+                tipElt.layoutDirection = layoutDirection;
+                // sizeTip below will call validateNow()
+                tipElt.invalidateLayoutDirection();
+            }
+            
+            var targetGlobalBounds:Rectangle = 
+                getGlobalBounds(currentTarget, currentToolTip.root, mirror);
+            
+            x = mirror ?
+                    targetGlobalBounds.left - 4 :
+                    targetGlobalBounds.right + 4;
             y = targetGlobalBounds.top - 1;
-
-            // If there's no room to the right of the control, put it above
-            // or below, with the left edge of the error tip aligned with
-            // the left edge of the target.
-            if (x + currentToolTip.width > screenWidth)
+            
+            // If there's no room to the right (left) of the control, put it 
+            // above or below, with the left (right) edge of the error tip 
+            // aligned with the left (right) edge of the target.
+            var noRoom:Boolean = mirror ?
+                                 x < currentToolTip.width :    
+                                 x + currentToolTip.width > screenWidth;            
+            if (noRoom)
             {
                 var newWidth:Number = NaN;
                 var oldWidth:Number = NaN;
-
-                x = targetGlobalBounds.left - 2;
-
+                
+                x = mirror ?
+                        targetGlobalBounds.right + 2 - currentToolTip.width :
+                        targetGlobalBounds.left - 2;
+                
                 // If the error tip would be too wide for the stage,
                 // reduce the maximum width to fit onstage. Note that
                 // we have to reassign the text in order to get the tip
                 // to relayout after changing the border style and maxWidth.
-                if (x + currentToolTip.width + 4 > screenWidth)
+                if (mirror)
                 {
-                    newWidth = screenWidth - x - 4;
+                    if (x < currentToolTip.width + 4) 
+                    {
+                        // -4 on the left, +2 on the right = -2
+                        x = 4;
+                        newWidth = targetGlobalBounds.right - 2;                        
+                    }
+                }
+                else
+                {
+                    if (x + currentToolTip.width + 4 > screenWidth)
+                        newWidth = screenWidth - x - 4;                            
+                }
+                
+                if (!isNaN(newWidth))
+                {
                     oldWidth = Object(toolTipClass).maxWidth;
                     Object(toolTipClass).maxWidth = newWidth;
                     if (currentToolTip is IStyleClient)
                         IStyleClient(currentToolTip).setStyle("borderStyle", "errorTipAbove");
                     currentToolTip["text"] = currentToolTip["text"];
-                }
+                } 
 
-                // Even if the error tip will fit onstage, we still need to
-                // change the border style and get the error tip to relayout.
+                    // Even if the error tip will fit onstage, we still need to
+                    // change the border style and get the error tip to relayout.
                 else
                 {
                     if (currentToolTip is IStyleClient)
                         IStyleClient(currentToolTip).setStyle("borderStyle", "errorTipAbove");
                     currentToolTip["text"] = currentToolTip["text"];
                 }
-
+                
                 if (currentToolTip.height + 2 < targetGlobalBounds.top)
                 {
                     // There's room to put it above the control.
@@ -971,7 +1125,7 @@ public class ToolTipManagerImpl extends EventDispatcher
                 {
                     // No room above, put it below the control.
                     y = targetGlobalBounds.bottom + 2;
-
+                    
                     if (!isNaN(newWidth))
                         Object(toolTipClass).maxWidth = newWidth;
                     if (currentToolTip is IStyleClient)
@@ -979,42 +1133,55 @@ public class ToolTipManagerImpl extends EventDispatcher
                     currentToolTip["text"] = currentToolTip["text"];
                 }
             }
-
+            
             // Since the border style of the error tip may have changed,
             // we have to force a remeasurement and change its size.
             // This is because objects in the toolTips layer
             // don't undergo normal measurement and layout.
             sizeTip(currentToolTip)
-
-            // If we changed the tooltip max size, we change it back
+            
+            // If we changed the tooltip max size, we change it back.
+            // Otherwise, if RTL, and x wasn't set for maxWidth, reposition 
+            // because the width may have changed during the remeasure.
             if (!isNaN(oldWidth))
                 Object(toolTipClass).maxWidth = oldWidth;
+            else if (mirror)
+                x = targetGlobalBounds.right + 2 - currentToolTip.width;
         }
         else
         {
             var sm:ISystemManager = getSystemManager(currentTarget);
-            // Position the upper-left of the tooltip
-            // at the lower-right of the arrow cursor.
-            x = DisplayObject(sm).mouseX + 11;
+            // Position the upper-left (upper-right) of the tooltip
+            // at the lower-right (lower-left) of the arrow cursor.
+            x = DisplayObject(sm).mouseX + 11; 
+            if (mirror)
+                x -= currentToolTip.width;
             y = DisplayObject(sm).mouseY + 22;
-
-            // If the tooltip is too wide to fit onstage, move it left.
+            
+            // If the tooltip is too wide to fit onstage, move it left (right).
             var toolTipWidth:Number = currentToolTip.width;
-            if (x + toolTipWidth > screenWidth)
+            if (mirror)
+            {
+                if (x < 2)
+                    x = 2;
+            }
+            else if (x + toolTipWidth > screenWidth)
+            {
                 x = screenWidth - toolTipWidth;
-
+            }
+            
             // If the tooltip is too tall to fit onstage, move it up.
             var toolTipHeight:Number = currentToolTip.height;
             if (y + toolTipHeight > screenHeight)
                 y = screenHeight - toolTipHeight;
-
-			var pos:Point = new Point(x, y);
-			pos = DisplayObject(sm).localToGlobal(pos);
-			pos = DisplayObject(sandboxRoot).globalToLocal(pos);
-			x = pos.x;
-			y = pos.y;
+            
+            var pos:Point = new Point(x, y);
+            pos = DisplayObject(sm).localToGlobal(pos);
+            pos = DisplayObject(sm.getSandboxRoot()).globalToLocal(pos);
+            x = pos.x;
+            y = pos.y;
         }
-
+     
         currentToolTip.move(x, y);
     }
 
@@ -1035,6 +1202,11 @@ public class ToolTipManagerImpl extends EventDispatcher
      *  particular object's ToolTip just before it becomes visible.
      *  It then makes the ToolTip visible, which triggers
      *  the ToolTipManager's <code>showEffect</code> if one is specified.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     mx_internal function showTip():void
     {
@@ -1048,7 +1220,7 @@ public class ToolTipManagerImpl extends EventDispatcher
         if (isError)
         {
             // Listen for a change event so we know when to hide the tip
-            currentTarget.addEventListener("change", changeHandler);
+            currentTarget.addEventListener(Event.CHANGE, changeHandler);
         }
         else
         {
@@ -1069,6 +1241,11 @@ public class ToolTipManagerImpl extends EventDispatcher
 
     /**
      *  Hides the current ToolTip.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     mx_internal function hideTip():void
     {
@@ -1093,7 +1270,7 @@ public class ToolTipManagerImpl extends EventDispatcher
         if (isError)
         {
             if (currentTarget)
-                currentTarget.removeEventListener("change", changeHandler);
+                currentTarget.removeEventListener(Event.CHANGE, changeHandler);
         }
         else
         {
@@ -1113,6 +1290,11 @@ public class ToolTipManagerImpl extends EventDispatcher
      *  Removes any currently visible ToolTip.
      *  If the ToolTip is starting to show or hide, this method
      *  removes the ToolTip immediately without completing the effect.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     mx_internal function reset():void
     {
@@ -1135,9 +1317,19 @@ public class ToolTipManagerImpl extends EventDispatcher
             // End any show or hide effects that might be playing on it.
             EffectManager.endEffectsForTarget(currentToolTip);
 
-            // Remove it.
-            var sm:ISystemManager = currentToolTip.systemManager as ISystemManager;
-           	sm.topLevelSystemManager.removeChildFromSandboxRoot("toolTipChildren", currentToolTip as DisplayObject);
+            var e:DynamicEvent;
+            if (hasEventListener("removeChild"))
+            {
+                e = new DynamicEvent("removeChild", false, true);
+                e.sm = currentToolTip.systemManager;
+                e.toolTip = currentToolTip;
+            }
+			if (!e || dispatchEvent(e))
+			{
+				// Remove it.
+				var sm:ISystemManager = currentToolTip.systemManager as ISystemManager;
+           		sm.topLevelSystemManager.toolTipChildren.removeChild(currentToolTip as DisplayObject);
+			}
             currentToolTip = null;
 
             scrubTimer.delay = scrubDelay;
@@ -1204,6 +1396,11 @@ public class ToolTipManagerImpl extends EventDispatcher
      *
      *  @return The newly created ToolTip.
      *
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function createToolTip(text:String, x:Number, y:Number,
                                          errorTipBorderStyle:String = null,
@@ -1213,8 +1410,24 @@ public class ToolTipManagerImpl extends EventDispatcher
 
         var sm:ISystemManager = context ?
                                           context.systemManager as ISystemManager:
-                                          ApplicationGlobals.application.systemManager as ISystemManager;
-       	sm.topLevelSystemManager.addChildToSandboxRoot("toolTipChildren", toolTip as DisplayObject);
+                                          FlexGlobals.topLevelApplication.systemManager as ISystemManager;
+
+        if (context is IFlexModule)
+            toolTip.moduleFactory = IFlexModule(context).moduleFactory;
+        else
+            toolTip.moduleFactory = sm;
+        
+        var e:DynamicEvent;
+        if (hasEventListener("addChild"))
+        {
+            e = new DynamicEvent("addChild", false, true);
+            e.sm = sm;
+            e.toolTip = toolTip;
+        }
+		if (!e || dispatchEvent(e))
+		{
+		    sm.topLevelSystemManager.toolTipChildren.addChild(toolTip as DisplayObject);
+		}
 
         if (errorTipBorderStyle)
         {
@@ -1247,11 +1460,27 @@ public class ToolTipManagerImpl extends EventDispatcher
      *  <code>currentToolTip</code>.</p>
      *
      *  @param toolTip The ToolTip instance to destroy.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function destroyToolTip(toolTip:IToolTip):void
     {
-        var sm:ISystemManager = toolTip.systemManager as ISystemManager;
-       	sm.topLevelSystemManager.removeChildFromSandboxRoot("toolTipChildren", DisplayObject(toolTip));
+        var e:DynamicEvent;
+        if (hasEventListener("removeChild"))
+        {
+            e = new DynamicEvent("removeChild", false, true);
+            e.sm = toolTip.systemManager;
+            e.toolTip = toolTip;
+        }
+		if (!e || dispatchEvent(e))
+		{
+			// Remove it.
+			var sm:ISystemManager = toolTip.systemManager as ISystemManager;
+           	sm.topLevelSystemManager.toolTipChildren.removeChild(toolTip as DisplayObject);
+		}
 
         // hide effect?
     }
@@ -1301,7 +1530,7 @@ public class ToolTipManagerImpl extends EventDispatcher
     /**
      *  @private
      */
-     private function getSystemManager(
+     mx_internal function getSystemManager(
                                     target:DisplayObject):ISystemManager
      {
         return target is IUIComponent ?
@@ -1312,11 +1541,21 @@ public class ToolTipManagerImpl extends EventDispatcher
     /**
      *  @private
      */
-    private function getGlobalBounds(obj:DisplayObject, parent:DisplayObject):Rectangle
+    private function getGlobalBounds(obj:DisplayObject, 
+                                     parent:DisplayObject, 
+                                     mirror:Boolean):Rectangle
     {
         var upperLeft:Point = new Point(0, 0);
+        
         upperLeft = obj.localToGlobal(upperLeft);
+        
+        // If the layout has been mirrored, then the 0,0 is the uppper
+        // right corner; compensate here.
+        if (mirror)
+            upperLeft.x -= obj.width;
+
         upperLeft = parent.globalToLocal(upperLeft);
+        
         return new Rectangle(upperLeft.x, upperLeft.y, obj.width, obj.height);
     }
 
@@ -1428,42 +1667,6 @@ public class ToolTipManagerImpl extends EventDispatcher
         reset();
     }
 
-	/**
-	 *  Marshal dragManager
-	 */
-	private function marshalToolTipManagerHandler(event:Event):void
-	{
-		if (event is InterManagerRequest)
-			return;
-
-		var me:InterManagerRequest;
-
-		var marshalEvent:Object = event;
-		switch (marshalEvent.name)
-		{
-		case "currentToolTip":
-			// trace("--marshaled currentToolTip for ToolTipManagerImpl", systemManager, marshalEvent.value);
-			_currentToolTip = marshalEvent.value;
-			break;
-		case ToolTipEvent.TOOL_TIP_HIDE:
-			// trace("--handled hide for ToolTipManagerImpl", systemManager);
-			if (_currentToolTip is IToolTip)
-				hideTip()
-			break;
-		case "update":
-			// anyone can answer so prevent others from responding as well
-			event.stopImmediatePropagation();
-			// update the others
-			// trace("-->marshaled update for ToolTipManagerImpl", systemManager);
-			me = new InterManagerRequest(InterManagerRequest.TOOLTIP_MANAGER_REQUEST);
-			me.name = "currentToolTip";
-			me.value = _currentToolTip;
-			// trace("-->dispatched currentToolTip for ToolTipManagerImpl", systemManager, true);
-			sandboxRoot.dispatchEvent(me);
-			// trace("<--dispatched currentToolTip for ToolTipManagerImpl", systemManager, true);
-			// trace("<--marshaled update for ToolTipManagerImpl", systemManager);
-		}
-	}
 }
 
 }

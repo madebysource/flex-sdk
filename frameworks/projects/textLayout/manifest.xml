@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<!--
+
+	ADOBE SYSTEMS INCORPORATED
+	Copyright 2007-2010 Adobe Systems Incorporated
+	All Rights Reserved.
+
+	NOTICE:  Adobe permits you to use, modify, and distribute this file 
+	in accordance with the terms of the license agreement accompanying it.
+
+-->
+<componentPackage>
+  <component id="ListMarkerFormat" class="flashx.textLayout.formats.ListMarkerFormat" />
+  <component id="TextLayoutFormat" class="flashx.textLayout.formats.TextLayoutFormat" />
+  <component id="div" class="flashx.textLayout.elements.DivElement" />
+  <component id="img" class="flashx.textLayout.elements.InlineGraphicElement" />
+  <component id="a" class="flashx.textLayout.elements.LinkElement" />
+  <component id="list" class="flashx.textLayout.elements.ListElement" />
+  <component id="li" class="flashx.textLayout.elements.ListItemElement" />
+  <component id="p" class="flashx.textLayout.elements.ParagraphElement" />
+  <component id="br" class="flashx.textLayout.elements.BreakElement" />
+  <component id="tab" class="flashx.textLayout.elements.TabElement" />
+  <component id="tcy" class="flashx.textLayout.elements.TCYElement" />
+  <component id="span" class="flashx.textLayout.elements.SpanElement" />
+  <component id="g" class="flashx.textLayout.elements.SubParagraphGroupElement" />
+  <component id="TextFlow" class="flashx.textLayout.elements.TextFlow" />
+</componentPackage>

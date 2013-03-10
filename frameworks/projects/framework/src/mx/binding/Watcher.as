@@ -34,6 +34,11 @@ public class Watcher
 
 	/**
 	 *  Constructor.
+	 *  
+	 *  @langversion 3.0
+	 *  @playerversion Flash 9
+	 *  @playerversion AIR 1.1
+	 *  @productversion Flex 3
 	 */
     public function Watcher(listeners:Array = null)
     {
@@ -117,6 +122,11 @@ public class Watcher
     /**
      *  We have probably changed, so go through
 	 *  and make sure our children are updated.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function updateChildren():void
     {
@@ -201,12 +211,14 @@ public class Watcher
             //   Error #1010: undefined has no properties.
             //   Error #1055: - has no properties.
             //   Error #1069: Property - not found on - and there is no default value
+            //   Error #1507: - invalid null argument.
             // We allow any other errors to be thrown.
             if ((error.errorID != 1006) &&
                 (error.errorID != 1009) &&
                 (error.errorID != 1010) &&
                 (error.errorID != 1055) &&
-                (error.errorID != 1069))
+                (error.errorID != 1069) &&
+                (error.errorID != 1507))
             {
                 throw error;
             }

@@ -17,6 +17,7 @@ import flash.filesystem.File;
 
 import mx.controls.dataGridClasses.DataGridColumn;
 import mx.controls.fileSystemClasses.FileSystemControlHelper;
+import mx.controls.fileSystemClasses.FileSystemDataGridNameColumnRenderer;
 import mx.core.ClassFactory;
 import mx.core.IUITextField;
 import mx.core.ScrollPolicy;
@@ -35,6 +36,10 @@ use namespace mx_internal;
  *  changes for any reason.
  *
  *  @eventType mx.events.FileEvent.DIRECTORY_CHANGE
+ *  
+ *  @langversion 3.0
+ *  @playerversion AIR 1.1
+ *  @productversion Flex 3
  */
 [Event(name="directoryChange", type="mx.events.FileEvent")]
 
@@ -62,6 +67,10 @@ use namespace mx_internal;
  *  the <code>directoryChange</code> event is dispatched.</p>
  *
  *  @eventType mx.events.FileEvent.DIRECTORY_OPENING
+ *  
+ *  @langversion 3.0
+ *  @playerversion AIR 1.1
+ *  @productversion Flex 3
  */
 [Event(name="directoryChanging", type="mx.events.FileEvent")]
 
@@ -70,6 +79,10 @@ use namespace mx_internal;
  *  or by selecting it and pressing Enter.
  *
  *  @eventType mx.events.FileEvent.FILE_CHOOSE
+ *  
+ *  @langversion 3.0
+ *  @playerversion AIR 1.1
+ *  @productversion Flex 3
  */
 [Event(name="fileChoose", type="mx.events.FileEvent")]
 
@@ -84,6 +97,10 @@ use namespace mx_internal;
  *  <code>directoryIcon="&#64;Embed(source='directoryIcon.jpg');"</code>
  *
  *  @default TreeNodeIcon
+ *  
+ *  @langversion 3.0
+ *  @playerversion AIR 1.1
+ *  @productversion Flex 3
  */
 [Style(name="directoryIcon", type="Class", format="EmbeddedFile", inherit="no")]
 
@@ -94,6 +111,10 @@ use namespace mx_internal;
  *  <code>fileIcon="&#64;Embed(source='fileIcon.jpg');"</code>
  *
  *  @default TreeNodeIcon
+ *  
+ *  @langversion 3.0
+ *  @playerversion AIR 1.1
+ *  @productversion Flex 3
  */
 [Style(name="fileIcon", type="Class", format="EmbeddedFile", inherit="no")]
 
@@ -258,7 +279,10 @@ use namespace mx_internal;
  *
  *  @see flash.filesystem.File
  * 
+ *  
+ *  @langversion 3.0
  *  @playerversion AIR 1.1
+ *  @productversion Flex 3
  */
 public class FileSystemDataGrid extends DataGrid
 {
@@ -272,6 +296,10 @@ public class FileSystemDataGrid extends DataGrid
 
     /**
      *  @copy mx.controls.FileSystemList#COMPUTER
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public static const COMPUTER:File = FileSystemControlHelper.COMPUTER;
 
@@ -283,6 +311,10 @@ public class FileSystemDataGrid extends DataGrid
 
     /**
      *  Constructor.
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function FileSystemDataGrid()
     {
@@ -318,6 +350,10 @@ public class FileSystemDataGrid extends DataGrid
     /**
      *  The DateFormatter object used to format the dates
      *  in the Created and Modified columns.
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     mx_internal var dateFormatter:DateFormatter = new DateFormatter();
 
@@ -359,10 +395,14 @@ public class FileSystemDataGrid extends DataGrid
      *     itemClick="fileSystemViewer.navigateBack(event.index);"/&gt;</pre>
      *
      *  @default []
-	 *
-	 *  @see #canNavigateBack
-	 *  @see #navigateBack()
-	 *  @see mx.controls.FileSystemHistoryButton
+     *
+     *  @see #canNavigateBack
+     *  @see #navigateBack()
+     *  @see mx.controls.FileSystemHistoryButton
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get backHistory():Array
     {
@@ -392,9 +432,13 @@ public class FileSystemDataGrid extends DataGrid
      *      itemClick="fileSystemViewer.navigateBack(event.index);"/&gt;</pre>
      *
      *  @default false
-	 *
-	 *  @see #backHistory
-	 *  @see #navigateBack()
+     *
+     *  @see #backHistory
+     *  @see #navigateBack()
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get canNavigateBack():Boolean
     {
@@ -424,8 +468,12 @@ public class FileSystemDataGrid extends DataGrid
      *      click="fileSystemViewer.navigateDown();"/&gt;</pre>
      *
      *  @default false
-	 *
-	 *  @see #navigateDown()
+     *
+     *  @see #navigateDown()
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get canNavigateDown():Boolean
     {
@@ -455,9 +503,13 @@ public class FileSystemDataGrid extends DataGrid
      *      itemClick="fileSystemViewer.navigateForward(event.index);"/&gt;</pre>
      *
      *  @default false
-	 *
-	 *  @see #forwardHistory
-	 *  @see #navigateForward()
+     *
+     *  @see #forwardHistory
+     *  @see #navigateForward()
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get canNavigateForward():Boolean
     {
@@ -488,8 +540,12 @@ public class FileSystemDataGrid extends DataGrid
      *      click="fileSystemViewer.navigateUp();"/&gt;</pre>
      *
      *  @default false
-	 *
-	 *  @see #navigateUp()
+     *
+     *  @see #navigateUp()
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get canNavigateUp():Boolean
     {
@@ -509,6 +565,10 @@ public class FileSystemDataGrid extends DataGrid
      *  To remove this column entirely, or to change the column order,
      *  set the <code>columns</code> property to an array such as
      *  <code>[ nameColumn, modificationDateColumn, sizeColumn ]</code>.</p>
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public var creationDateColumn:DataGridColumn;
 
@@ -523,10 +583,10 @@ public class FileSystemDataGrid extends DataGrid
     private var _dateFormatString:String;
 
     /**
-	 *  @private
-	 */
-	private var dateFormatStringOverride:String;
-	
+     *  @private
+     */
+    private var dateFormatStringOverride:String;
+    
     /**
      *  A String that determines how dates in the Created and Modified
      *  columns are formatted.
@@ -534,6 +594,10 @@ public class FileSystemDataGrid extends DataGrid
      *  of an internal DateFormatter that this control creates.
      *
      *  @see mx.formatters.DateFormatter#formatString
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get dateFormatString():String
     {
@@ -545,17 +609,17 @@ public class FileSystemDataGrid extends DataGrid
      */
     public function set dateFormatString(value:String):void
     {
-		dateFormatStringOverride = value;
+        dateFormatStringOverride = value;
 
-		_dateFormatString = value != null ?
-					   		value :
-					   		resourceManager.getString(
-								"aircontrols",
-								"fileSystemDataGrid_dateFormatString");
+        _dateFormatString = value != null ?
+                            value :
+                            resourceManager.getString(
+                                "aircontrols",
+                                "fileSystemDataGrid_dateFormatString");
 
         dateFormatter.formatString = _dateFormatString != null ?
-        							 _dateFormatString :
-        							 "";
+                                     _dateFormatString :
+                                     "";
 
         invalidateList();
     }
@@ -568,6 +632,10 @@ public class FileSystemDataGrid extends DataGrid
 
     /**
      *  @copy mx.controls.FileSystemList#directory
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get directory():File
     {
@@ -592,6 +660,10 @@ public class FileSystemDataGrid extends DataGrid
      *  @default FileSystemEnumerationMode.DIRECTORIES_FIRST
      *
      *  @see mx.controls.FileSystemEnumerationMode
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get enumerationMode():String
     {
@@ -614,6 +686,10 @@ public class FileSystemDataGrid extends DataGrid
      *  @copy mx.controls.FileSystemList#extensions
      *
      *  @default null
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get extensions():Array /* of String */
     {
@@ -636,6 +712,10 @@ public class FileSystemDataGrid extends DataGrid
      *  @copy mx.controls.FileSystemList#filterFunction
      *
      *  @default null
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get filterFunction():Function
     {
@@ -681,8 +761,12 @@ public class FileSystemDataGrid extends DataGrid
      *      itemClick="fileSystemViewer.navigateForward(event.index);"/&gt;</pre>
      *
      *  @default []
-	 *
-	 * @see mx.controls.FileSystemHistoryButton
+     *
+     * @see mx.controls.FileSystemHistoryButton
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get forwardHistory():Array
     {
@@ -702,6 +786,10 @@ public class FileSystemDataGrid extends DataGrid
      *  To remove this column entirely, or to change the column order,
      *  set the <code>columns</code> property to an array such as
      *  <code>[ nameColumn, modificationDateColumn, sizeColumn ]</code>.</p>
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public var modificationDateColumn:DataGridColumn;
 
@@ -718,6 +806,10 @@ public class FileSystemDataGrid extends DataGrid
      *  To remove this column entirely, or to change the column order,
      *  set the <code>columns</code> property to an array such as
      *  <code>[ nameColumn, modificationDateColumn, sizeColumn ]</code>.</p>
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public var nameColumn:DataGridColumn;
 
@@ -729,6 +821,10 @@ public class FileSystemDataGrid extends DataGrid
      *  @copy mx.controls.FileSystemList#nameCompareFunction
      *
      *  @default null
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get nameCompareFunction():Function
     {
@@ -749,7 +845,7 @@ public class FileSystemDataGrid extends DataGrid
 
     [Bindable("change")]
     [Bindable("directoryChanged")]
-	
+    
     /**
      *  @copy mx.controls.FileSystemList#selectedPath
      *
@@ -757,6 +853,10 @@ public class FileSystemDataGrid extends DataGrid
      *
      *  @see mx.controls.listClasses.ListBase#selectedIndex
      *  @see mx.controls.listClasses.ListBase#selectedItem
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get selectedPath():String
     {
@@ -785,6 +885,10 @@ public class FileSystemDataGrid extends DataGrid
      *
      *  @see mx.controls.listClasses.ListBase#selectedIndex
      *  @see mx.controls.listClasses.ListBase#selectedItem
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get selectedPaths():Array /* of String */
     {
@@ -805,6 +909,10 @@ public class FileSystemDataGrid extends DataGrid
 
     /**
      *  @copy mx.controls.FileSystemList#showExtensions
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get showExtensions():Boolean
     {
@@ -825,6 +933,10 @@ public class FileSystemDataGrid extends DataGrid
 
     /**
      *  @copy mx.controls.FileSystemList#showHidden
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get showHidden():Boolean
     {
@@ -845,6 +957,10 @@ public class FileSystemDataGrid extends DataGrid
 
     /**
      *  @copy mx.controls.FileSystemList#showIcons
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get showIcons():Boolean
     {
@@ -872,6 +988,10 @@ public class FileSystemDataGrid extends DataGrid
      *  To remove this column entirely, or to change the column order,
      *  set the <code>columns</code> property to an array such as
      *  <code>[ nameColumn, modificationDateColumn, sizeColumn ]</code>.</p>
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public var sizeColumn:DataGridColumn;
 
@@ -893,6 +1013,10 @@ public class FileSystemDataGrid extends DataGrid
      *  by the FileSystemSizeDisplayMode class.
      *
      *  @see mx.controls.FileSystemSizeDisplayMode
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get sizeDisplayMode():String
     {
@@ -922,6 +1046,10 @@ public class FileSystemDataGrid extends DataGrid
      *  To remove this column entirely, or to change the column order,
      *  set the <code>columns</code> property to an array such as
      *  <code>[ nameColumn, modificationDateColumn, sizeColumn ]</code>.</p>
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public var typeColumn:DataGridColumn;
 
@@ -942,47 +1070,47 @@ public class FileSystemDataGrid extends DataGrid
 
         nameColumn = new CustomDataGridColumn();
         nameColumn.headerText = resourceManager.getString(
-        	"aircontrols", "fileSystemDataGrid_nameColumnHeader");
-        nameColumn.itemRenderer = new ClassFactory(NameColumnRenderer);
+            "aircontrols", "fileSystemDataGrid_nameColumnHeader");
+        nameColumn.itemRenderer = new ClassFactory(FileSystemDataGridNameColumnRenderer);
         nameColumn.labelFunction = helper.fileLabelFunction;
         nameColumn.sortCompareFunction = nameSortCompareFunction;
         measuredText = resourceManager.getString(
-        	"aircontrols", "fileSystemDataGrid_nameColumnMeasuredText");
+            "aircontrols", "fileSystemDataGrid_nameColumnMeasuredText");
         nameColumn.width = determineWidthToDisplay(measuredText);
 
         typeColumn = new CustomDataGridColumn();
         typeColumn.headerText = resourceManager.getString(
-        	"aircontrols", "fileSystemDataGrid_typeColumnHeader");
+            "aircontrols", "fileSystemDataGrid_typeColumnHeader");
         typeColumn.labelFunction = typeLabelFunction;
         typeColumn.sortCompareFunction = typeSortCompareFunction;
         measuredText = resourceManager.getString(
-        	"aircontrols", "fileSystemDataGrid_typeColumnMeasuredText");
+            "aircontrols", "fileSystemDataGrid_typeColumnMeasuredText");
         typeColumn.width = determineWidthToDisplay(measuredText);
 
         sizeColumn = new CustomDataGridColumn();
         sizeColumn.headerText = resourceManager.getString(
-        	"aircontrols", "fileSystemDataGrid_sizeColumnHeader");
+            "aircontrols", "fileSystemDataGrid_sizeColumnHeader");
         sizeColumn.labelFunction = sizeLabelFunction;
         sizeColumn.public::setStyle("textAlign", "right");
         sizeColumn.sortCompareFunction = sizeSortCompareFunction;
         measuredText = resourceManager.getString(
-        	"aircontrols", "fileSystemDataGrid_sizeColumnMeasuredText");
+            "aircontrols", "fileSystemDataGrid_sizeColumnMeasuredText");
         sizeColumn.width = determineWidthToDisplay(measuredText);
 
         creationDateColumn = new CustomDataGridColumn();
         creationDateColumn.headerText = resourceManager.getString(
-        	"aircontrols", "fileSystemDataGrid_creationDateColumnHeader");
+            "aircontrols", "fileSystemDataGrid_creationDateColumnHeader");
         creationDateColumn.labelFunction = creationDateLabelFunction;
         measuredText = resourceManager.getString(
-        	"aircontrols", "fileSystemDataGrid_creationDateColumnMeasuredText");
+            "aircontrols", "fileSystemDataGrid_creationDateColumnMeasuredText");
         creationDateColumn.width = determineWidthToDisplay(measuredText);
 
         modificationDateColumn = new CustomDataGridColumn();
         modificationDateColumn.headerText = resourceManager.getString(
-        	"aircontrols", "fileSystemDataGrid_modificationDateColumnHeader");
+            "aircontrols", "fileSystemDataGrid_modificationDateColumnHeader");
         modificationDateColumn.labelFunction = modificationDateLabelFunction;
         measuredText = resourceManager.getString(
-        	"aircontrols", "fileSystemDataGrid_modificationDateColumnMeasuredText");
+            "aircontrols", "fileSystemDataGrid_modificationDateColumnMeasuredText");
         modificationDateColumn.width = determineWidthToDisplay(measuredText);
 
         // If DataGridColumns haven't already been defined,
@@ -1037,53 +1165,53 @@ public class FileSystemDataGrid extends DataGrid
 
         if (nameColumn)
         {
- 	        nameColumn.headerText = resourceManager.getString(
-	        	"aircontrols", "fileSystemDataGrid_nameColumnHeader");
-	        measuredText = resourceManager.getString(
-	        	"aircontrols", "fileSystemDataGrid_nameColumnMeasuredText");
-	        nameColumn.width = determineWidthToDisplay(measuredText);
+            nameColumn.headerText = resourceManager.getString(
+                "aircontrols", "fileSystemDataGrid_nameColumnHeader");
+            measuredText = resourceManager.getString(
+                "aircontrols", "fileSystemDataGrid_nameColumnMeasuredText");
+            nameColumn.width = determineWidthToDisplay(measuredText);
         }
 
         if (typeColumn)
         {
-	        typeColumn.headerText = resourceManager.getString(
-	        	"aircontrols", "fileSystemDataGrid_typeColumnHeader");
-	        measuredText = resourceManager.getString(
-	        	"aircontrols", "fileSystemDataGrid_typeColumnMeasuredText");
-	        typeColumn.width = determineWidthToDisplay(measuredText);
+            typeColumn.headerText = resourceManager.getString(
+                "aircontrols", "fileSystemDataGrid_typeColumnHeader");
+            measuredText = resourceManager.getString(
+                "aircontrols", "fileSystemDataGrid_typeColumnMeasuredText");
+            typeColumn.width = determineWidthToDisplay(measuredText);
         }
 
         if (sizeColumn)
         {
-	        sizeColumn.headerText = resourceManager.getString(
-	        	"aircontrols", "fileSystemDataGrid_sizeColumnHeader");
-	        measuredText = resourceManager.getString(
-	        	"aircontrols", "fileSystemDataGrid_sizeColumnMeasuredText");
-	        sizeColumn.width = determineWidthToDisplay(measuredText);
+            sizeColumn.headerText = resourceManager.getString(
+                "aircontrols", "fileSystemDataGrid_sizeColumnHeader");
+            measuredText = resourceManager.getString(
+                "aircontrols", "fileSystemDataGrid_sizeColumnMeasuredText");
+            sizeColumn.width = determineWidthToDisplay(measuredText);
         }
 
         if (creationDateColumn)
         {
-	        creationDateColumn.headerText = resourceManager.getString(
-	        	"aircontrols", "fileSystemDataGrid_creationDateColumnHeader");
-	        measuredText = resourceManager.getString(
-	        	"aircontrols", "fileSystemDataGrid_creationDateColumnMeasuredText");
-	        creationDateColumn.width = determineWidthToDisplay(measuredText);
+            creationDateColumn.headerText = resourceManager.getString(
+                "aircontrols", "fileSystemDataGrid_creationDateColumnHeader");
+            measuredText = resourceManager.getString(
+                "aircontrols", "fileSystemDataGrid_creationDateColumnMeasuredText");
+            creationDateColumn.width = determineWidthToDisplay(measuredText);
         }
 
         if (modificationDateColumn)
         {
-	        modificationDateColumn.headerText = resourceManager.getString(
-	        	"aircontrols", "fileSystemDataGrid_modificationDateColumnHeader");
-	        measuredText = resourceManager.getString(
-	        	"aircontrols", "fileSystemDataGrid_modificationDateColumnMeasuredText");
-	        modificationDateColumn.width = determineWidthToDisplay(measuredText);
+            modificationDateColumn.headerText = resourceManager.getString(
+                "aircontrols", "fileSystemDataGrid_modificationDateColumnHeader");
+            measuredText = resourceManager.getString(
+                "aircontrols", "fileSystemDataGrid_modificationDateColumnMeasuredText");
+            modificationDateColumn.width = determineWidthToDisplay(measuredText);
         }
 
-		dateFormatString = dateFormatStringOverride;
+        dateFormatString = dateFormatStringOverride;
 
-		invalidateList();
-		invalidateSize();
+        invalidateList();
+        invalidateSize();
     }
 
     /**
@@ -1091,7 +1219,7 @@ public class FileSystemDataGrid extends DataGrid
      */
     override protected function itemToUID(data:Object):String
     {
-    	return helper.itemToUID(data);
+        return helper.itemToUID(data);
     }
 
     //--------------------------------------------------------------------------
@@ -1102,6 +1230,10 @@ public class FileSystemDataGrid extends DataGrid
 
     /**
      *  @copy mx.controls.FileSystemList#findIndex()
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function findIndex(nativePath:String):int
     {
@@ -1110,6 +1242,10 @@ public class FileSystemDataGrid extends DataGrid
 
     /**
      *  @copy mx.controls.FileSystemList#findItem()
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function findItem(nativePath:String):File
     {
@@ -1138,8 +1274,12 @@ public class FileSystemDataGrid extends DataGrid
      *  &lt;mx:Button label="Open"
      *      enabled="{fileSystemViewer.canNavigateDown}"
      *      click="fileSystemViewer.navigateDown();"/&gt;</pre>
-	 *
-	 *  @see #canNavigateDown
+     *
+     *  @see #canNavigateDown
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function navigateDown():void
     {
@@ -1169,8 +1309,12 @@ public class FileSystemDataGrid extends DataGrid
      *  &lt;mx:Button label="Up"
      *      enabled="{fileSystemViewer.canNavigateUp}"
      *      click="fileSystemViewer.navigateUp();"/&gt;</pre>
-	 *
-	 *  @see #canNavigateUp
+     *
+     *  @see #canNavigateUp
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function navigateUp():void
     {
@@ -1211,9 +1355,13 @@ public class FileSystemDataGrid extends DataGrid
      *  @param index The index in the <code>backHistory</code> array
      *  to navigate to.
      *  The default is 0, indicating the directory that is "closest back".
-	 *
-	 *  @see #backHistory
-	 *  @see #canNavigateBack
+     *
+     *  @see #backHistory
+     *  @see #canNavigateBack
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function navigateBack(index:int = 0):void
     {
@@ -1254,9 +1402,13 @@ public class FileSystemDataGrid extends DataGrid
      *  @param index The index in the <code>forwardHistory</code> array
      *  to navigate to.
      *  The default is 0, indicating the directory that is "closest forward".
-	 *
-	 *  @see #canNavigateForward
-	 *  @see #forwardHistory
+     *
+     *  @see #canNavigateForward
+     *  @see #forwardHistory
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function navigateForward(index:int = 0):void
     {
@@ -1265,6 +1417,10 @@ public class FileSystemDataGrid extends DataGrid
 
     /**
      *  @copy mx.controls.FileSystemList#navigateTo()
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function navigateTo(directory:File):void
     {
@@ -1273,6 +1429,10 @@ public class FileSystemDataGrid extends DataGrid
 
     /**
      *  @copy mx.controls.FileSystemList#refresh()
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function refresh():void
     {
@@ -1281,6 +1441,10 @@ public class FileSystemDataGrid extends DataGrid
 
     /**
      *  @copy mx.controls.FileSystemList#clear()
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function clear():void
     {
@@ -1313,7 +1477,7 @@ public class FileSystemDataGrid extends DataGrid
         if (item.isDirectory)
         {
             return resourceManager.getString(
-            	"aircontrols", "fileSystemDataGrid_typeFolder");
+                "aircontrols", "fileSystemDataGrid_typeFolder");
         }
 
         // If item is a file without an extension, return "File".
@@ -1321,13 +1485,13 @@ public class FileSystemDataGrid extends DataGrid
         if (!extension || extension == "")
         {
             return resourceManager.getString(
-            	"aircontrols", "fileSystemDataGrid_typeFileWithoutExtension");
+                "aircontrols", "fileSystemDataGrid_typeFileWithoutExtension");
         }
 
         // If item is a file with an extension, return a String like "TXT File".
         return resourceManager.getString(
-        	"aircontrols", "fileSystemDataGrid_typeFileWithExtension",
-        	[ extension.toUpperCase() ]);
+            "aircontrols", "fileSystemDataGrid_typeFileWithExtension",
+            [ extension.toUpperCase() ]);
     }
 
     /**
@@ -1358,32 +1522,32 @@ public class FileSystemDataGrid extends DataGrid
 
         try
         {
-	        if (item.isDirectory)
-	        {
-	            label = resourceManager.getString(
-	            	"aircontrols", "fileSystemDataGrid_sizeFolder");
-	        }
-	        else if (sizeDisplayMode == FileSystemSizeDisplayMode.KILOBYTES)
-	        {
-	            var kb:int = Math.ceil(item.size / 1024);
-	            label = resourceManager.getString(
-	            	"aircontrols", "fileSystemDataGrid_sizeKilobytes",
-					[ kb ]);
-	        }
-	        else if (sizeDisplayMode == FileSystemSizeDisplayMode.BYTES)
-	        {
-	            label = resourceManager.getString(
-	            	"aircontrols", "fileSystemDataGrid_sizeBytes",
-					[ item.size ]);
-	        }
+            if (item.isDirectory)
+            {
+                label = resourceManager.getString(
+                    "aircontrols", "fileSystemDataGrid_sizeFolder");
+            }
+            else if (sizeDisplayMode == FileSystemSizeDisplayMode.KILOBYTES)
+            {
+                var kb:int = Math.ceil(item.size / 1024);
+                label = resourceManager.getString(
+                    "aircontrols", "fileSystemDataGrid_sizeKilobytes",
+                    [ kb ]);
+            }
+            else if (sizeDisplayMode == FileSystemSizeDisplayMode.BYTES)
+            {
+                label = resourceManager.getString(
+                    "aircontrols", "fileSystemDataGrid_sizeBytes",
+                    [ item.size ]);
+            }
         }
         catch(e:Error)
         {
-        	// item.size throws a File I/O Error for some files,
-        	// such as /etc/master.passwd and /etc/sudoers on a Mac
-        	
-	        label = resourceManager.getString(
-	        	"aircontrols", "fileSystemDataGrid_sizeFolder");
+            // item.size throws a File I/O Error for some files,
+            // such as /etc/master.passwd and /etc/sudoers on a Mac
+            
+            label = resourceManager.getString(
+                "aircontrols", "fileSystemDataGrid_sizeFolder");
         }
 
         return label;
@@ -1397,24 +1561,24 @@ public class FileSystemDataGrid extends DataGrid
         var size1:Number;
         try
         {
-        	size1 = item1.isDirectory ? 0 : item1.size;
+            size1 = item1.isDirectory ? 0 : item1.size;
         }
         catch(e1:Error)
         {
-        	// item.size throws a File I/O Error for some files,
-        	// such as /etc/master.passwd and /etc/sudoers on a Mac
-        	
-        	size1 = 0;
+            // item.size throws a File I/O Error for some files,
+            // such as /etc/master.passwd and /etc/sudoers on a Mac
+            
+            size1 = 0;
         }
 
         var size2:Number;
         try
         {
-        	size2 = item2.isDirectory ? 0 : item2.size;
+            size2 = item2.isDirectory ? 0 : item2.size;
         }
         catch(e2:Error)
         {
-        	size2 = 0;
+            size2 = 0;
         }
 
         if (size1 < size2)
@@ -1532,6 +1696,10 @@ class CustomDataGridColumn extends DataGridColumn
 
     /**
      *  Constructor.
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function CustomDataGridColumn(columnName:String = null)
     {
@@ -1550,336 +1718,5 @@ class CustomDataGridColumn extends DataGridColumn
     override public function itemToDataTip(data:Object):String
     {
         return labelFunction(data);
-    }
-}
-
-////////////////////////////////////////////////////////////////////////////////
-//
-//  Helper class: NameColumnRenderer
-//
-////////////////////////////////////////////////////////////////////////////////
-
-/**
- *  @private
- *  This helper class implements the renderer for the Name column,
- *  which displays an icon and a name for a File.
- *  We need a custom renderer because DataGridItemRenderer
- *  doesn't support an icon.
- */
-class NameColumnRenderer extends UIComponent
-    implements IDataRenderer, IDropInListItemRenderer, IListItemRenderer
-{
-    //--------------------------------------------------------------------------
-    //
-    //  Constructor
-    //
-    //--------------------------------------------------------------------------
-
-    /**
-     *  Constructor.
-     */
-    public function NameColumnRenderer()
-    {
-        super();
-    }
-
-    //--------------------------------------------------------------------------
-    //
-    //  Variables
-    //
-    //--------------------------------------------------------------------------
-
-    /**
-     *  @private
-     */
-    private var listOwner:ListBase;
-
-    //--------------------------------------------------------------------------
-    //
-    //  Overridden properties: UIComponent
-    //
-    //--------------------------------------------------------------------------
-
-    //----------------------------------
-    //  baselinePosition
-    //----------------------------------
-
-    /**
-     *  @private
-	 *  The baselinePosition of a NameColumnRenderer is calculated
-	 *  for its label.
-     */
-    override public function get baselinePosition():Number
-    {
-		if (!mx_internal::validateBaselinePosition())
-			return NaN;
-    	
-        return label.y + label.baselinePosition;
-    }
-
-    //--------------------------------------------------------------------------
-    //
-    //  Properties
-    //
-    //--------------------------------------------------------------------------
-
-    //----------------------------------
-    //  data
-    //----------------------------------
-
-    /**
-     *  @private
-     *  Storage for the data property.
-     */
-    private var _data:Object;
-
-    [Bindable("dataChange")]
-
-    /**
-     *  The implementation of the <code>data</code> property
-     *  as defined by the IDataRenderer interface.
-     *  When set, it stores the value and invalidates the component
-     *  to trigger a relayout of the component.
-     *
-     *  @see mx.core.IDataRenderer
-     */
-    public function get data():Object
-    {
-        return _data;
-    }
-
-    /**
-     *  @private
-     */
-    public function set data(value:Object):void
-    {
-        _data = value;
-
-        invalidateProperties();
-
-        dispatchEvent(new FlexEvent(FlexEvent.DATA_CHANGE));
-    }
-
-    //----------------------------------
-    //  icon
-    //----------------------------------
-
-    /**
-     *  The internal IFlexDisplayObject that displays the icon in this renderer.
-     */
-    protected var icon:IFlexDisplayObject;
-
-    //----------------------------------
-    //  label
-    //----------------------------------
-
-    /**
-     *  The internal IUITextField that displays the text in this renderer.
-     */
-    protected var label:IUITextField;
-
-    //----------------------------------
-    //  listData
-    //----------------------------------
-
-    /**
-     *  @private
-     *  Storage for the listData property.
-     */
-    private var _listData:DataGridListData;
-
-    [Bindable("dataChange")]
-
-    /**
-     *  The implementation of the <code>listData</code> property
-     *  as defined by the IDropInListItemRenderer interface.
-     *
-     *  @see mx.controls.listClasses.IDropInListItemRenderer
-     */
-    public function get listData():BaseListData
-    {
-        return _listData;
-    }
-
-    /**
-     *  @private
-     */
-    public function set listData(value:BaseListData):void
-    {
-        _listData = DataGridListData(value);
-
-        invalidateProperties();
-    }
-
-    //--------------------------------------------------------------------------
-    //
-    //  Overridden methods: UIComponent
-    //
-    //--------------------------------------------------------------------------
-
-    /**
-     *  @private
-     */
-    override protected function createChildren():void
-    {
-        super.createChildren();
-
-        if (!label)
-        {
-            label = IUITextField(createInFontContext(UITextField));
-            label.styleName = this;
-            addChild(DisplayObject(label));
-        }
-    }
-
-    /**
-     *  @private
-     *  Apply the data and listData.
-     *  Create an instance of the icon if specified,
-     *  and set the text into the text field.
-     */
-    override protected function commitProperties():void
-    {
-        super.commitProperties();
-
-        if (icon)
-        {
-            removeChild(DisplayObject(icon));
-            icon = null;
-        }
-
-        if (_data != null)
-        {
-            listOwner = ListBase(_listData.owner);
-
-            if (FileSystemDataGrid(listOwner).showIcons)
-            {
-                var iconClass:Class =
-                    listOwner.getStyle(File(_data).isDirectory ?
-                                       "directoryIcon" :
-                                       "fileIcon");
-                icon = new iconClass();
-                addChild(DisplayObject(icon));
-            }
-
-            label.text = _listData.label ? _listData.label : " ";
-            label.multiline = listOwner.variableRowHeight;
-            label.wordWrap = listOwner.wordWrap;
-
-            if (listOwner.showDataTips)
-            {
-                if (label.textWidth > label.width ||
-                    listOwner.dataTipFunction != null)
-                {
-                    toolTip = listOwner.itemToDataTip(_data);
-                }
-                else
-                {
-                    toolTip = null;
-                }
-            }
-            else
-            {
-                toolTip = null;
-            }
-        }
-        else
-        {
-            label.text = " ";
-            toolTip = null;
-        }
-    }
-
-    /**
-     *  @private
-     */
-    override protected function measure():void
-    {
-        super.measure();
-
-        var w:Number = 0;
-
-        if (icon)
-            w = icon.measuredWidth;
-
-        // Guarantee that label width isn't zero
-        // because it messes up ability to measure.
-        if (label.width < 4 || label.height < 4)
-        {
-            label.width = 4;
-            label.height = 16;
-        }
-
-        if (isNaN(explicitWidth))
-        {
-            w += label.getExplicitOrMeasuredWidth();
-            measuredWidth = w;
-            measuredHeight = label.getExplicitOrMeasuredHeight();
-        }
-        else
-        {
-            measuredWidth = explicitWidth;
-            label.setActualSize(Math.max(explicitWidth - w, 4), label.height);
-            measuredHeight = label.getExplicitOrMeasuredHeight();
-            if (icon && icon.measuredHeight > measuredHeight)
-                measuredHeight = icon.measuredHeight;
-        }
-    }
-
-    /**
-     *  @private
-     */
-    override protected function updateDisplayList(unscaledWidth:Number,
-                                                  unscaledHeight:Number):void
-    {
-        super.updateDisplayList(unscaledWidth, unscaledHeight);
-
-        var startX:Number = 0;
-
-        if (icon)
-        {
-            icon.x = startX;
-            startX = icon.x + icon.measuredWidth;
-            icon.setActualSize(icon.measuredWidth, icon.measuredHeight);
-        }
-
-        label.x = startX;
-        label.setActualSize(unscaledWidth - startX, measuredHeight);
-
-        var verticalAlign:String = getStyle("verticalAlign");
-        if (verticalAlign == "top")
-        {
-            label.y = 0;
-            if (icon)
-                icon.y = 0;
-        }
-        else if (verticalAlign == "bottom")
-        {
-            label.y = unscaledHeight - label.height + 2; // 2 for gutter
-            if (icon)
-                icon.y = unscaledHeight - icon.height;
-        }
-        else
-        {
-            label.y = (unscaledHeight - label.height) / 2;
-            if (icon)
-                icon.y = (unscaledHeight - icon.height) / 2;
-        }
-
-        var labelColor:Number;
-
-        if (data && parent)
-        {
-            if (!enabled)
-                labelColor = getStyle("disabledColor");
-            else if (listOwner.isItemHighlighted(listData.uid))
-                labelColor = getStyle("textRollOverColor");
-            else if (listOwner.isItemSelected(listData.uid))
-                labelColor = getStyle("textSelectedColor");
-            else
-                labelColor = getStyle("color");
-
-            label.setColor(labelColor);
-        }
     }
 }

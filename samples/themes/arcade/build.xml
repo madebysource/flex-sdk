@@ -1,0 +1,80 @@
+<?xml version="1.0"?>
+
+<!--
+
+	ADOBE SYSTEMS INCORPORATED
+	Copyright 2009 Adobe Systems Incorporated
+	All Rights Reserved.
+
+	NOTICE: Adobe permits you to use, modify, and distribute this file
+	in accordance with the terms of the license agreement accompanying it.
+
+-->
+
+<project name="arcade" default="main" basedir=".">
+
+	<property name="FLEX_HOME" location="${basedir}/../../.."/>
+	
+	<property name="THEME_NAME" value="arcade" />
+
+	<property file="${FLEX_HOME}/build.properties"/>
+
+    <!-- If you change this, update <target-player/> in the <compc/> tasks. -->
+    <property name="local.playerglobal.version" value="11.1"/>
+
+	<target name="main" depends="clean,compile" description="Clean build of ${THEME_NAME}.swc"/>
+
+	<target name="clean">
+		<delete failonerror="false">
+			<fileset dir="${basedir}">
+				<include name="${THEME_NAME}.swc"/>
+				<include name="${THEME_NAME}.swc.incr"/>
+			</fileset>
+		</delete>
+	</target>
+
+	<target name="compile" description="Compiles ${THEME_NAME}.swc">
+		<echo message="Compiling samples/themes/${THEME_NAME}/${THEME_NAME}.swc"/>
+		<!-- Load the <compc> task. We can't do this at the <project> level -->
+		<!-- because targets that run before flexTasks.jar gets built would fail. Classpath is set up to work in dev and released environments -->
+		<taskdef resource="flexTasks.tasks">
+			<classpath>
+				<pathelement path="${FLEX_HOME}/ant/lib/flexTasks.jar"/>
+				<pathelement path="${FLEX_HOME}/lib/flexTasks.jar"/>
+			</classpath>
+		</taskdef>
+		<!--
+			This project builds a theme SWC containing skin classes.
+			It has no MXML tags and therefore no manifest.
+			Link in all classes.
+			Compile against all of the SDK libs externally.
+			Link in accessibility support.
+			Include various CSS and asset files in the SWC.
+			Don't put any resources into the SWC. (The classes don't require any.)
+		-->		
+		<compc fork="true"
+			   output="${basedir}/${THEME_NAME}.swc">
+            <!-- If you change this, update ${local.playerglobal.version} above. -->
+            <target-player>10</target-player>
+			<jvmarg line="${compc.jvm.args}"/>
+			<include-classes>ArcadeClasses</include-classes>
+			<source-path path-element="${basedir}/src"/>
+			<library-path />
+            <external-library-path dir="${FLEX_HOME}/frameworks/libs">
+                <include name="player/${local.playerglobal.version}/playerglobal.swc"/>
+				<include name="framework.swc"/>
+				<include name="spark.swc"/>
+                <include name="textLayout.swc"/>
+                <include name="osmf.swc"/>
+				<include name="mx/mx.swc"/>
+			</external-library-path>
+			<include-file name="defaults.css" path="${basedir}/src/defaults.css"/>
+			<include-file name="assets/flex_skins.swf" path="${basedir}/src/assets/flex_skins.swf"/>
+			<include-file name="preview.jpg" path="${basedir}/src/preview.jpg"/>
+			<include-file name="metadata.xml" path="${basedir}/src/metadata.xml"/>
+			<locale/>
+			<accessible>true</accessible>
+		</compc>
+	</target>
+	
+</project>

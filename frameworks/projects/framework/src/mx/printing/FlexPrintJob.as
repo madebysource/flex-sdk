@@ -19,7 +19,7 @@ import flash.display.Stage;
 import flash.geom.Rectangle;
 import flash.printing.PrintJob;
 import flash.printing.PrintJobOptions;
-import mx.core.Application;
+import mx.core.FlexVersion;
 import mx.core.IFlexDisplayObject;
 import mx.core.IUIComponent;
 import mx.core.UIComponent;
@@ -38,6 +38,11 @@ use namespace mx_internal;
  *  @includeExample examples/FormPrintView.mxml -noswf
  *  @includeExample examples/PrintDataGridExample.mxml
  *
+ *  
+ *  @langversion 3.0
+ *  @playerversion Flash 9
+ *  @playerversion AIR 1.1
+ *  @productversion Flex 3
  */
 public class FlexPrintJob
 {
@@ -51,6 +56,11 @@ public class FlexPrintJob
 
     /**
      *  Constructor.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function FlexPrintJob()
     {
@@ -88,6 +98,11 @@ public class FlexPrintJob
      *  The height  of the printable area on the printer page; 
      *  it does not include any user-set margins. 
      *  It is set after start() method returns.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get pageHeight():Number
     {
@@ -108,6 +123,11 @@ public class FlexPrintJob
      *  The width of the printable area on the printer page;
      *  it does not include any user-set margins.
      *  This property is set after <code>start()</code> method returns.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get pageWidth():Number
     {
@@ -135,6 +155,11 @@ public class FlexPrintJob
      *  <code>false</code>.
      * 
      *  @default true
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get printAsBitmap():Boolean
     {
@@ -164,6 +189,11 @@ public class FlexPrintJob
      *  @return <code>true</code> if the user clicks OK
      *  when the print dialog box appears, or <code>false</code> if the user
      *  clicks Cancel or if an error occurs.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function start():Boolean
     {
@@ -195,6 +225,11 @@ public class FlexPrintJob
      *  object fits on one or more printed pages. 
      *  Must be one of the constant values defined in the FlexPrintJobScaleType
      *  class.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function addObject(obj:IUIComponent,
                               scaleType:String = "matchWidth"):void
@@ -214,16 +249,19 @@ public class FlexPrintJob
 
         var appExplicitWidth:Number;
         var appExplicitHeight:Number;
+        var applicationClass:Class = Class(obj.systemManager.getDefinitionByName("mx.core::Application"));
+        var fxApplicationClass:Class = Class(obj.systemManager.getDefinitionByName("spark.components::Application"));
 
-        if (obj is Application)
+        if ((applicationClass && obj is applicationClass) || 
+            (fxApplicationClass && obj is fxApplicationClass))
         {
             // The following loop is required only for scenario where 
             // application may have a few children with percent
             // width or height.
-            n = Application(obj).numChildren
+            n = obj["numElements"];
             for (i = 0; i < n; i++)
             {
-                child = IFlexDisplayObject(Application(obj).getChildAt(i));
+                child = IFlexDisplayObject(obj["getElementAt"](i));
                 
                 if (child is UIComponent &&
                     (!isNaN(UIComponent(child).percentWidth) ||
@@ -273,6 +311,11 @@ public class FlexPrintJob
 
             objWidth = obj.measuredWidth;
             objHeight = obj.measuredHeight;
+			if (FlexVersion.compatibilityVersion >= FlexVersion.VERSION_4_0)
+			{
+				objWidth *= obj.scaleX;
+				objHeight *= obj.scaleY;
+			}
         }
         else
         {
@@ -293,6 +336,11 @@ public class FlexPrintJob
             
             objWidth = obj.getExplicitOrMeasuredWidth();
             objHeight = obj.getExplicitOrMeasuredHeight();
+			if (FlexVersion.compatibilityVersion >= FlexVersion.VERSION_4_0)
+			{
+				objWidth *= obj.scaleX;
+				objHeight *= obj.scaleY;
+			}
         }
 
         var widthRatio:Number = _pageWidth/objWidth;
@@ -331,7 +379,8 @@ public class FlexPrintJob
 
         var arrPrintData:Array = prepareToPrintObject(obj);
 
-        if (obj is Application)
+        if ((applicationClass && obj is applicationClass) || 
+            (fxApplicationClass && obj is fxApplicationClass))
         {
             objWidth *= ratio;
             objHeight *= ratio;
@@ -340,6 +389,11 @@ public class FlexPrintJob
         {
             objWidth = obj.getExplicitOrMeasuredWidth();
             objHeight = obj.getExplicitOrMeasuredHeight();
+			if (FlexVersion.compatibilityVersion >= FlexVersion.VERSION_4_0)
+			{
+				objWidth *= obj.scaleX;
+				objHeight *= obj.scaleY;
+			}
         }
 
         // Find the number of pages required in vertical and horizontal.
@@ -391,13 +445,23 @@ public class FlexPrintJob
         obj.scaleX /= ratio;
         obj.scaleY /= ratio;
 
-        if (obj is Application)
+        if ((applicationClass && obj is applicationClass) || 
+            (fxApplicationClass && obj is fxApplicationClass))
         {
             if (!isNaN(appExplicitWidth)) //&& !isNaN(appExplicitHeight))
             {
-                UIComponent(obj).setActualSize(appExplicitWidth,appExplicitHeight);
-                //UIComponent(obj).explicitWidth = appExplicitWidth;
-                //UIComponent(obj).explicitHeight = appExplicitHeight;
+				// use setActualSize so it doesn't invalidate.
+				// nobody else should be resizing unless it is a sub-app
+				UIComponent(obj).setActualSize(appExplicitWidth,appExplicitHeight);
+				
+				// is it a sub-app?
+				if (!obj.systemManager.isTopLevelRoot())
+				{
+					// invalidate for sub-apps since they have to be re-layed out by
+					// the SWFLoader in some cases
+                	UIComponent(obj).explicitWidth = appExplicitWidth;
+                	UIComponent(obj).explicitHeight = appExplicitHeight;
+				}
 
                 appExplicitWidth = NaN;
                 appExplicitHeight = NaN;
@@ -409,10 +473,10 @@ public class FlexPrintJob
             // The following loop is required only for scenario
             // where application may have a few children
             // with percent width or height.
-            n = Application(obj).numChildren
+            n = obj["numElements"];
             for (i = 0; i < n; i++)
             {
-                child = IFlexDisplayObject(Application(obj).getChildAt(i));
+                child = IFlexDisplayObject(obj["getElementAt"](i));
                 if (child is UIComponent && childPercentSizes[child.name])
                 {
                     var childPercentSize:Object = childPercentSizes[child.name];
@@ -460,6 +524,11 @@ public class FlexPrintJob
      *  Sends the added objects to the printer to start printing.
      *  Call this method after you have used the <code>addObject()</code>
      *  method to add the print pages.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function send():void
     {

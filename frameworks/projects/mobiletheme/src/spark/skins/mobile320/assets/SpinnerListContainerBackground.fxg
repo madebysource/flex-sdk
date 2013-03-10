@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+	ADOBE SYSTEMS INCORPORATED
+	Copyright 2011 Adobe Systems Incorporated
+	All Rights Reserved.
+
+	NOTICE: Adobe permits you to use, modify, and distribute this file
+	in accordance with the terms of the license agreement accompanying it.
+
+-->
+<Graphic version="2.0" xmlns="http://ns.adobe.com/fxg/2008" viewHeight= "100" viewWidth= "100"
+	scaleGridLeft="12" scaleGridTop="12" scaleGridRight="88" scaleGridBottom="88">
+
+	<Rect width="100" height="100" radiusX="10" radiusY="10">
+		<fill>
+			<SolidColor color="#4D4D4D"/>
+		</fill>
+	</Rect>
+	<Rect x="2" y="2" width="96" height="96" radiusX="10" radiusY="10">
+		<fill>	
+			<SolidColor color="#F2F2F2"/>
+		</fill>
+	</Rect>
+</Graphic>

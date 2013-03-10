@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+
+    ADOBE SYSTEMS INCORPORATED
+    Copyright 2009 Adobe Systems Incorporated
+    All Rights Reserved.
+
+    NOTICE: Adobe permits you to use, modify, and distribute this file
+    in accordance with the terms of the license agreement accompanying it.
+
+-->
+<!--- The default skin class for the gripper button in the Spark WindowedApplication component
+      and Spark Window component when you use Flex chrome. 
+      The gripper button appears in the lower-right corner of the container.
+      Use the gripper button to resize the AIR window.
+      The Flex chrome is defined by the SparkChromeWindowedApplicationSkin skin class 
+      in the spark.skins.spark package. 
+      To use the Flex chrome, set <code>systemChrome</code> to "none" in the application's .xml file,
+      and set the <code>skinClass</code> style to spark.skins.spark.SparkChromeWindowedApplicationSkin. 
+
+      @langversion 3.0
+      @playerversion Flash 10
+      @playerversion AIR 1.5
+      @productversion Flex 4
+
+      @see spark.components.WindowedApplication
+      @see spark.components.Window
+-->
+<s:Skin xmlns:fx="http://ns.adobe.com/mxml/2009" xmlns:s="library://ns.adobe.com/flex/spark" minWidth="7" minHeight="9" >
+    
+    <!-- host component -->
+    <fx:Metadata>
+        <![CDATA[ 
+        /** 
+         * @copy spark.skins.spark.ApplicationSkin#hostComponent
+         */
+        [HostComponent("spark.components.Button")]
+        ]]>
+    </fx:Metadata>
+   
+    <s:states>
+        <s:State name="up" />
+        <s:State name="over" />
+        <s:State name="down" />
+        <s:State name="disabled" />
+    </s:states>
+    
+    <!--- Defines the background color of the skin. -->
+    <s:Rect id="backgroundRect" left="0" right="0" top="0" bottom="0">
+        <s:fill>
+            <s:SolidColor color="#000000" alpha=".0001" />
+        </s:fill>
+    </s:Rect>
+    
+    <!-- BitmapImage sets layoutDirection = "ltr". By setting it to null here, the gripper will assume the direction of its parent. -->
+    <s:BitmapImage layoutDirection="{null}" source="@Embed('../../../../../assets/gripper_up.png')" right="0" bottom="0" verticalCenter="0" fillMode="clip"/>
+    
+</s:Skin>
+    

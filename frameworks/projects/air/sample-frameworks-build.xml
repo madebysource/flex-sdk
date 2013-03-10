@@ -14,27 +14,29 @@ accordance with such agreement.
 -->
 
 <project default="main" basedir=".">
-    <!-- property name="flex.home" value="C:/Flash Builder 4/sdks/4.0.0"/-->
+    <!-- property name="flex.home" value="C:/Flex/sdks/3.2.0"/-->
     
     <condition property="valid.flex.home">
-      <isset property="flex.home"/>
+        <and>
+          <isset property="flex.home"/>
+        </and>
     </condition>
     
     <target name="init">
       <fail message="Property flex.home must be set'" unless="valid.flex.home"/>
     </target>
     
-    <target name="main" depends="frameworks.application_updater,frameworks.service_monitor"/>
+    <target name="main" depends="frameworks.application_updater,frameworks.aircore"/>
     
     <property name="results" value="${basedir}/build/results" />
     <property name="intermediate" value="${basedir}/build/intermediate" />
     
     <uptodate property="application_updater_headless.uptodate" targetfile="${results}/applicationupdater.swc">
-        <srcfiles dir="src" includes="**"/>
+        <srcfiles dir="ApplicationUpdater/src" includes="**"/>
     </uptodate>
 
     <uptodate property="application_updater_ui.uptodate" targetfile="${results}/applicationupdater_ui.swc">
-      <srcfiles dir="src" includes="**"/>
+      <srcfiles dir="ApplicationUpdater/src" includes="**"/>
     </uptodate>
     
     <condition property="amxmlc3.1" value="${flex.home}/bin/amxmlc.bat">
@@ -157,6 +159,9 @@ accordance with such agreement.
             source-path="${basedir}/ApplicationUpdater/src/ApplicationUpdaterDialogs"
             target-player="9.0.124"
         >
+			<optional-args>
+				<arg value="-accessible" />
+			</optional-args>
             <locale-arg>
                 <arg line="-locale=en_US,de,es,fr,it,ja,ko,pt,ru,zh_Hans,zh_Hant,cs,nl,pl,sv,tr" />
                 <arg line="-allow-source-path-overlap=true" />
@@ -188,8 +193,9 @@ accordance with such agreement.
                 </locale-arg>
             </locale-path-arg>
         </build_framework>
+        <move file="${results}/applicationupdater_ui.swc" tofile="${results}/applicationupdater_ui.swc"/>
     </target>
-
+    
     <target name="application_updater.application_updater_headless" unless="application_updater_headless.uptodate">
         <mkdir dir="${intermediate}/ApplicationUpdater/headless" />
         <copy todir="${intermediate}/ApplicationUpdater/headless">
@@ -213,23 +219,23 @@ accordance with such agreement.
         </build_framework>
     </target>
     
-    <uptodate property="service_monitor.uptodate" targetfile="${results}/servicemonitor.swc">
-        <srcfiles dir="${basedir}/ServiceMonitor" includes="**"/>
+    <uptodate property="aircore.uptodate" targetfile="${results}/lib/aircore.swc">
+        <srcfiles dir="Core" includes="**"/>
     </uptodate>
 
-    <target name="frameworks.service_monitor" depends="init" unless="service_monitor.uptodate">
+    <target name="frameworks.aircore" unless="aircore.uptodate">
         <build_framework
-            framework-path="${basedir}/ServiceMonitor/src"
-            framework-name="servicemonitor"
-            include-classes="air.net.ServiceMonitor air.net.SocketMonitor air.net.URLMonitor">
+            framework-path="${basedir}/Core/src"
+            framework-name="aircore"
+            include-classes="air.net.ServiceMonitor air.net.SocketMonitor air.net.URLMonitor air.net.SecureSocketMonitor air.desktop.URLFilePromise">
             <locale-path-arg>
                 <locale-arg>
                     <!-- Add manifest and namespace for Flash CS3 compatibility -->
-                    <arg line="-namespace http://ns.adobe.com/air/framework/monitor ${basedir}/ServiceMonitor/manifest.xml"/>
-                    <arg line="-include-namespaces http://ns.adobe.com/air/framework/monitor"/>
+                    <arg line="-namespace http://ns.adobe.com/air/framework/core ${basedir}/Core/manifest.xml"/>
+                    <arg line="-include-namespaces http://ns.adobe.com/air/framework/core"/>
                 </locale-arg>
             </locale-path-arg>
         </build_framework>
-    </target>    
+    </target>
 
 </project>

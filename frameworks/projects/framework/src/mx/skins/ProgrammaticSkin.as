@@ -15,23 +15,34 @@ package mx.skins
 import flash.display.Graphics;
 import flash.display.Shape;
 import flash.geom.Matrix;
+import flash.utils.getDefinitionByName;
+
+import mx.core.FlexShape;
+import mx.core.IFlexModule;
+import mx.core.IFlexModuleFactory;
 import mx.core.IInvalidating;
 import mx.core.IFlexDisplayObject;
-import mx.core.UIComponentGlobals;
+import mx.core.IProgrammaticSkin;
 import mx.core.mx_internal;
+import mx.core.UIComponentGlobals;
 import mx.managers.ILayoutManagerClient;
 import mx.styles.ISimpleStyleClient;
 import mx.styles.IStyleClient;
+import mx.styles.IStyleManager2;
+import mx.styles.StyleManager;
 import mx.utils.GraphicsUtil;
 import mx.utils.NameUtil;
-import mx.core.FlexShape;
-import mx.core.IProgrammaticSkin;
 
 use namespace mx_internal;
 
 /**
  *  This class is the base class for skin elements
  *  which draw themselves programmatically.
+ *  
+ *  @langversion 3.0
+ *  @playerversion Flash 9
+ *  @playerversion AIR 1.1
+ *  @productversion Flex 3
  */
 public class ProgrammaticSkin extends FlexShape
 							  implements IFlexDisplayObject, IInvalidating,
@@ -50,7 +61,13 @@ public class ProgrammaticSkin extends FlexShape
 	 *  Set by horizontalGradientMatrix() or verticalGradientMatrix().
 	 */
 	private static var tempMatrix:Matrix = new Matrix();
-	
+
+    /**
+     *  @private
+     *  Soft link to UIComponent. Cache the class for performance.
+     */
+    private static var uiComponentClass:Class;
+
 	//--------------------------------------------------------------------------
 	//
 	//  Constructor
@@ -59,6 +76,11 @@ public class ProgrammaticSkin extends FlexShape
 
 	/**
 	 *  Constructor.
+	 *  
+	 *  @langversion 3.0
+	 *  @playerversion Flash 9
+	 *  @playerversion AIR 1.1
+	 *  @productversion Flex 3
 	 */
 	public function ProgrammaticSkin()
 	{
@@ -159,6 +181,11 @@ public class ProgrammaticSkin extends FlexShape
 	 *  the skin.
 	 *
 	 *  @return The measured height of the object, in pixels.
+	 *  
+	 *  @langversion 3.0
+	 *  @playerversion Flash 9
+	 *  @playerversion AIR 1.1
+	 *  @productversion Flex 3
 	 */
 	public function get measuredHeight():Number
 	{
@@ -175,6 +202,11 @@ public class ProgrammaticSkin extends FlexShape
 	 *  the skin.
 	 *
 	 *  @return The measured width of the object, in pixels.
+	 *  
+	 *  @langversion 3.0
+	 *  @playerversion Flash 9
+	 *  @playerversion AIR 1.1
+	 *  @productversion Flex 3
 	 */
 	public function get measuredWidth():Number
 	{
@@ -199,6 +231,11 @@ public class ProgrammaticSkin extends FlexShape
 
     /**
 	 *  @copy mx.core.UIComponent#initialized
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get initialized():Boolean
 	{
@@ -225,6 +262,11 @@ public class ProgrammaticSkin extends FlexShape
     
 	/**
      *  @copy mx.core.UIComponent#nestLevel
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
 	public function get nestLevel():int
 	{
@@ -255,6 +297,11 @@ public class ProgrammaticSkin extends FlexShape
 
     /**
      *  @copy mx.core.UIComponent#processedDescriptors
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get processedDescriptors():Boolean
 	{
@@ -282,6 +329,11 @@ public class ProgrammaticSkin extends FlexShape
     /**
 	 *  A flag that determines if an object has been through all three phases
 	 *  of layout validation (provided that any were required).
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get updateCompletePendingFlag():Boolean
 	{
@@ -316,6 +368,11 @@ public class ProgrammaticSkin extends FlexShape
     /**
      *  A parent component used to obtain style values. This is typically set to the
      *  component that created this skin.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get styleName():Object
     {
@@ -346,6 +403,11 @@ public class ProgrammaticSkin extends FlexShape
      	 *  @param x The horizontal position, in pixels.
 	 *
      	 *  @param y The vertical position, in pixels.
+	 *  
+	 *  @langversion 3.0
+	 *  @playerversion Flash 9
+	 *  @playerversion AIR 1.1
+	 *  @productversion Flex 3
 	 */
 	public function move(x:Number, y:Number):void
 	{
@@ -359,6 +421,11 @@ public class ProgrammaticSkin extends FlexShape
      	 *  @param newWidth The width, in pixels, of this object.
 	 *
      	 *  @param newHeight The height, in pixels, of this object.
+	 *  
+	 *  @langversion 3.0
+	 *  @playerversion Flash 9
+	 *  @playerversion AIR 1.1
+	 *  @productversion Flex 3
 	 */
 	public function setActualSize(newWidth:Number, newHeight:Number):void
 	{
@@ -391,6 +458,11 @@ public class ProgrammaticSkin extends FlexShape
 	 *  can implement the ILayoutManagerClient  interface.
 	 *  Skins do not call <code>LayoutManager.invalidateProperties()</code>, 
 	 *  which would normally trigger a call to this method.
+	 *  
+	 *  @langversion 3.0
+	 *  @playerversion Flash 9
+	 *  @playerversion AIR 1.1
+	 *  @productversion Flex 3
 	 */
 	public function validateProperties():void
 	{
@@ -403,6 +475,11 @@ public class ProgrammaticSkin extends FlexShape
 	 *  which would normally trigger a call to this method.
          *
      	 *  @param recursive Determines whether children of this skin are validated. 
+	 *  
+	 *  @langversion 3.0
+	 *  @playerversion Flash 9
+	 *  @playerversion AIR 1.1
+	 *  @productversion Flex 3
 	 */
 	public function validateSize(recursive:Boolean = false):void
 	{
@@ -413,6 +490,11 @@ public class ProgrammaticSkin extends FlexShape
 	 *  when it's time for this control to draw itself.
 	 *  The actual drawing happens in the <code>updateDisplayList</code>
 	 *  function, which is called by this function.
+	 *  
+	 *  @langversion 3.0
+	 *  @playerversion Flash 9
+	 *  @playerversion AIR 1.1
+	 *  @productversion Flex 3
 	 */
 	public function validateDisplayList():void
 	{
@@ -434,6 +516,11 @@ public class ProgrammaticSkin extends FlexShape
 	 *
 	 *  @param styleProp The name of the style property that changed, or null
 	 *  if all styles have changed.
+	 *  
+	 *  @langversion 3.0
+	 *  @playerversion Flash 9
+	 *  @playerversion AIR 1.1
+	 *  @productversion Flex 3
 	 */
 	public function styleChanged(styleProp:String):void
 	{
@@ -448,6 +535,11 @@ public class ProgrammaticSkin extends FlexShape
 
 	/**
 	 *  @copy mx.core.UIComponent#invalidateDisplayList()
+	 *  
+	 *  @langversion 3.0
+	 *  @playerversion Flash 9
+	 *  @playerversion AIR 1.1
+	 *  @productversion Flex 3
 	 */
 	public function invalidateDisplayList():void
 	{
@@ -477,6 +569,11 @@ public class ProgrammaticSkin extends FlexShape
 	 *
          *  @param unscaledHeight
 	 *  The height, in pixels, of this object before any scaling.
+	 *  
+	 *  @langversion 3.0
+	 *  @playerversion Flash 9
+	 *  @playerversion AIR 1.1
+	 *  @productversion Flex 3
 	 */
 	protected function updateDisplayList(unscaledWidth:Number,
 									     unscaledHeight:Number):void
@@ -485,6 +582,11 @@ public class ProgrammaticSkin extends FlexShape
 
 	/**
 	 *  @inheritDoc
+	 *  
+	 *  @langversion 3.0
+	 *  @playerversion Flash 9
+	 *  @playerversion AIR 1.1
+	 *  @productversion Flex 3
 	 */
 	public function invalidateSize():void
 	{
@@ -492,6 +594,11 @@ public class ProgrammaticSkin extends FlexShape
 
 	/**
 	 *  @inheritDoc
+	 *  
+	 *  @langversion 3.0
+	 *  @playerversion Flash 9
+	 *  @playerversion AIR 1.1
+	 *  @productversion Flex 3
 	 */
 	public function invalidateProperties():void
 	{
@@ -500,6 +607,11 @@ public class ProgrammaticSkin extends FlexShape
 	/**
 	 *  Validate and update the properties and layout of this object
 	 *  and redraw it, if necessary.
+	 *  
+	 *  @langversion 3.0
+	 *  @playerversion Flash 9
+	 *  @playerversion AIR 1.1
+	 *  @productversion Flex 3
 	 */
 	public function validateNow():void
 	{
@@ -516,12 +628,34 @@ public class ProgrammaticSkin extends FlexShape
      *
      *  @return The style value. This can be any type of object that style properties can be, such as 
      *  int, Number, String, etc.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function getStyle(styleProp:String):*
     {
         return _styleName ? _styleName.getStyle(styleProp) : null;
     }
 		
+    /**
+     *  @private
+     *  Get the style manager for this skin. The style manager is 
+     *  based on the UIComponent that owns the skin. If this skin does not
+     *  have a styleName then use the top-level style manager.
+     */     
+    protected function get styleManager():IStyleManager2
+    {
+        if (uiComponentClass == null)
+            uiComponentClass = Class(getDefinitionByName("mx.core.UIComponent"));
+        
+        if (styleName is uiComponentClass) 
+            return styleName.styleManager;
+        else
+            return StyleManager.getStyleManager(null);
+    }
+
 	/**
 	 *  Utility function to create a horizontal gradient matrix.
 	 *
@@ -536,6 +670,11 @@ public class ProgrammaticSkin extends FlexShape
 	 *  @return The horizontal gradient matrix. This is a temporary
 	 *  object that should only be used for a single subsequent call
 	 *  to the <code>drawRoundRect()</code> method.
+	 *  
+	 *  @langversion 3.0
+	 *  @playerversion Flash 9
+	 *  @playerversion AIR 1.1
+	 *  @productversion Flex 3
 	 */
 	protected function horizontalGradientMatrix(x:Number, y:Number,
 												width:Number,
@@ -558,6 +697,11 @@ public class ProgrammaticSkin extends FlexShape
 	 *  @return The horizontal gradient matrix. This is a temporary
 	 *  object that should only be used for a single subsequent call
 	 *  to the <code>drawRoundRect()</code> method.
+	 *  
+	 *  @langversion 3.0
+	 *  @playerversion Flash 9
+	 *  @playerversion AIR 1.1
+	 *  @productversion Flex 3
 	 */
 	protected function verticalGradientMatrix(x:Number, y:Number,
 											  width:Number,
@@ -582,6 +726,11 @@ public class ProgrammaticSkin extends FlexShape
 	 *  @return The horizontal gradient matrix. This is a temporary
 	 *  object that should only be used for a single subsequent call
 	 *  to the <code>drawRoundRect()</code> method.
+	 *  
+	 *  @langversion 3.0
+	 *  @playerversion Flash 9
+	 *  @playerversion AIR 1.1
+	 *  @productversion Flex 3
 	 */
 	protected function rotatedGradientMatrix(x:Number, y:Number,
 											 width:Number,
@@ -690,6 +839,11 @@ public class ProgrammaticSkin extends FlexShape
 	 *  { x: #, y: #, w: #, h: #, r: # or { br: #, bl: #, tl: #, tr: # } }
 	 *
 	 *  @see flash.display.Graphics#beginGradientFill()
+	 *  
+	 *  @langversion 3.0
+	 *  @playerversion Flash 9
+	 *  @playerversion AIR 1.1
+	 *  @productversion Flex 3
 	 */
 	protected function drawRoundRect(
 							x:Number, y:Number, width:Number, height:Number,

@@ -13,6 +13,7 @@ package mx.formatters
 {
 
 import flash.events.Event;
+import mx.formatters.IFormatter;
 import mx.core.mx_internal;
 import mx.managers.ISystemManager;
 import mx.managers.SystemManager;
@@ -40,8 +41,13 @@ use namespace mx_internal;
  *  </pre>
  *  
  *  @includeExample examples/SimpleFormatterExample.mxml
+ *  
+ *  @langversion 3.0
+ *  @playerversion Flash 9
+ *  @playerversion AIR 1.1
+ *  @productversion Flex 3
  */
-public class Formatter
+public class Formatter implements IFormatter 
 {
     include "../core/Version.as";
 
@@ -105,6 +111,11 @@ public class Formatter
 	 *  Error message for an invalid format string specified to the formatter.
 	 * 
 	 *  @default "Invalid format"
+	 *  
+	 *  @langversion 3.0
+	 *  @playerversion Flash 9
+	 *  @playerversion AIR 1.1
+	 *  @productversion Flex 3
 	 */
 	public static function get defaultInvalidFormatError():String
 	{
@@ -146,6 +157,11 @@ public class Formatter
 	 *  Error messages for an invalid value specified to the formatter.
 	 * 
 	 *  @default "Invalid value"
+	 *  
+	 *  @langversion 3.0
+	 *  @playerversion Flash 9
+	 *  @playerversion AIR 1.1
+	 *  @productversion Flex 3
 	 */
 	public static function get defaultInvalidValueError():String
 	{
@@ -225,6 +241,11 @@ public class Formatter
 
 	/**
 	 *  Constructor.
+	 *  
+	 *  @langversion 3.0
+	 *  @playerversion Flash 9
+	 *  @playerversion AIR 1.1
+	 *  @productversion Flex 3
 	 */
 	public function Formatter()
 	{
@@ -257,6 +278,11 @@ public class Formatter
 	 *  see the description of each formatter.
 	 *  <p>Subclasses must set this value
 	 *  in the <code>format()</code> method.</p>
+	 *  
+	 *  @langversion 3.0
+	 *  @playerversion Flash 9
+	 *  @playerversion AIR 1.1
+	 *  @productversion Flex 3
 	 */
 	public var error:String;
 
@@ -280,6 +306,11 @@ public class Formatter
 	
 	/**
 	 *  @copy mx.core.UIComponent#resourceManager
+	 *  
+	 *  @langversion 3.0
+	 *  @playerversion Flash 9
+	 *  @playerversion AIR 1.1
+	 *  @productversion Flex 3
 	 */
 	protected function get resourceManager():IResourceManager
     {
@@ -306,6 +337,11 @@ public class Formatter
 	 *  <p>Subclasses should override this method and, after calling
 	 *  <code>super.resourcesChanged()</code>, do whatever is appropriate
 	 *  in response to having new resource values.</p>
+	 *  
+	 *  @langversion 3.0
+	 *  @playerversion Flash 9
+	 *  @playerversion AIR 1.1
+	 *  @productversion Flex 3
 	 */
 	protected function resourcesChanged():void
 	{
@@ -319,6 +355,11 @@ public class Formatter
 	 *  @param value Value to be formatted.
 	 *
 	 *  @return The formatted string.
+	 *  
+	 *  @langversion 3.0
+	 *  @playerversion Flash 9
+	 *  @playerversion AIR 1.1
+	 *  @productversion Flex 3
 	 */
 	public function format(value:Object):String
 	{

@@ -24,6 +24,11 @@ import mx.utils.DescribeTypeCache;
  *  that you can use with bindable Flex properties.
  *  These methods let you define an event handler that is executed
  *  whenever a bindable property is updated.
+ *  
+ *  @langversion 3.0
+ *  @playerversion Flash 9
+ *  @playerversion AIR 1.1
+ *  @productversion Flex 3
  */
 public class ChangeWatcher
 {
@@ -49,6 +54,8 @@ public class ChangeWatcher
      *  You can use the use the <code>reset()</code> method to change
      *  the value of the <code>host</code> argument after creating
      *  the ChangeWatcher instance.
+     *  The <code>host</code> maintains a list of <code>handlers</code> to invoke 
+     *  when <code>prop</code> changes.
      *
      *  @param chain A value specifying the property or chain to be watched.
      *  Legal values are:
@@ -100,6 +107,11 @@ public class ChangeWatcher
      *  Typically these tags are used to indicate fine-grained value changes,
      *  such as modifications in a text field prior to confirmation.
      *
+     *  @param useWeakReference (default = false) Determines whether
+     *  the reference to <code>handler</code> is strong or weak. A strong
+     *  reference (the default) prevents <code>handler</code> from being
+     *  garbage-collected. A weak reference does not.
+     *
      *  @return The ChangeWatcher instance, if at least one property name has
      *  been specified to the <code>chain</code> argument; null otherwise.
      *  Note that the returned watcher is not guaranteed to have successfully
@@ -109,10 +121,16 @@ public class ChangeWatcher
      *  watcher's state.
      *
      *  @see mx.events.PropertyChangeEvent
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public static function watch(host:Object, chain:Object,
                                  handler:Function,
-                                 commitOnly:Boolean = false):ChangeWatcher
+                                 commitOnly:Boolean = false,
+                                 useWeakReference:Boolean = false):ChangeWatcher
     {
         if (!(chain is Array))
             chain = [ chain ];
@@ -122,6 +140,7 @@ public class ChangeWatcher
             var w:ChangeWatcher =
                 new ChangeWatcher(chain[0], handler, commitOnly,
                     watch(null, chain.slice(1), handler, commitOnly));
+            w.useWeakReference = useWeakReference;
             w.reset(host);
             return w;
         }
@@ -133,12 +152,15 @@ public class ChangeWatcher
 
     /**
      *  Lets you determine if the host exposes a data-binding event
-     *  on the property.
+     *  on the property. 
+     * 
+     *  <p>NOTE: Property chains are not supported by the <code>canWatch()</code> method.
+     * They are supported by the <code>watch()</code> method.</p>
      *
      *  @param host The host of the property.
      *  See the <code>watch()</code> method for more information.
      *
-     *  @param name The name of the property, or property chain.
+     *  @param name The name of the property.
      *  See the <code>watch()</code> method for more information.
      *
      *  @param commitOnly Set to <code>true</code> if the handler
@@ -147,6 +169,11 @@ public class ChangeWatcher
      *
      *  @return <code>true</code> if <code>host</code> exposes
      *  any change events on <code>name</code>.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public static function canWatch(host:Object, name:String,
                                     commitOnly:Boolean = false):Boolean
@@ -155,8 +182,7 @@ public class ChangeWatcher
     }
 
     /**
-     *  Returns all the binding events for all bindable properties
-     *  in the host object.
+     *  Returns all binding events for a bindable property in the host object.
      *
      *  @param host The host of the property.
      *  See the <code>watch()</code> method for more information.
@@ -169,6 +195,11 @@ public class ChangeWatcher
      *
      *  @return Object of the form <code>{ eventName: isCommitting, ... }</code>
      *  containing all change events for the property.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public static function getEvents(host:Object, name:String,
                                      commitOnly:Boolean = false):Object
@@ -210,6 +241,11 @@ public class ChangeWatcher
      *  @param Object to inspect.
      *
      *  @return <code>true</code> if Object has no properties.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     private static function isEmpty(obj:Object):Boolean
     {
@@ -230,6 +266,11 @@ public class ChangeWatcher
      *  Constructor.
      *  Not for public use. This method is called only from the <code>watch()</code> method.
      *  See the <code>watch()</code> method for parameter usage.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function ChangeWatcher(access:Object, handler:Function,
                                   commitOnly:Boolean = false,
@@ -244,6 +285,8 @@ public class ChangeWatcher
         this.commitOnly = commitOnly;
         this.next = next;
         events = {};
+        useWeakReference = false;
+        isExecuting = false;
     }
 
     //--------------------------------------------------------------------------
@@ -256,30 +299,55 @@ public class ChangeWatcher
      *  Host object.
      *  Volatile; may be reset, and will fluctuate in non-root watchers
      *  due to property value changes.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     private var host:Object;
 
     /**
      *  Name of watched property.
      *  Nonvolatile.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     private var name:String;
 
     /**
      *  Optional user-supplied getter function.
      *  Nonvolatile.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     private var getter:Function;
 
     /**
      *  User-supplied event handler function.
      *  Nonvolatile.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     private var handler:Function;
 
     /**
      *  True iff watching only committing events.
      *  Nonvolatile.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     private var commitOnly:Boolean;
 
@@ -287,14 +355,56 @@ public class ChangeWatcher
      *  If watching a chain, this is a watcher on the next property
      *  in the chain: next.host == host[name].
      *  Null otherwise. Nonvolatile.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     private var next:ChangeWatcher;
 
     /**
      *  Object { <event-name>: <is-committing>, ... } for current host[name].
      *  Volatile; varies with host.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     private var events:Object;
+
+    /**
+     * True while handling a change event.  Used to prevent two way
+     * bindings from getting into an infinite loop.
+     */
+    private var isExecuting:Boolean;
+
+    //--------------------------------------------------------------------------
+    //
+    //  Properties
+    //
+    //--------------------------------------------------------------------------
+
+    //----------------------------------
+    //  useWeakReference
+    //----------------------------------
+
+    /**
+     *  Determines whether the reference to <code>handler</code>
+     *  is strong or weak. 
+     *  A strong reference (the default) prevents
+     *  <code>handler</code> from being garbage-collected. 
+     *  A weak reference does not.
+     *
+     *  @default false 
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
+     */
+    public var useWeakReference:Boolean;
 
     //--------------------------------------------------------------------------
     //
@@ -308,6 +418,11 @@ public class ChangeWatcher
      *  You can use the <code>reset()</code> method to reattach
      *  the ChangeWatcher instance, or watch the same property
      *  or chain on a different host object.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function unwatch():void
     {
@@ -323,6 +438,11 @@ public class ChangeWatcher
      *  </pre>
      *
      *  @return The current value of the watched property or property chain.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function getValue():Object
     {
@@ -337,6 +457,11 @@ public class ChangeWatcher
      *  Sets the handler function.
      *
      *  @param handler The handler function. This argument must not be null.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function setHandler(handler:Function):void
     {
@@ -354,6 +479,11 @@ public class ChangeWatcher
      *
      *  @return <code>true</code> if each watcher in the chain is attached
      *  to at least one change event.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function isWatching():Boolean
     {
@@ -367,6 +497,11 @@ public class ChangeWatcher
      *
      *  @param newHost The new host of the property.
      *  See the <code>watch()</code> method for more information.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function reset(newHost:Object):void
     {
@@ -388,7 +523,8 @@ public class ChangeWatcher
             events = getEvents(host, name, commitOnly);
             for (p in events)
             {
-                host.addEventListener(p, wrapHandler, false, EventPriority.BINDING, false);
+                host.addEventListener(p, wrapHandler, false,
+                    EventPriority.BINDING, useWeakReference);
             }
         }
 
@@ -414,17 +550,29 @@ public class ChangeWatcher
      */
     private function wrapHandler(event:Event):void
     {
-        if (next)
-            next.reset(getHostPropertyValue());
+        if (!isExecuting)
+        {
+            try
+            {
+                isExecuting = true;
 
-        if (event is PropertyChangeEvent)
-        {
-            if ((event as PropertyChangeEvent).property == name)
-                handler(event as PropertyChangeEvent);
-        }
-        else
-        {
-            handler(event);
+                if (next)
+                    next.reset(getHostPropertyValue());
+
+                if (event is PropertyChangeEvent)
+                {
+                    if ((event as PropertyChangeEvent).property == name)
+                        handler(event as PropertyChangeEvent);
+                }
+                else
+                {
+                    handler(event);
+                }
+            }
+            finally
+            {
+                isExecuting = false;
+            }
         }
     }
 

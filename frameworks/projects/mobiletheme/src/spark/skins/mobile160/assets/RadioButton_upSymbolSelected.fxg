@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+	ADOBE SYSTEMS INCORPORATED
+	Copyright 2010 Adobe Systems Incorporated
+	All Rights Reserved.
+
+	NOTICE: Adobe permits you to use, modify, and distribute this file
+	in accordance with the terms of the license agreement accompanying it.
+
+-->
+<Graphic version="2.0" xmlns="http://ns.adobe.com/fxg/2008">
+	<Path data="M 8 16 C 8 12 12 8 16 8 C 20 8 24 12 24 16 C 24 20 20 24 16 24 C 12 24 8 20 8 16 Z ">
+		<fill>
+			<SolidColor color="#323232"/>
+		</fill>
+	</Path>
+	<Path data="M 9 16 C 9 12 12 9 16 9 C 20 9 23 12 23 16 C 23 20 20 23 16 23 C 12 23 9 20 9 16 Z ">
+		<fill>
+			<LinearGradient x = "16" y = "9" scaleX = "15" rotation = "90">
+				<GradientEntry color="#5a5a5a" ratio="0" alpha="1"/>
+				<GradientEntry color="#323232" ratio="1" alpha="1"/>
+			</LinearGradient>
+		</fill>
+	</Path>
+</Graphic>

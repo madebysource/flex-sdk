@@ -12,11 +12,10 @@
 package mx.core
 {
 
-import flash.text.TextField;
 import flash.text.TextFormat;
 import flash.text.TextLineMetrics;
+
 import mx.managers.ISystemManager;
-import mx.managers.SystemManagerGlobals;
 
 /**
  *  The UITextFormat class represents character formatting information
@@ -30,6 +29,11 @@ import mx.managers.SystemManagerGlobals;
  *  controlling the advanced anti-aliasing of fonts.</p>
  *
  *  @see mx.core.UITextField
+ *  
+ *  @langversion 3.0
+ *  @playerversion Flash 9
+ *  @playerversion AIR 1.1
+ *  @productversion Flex 3
  */
 public class UITextFormat extends TextFormat
 {
@@ -44,6 +48,8 @@ public class UITextFormat extends TextFormat
     //----------------------------------
     //  embeddedFontRegistry
     //----------------------------------
+
+    private static var noEmbeddedFonts:Boolean;
 
     /**
      *  @private
@@ -62,10 +68,17 @@ public class UITextFormat extends TextFormat
      */
     private static function get embeddedFontRegistry():IEmbeddedFontRegistry
     {
-        if (!_embeddedFontRegistry)
+        if (!_embeddedFontRegistry && !noEmbeddedFonts)
         {
-            _embeddedFontRegistry = IEmbeddedFontRegistry(
-                Singleton.getInstance("mx.core::IEmbeddedFontRegistry"));
+            try
+            {
+                _embeddedFontRegistry = IEmbeddedFontRegistry(
+                    Singleton.getInstance("mx.core::IEmbeddedFontRegistry"));
+            }
+            catch (e:Error)
+            {
+                noEmbeddedFonts = true;
+            }
         }
 
         return _embeddedFontRegistry;
@@ -185,6 +198,11 @@ public class UITextFormat extends TextFormat
      *  This parameter is optional, with a default value of <code>null</code>.
      *
      *  @see flash.text.TextFormatAlign
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function UITextFormat(systemManager:ISystemManager,
                                  font:String = null,
@@ -218,13 +236,6 @@ public class UITextFormat extends TextFormat
      */
     private var systemManager:ISystemManager;
     
-    /**
-     * @private
-     * 
-     * Cache last value of embedded font.
-     */
-    private var cachedEmbeddedFont:EmbeddedFont = null;
-
     //--------------------------------------------------------------------------
     //
     //  Properties
@@ -256,8 +267,40 @@ public class UITextFormat extends TextFormat
      *  @default "advanced"
      *
      *  @see flash.text.AntiAliasType
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public var antiAliasType:String;
+    
+    //----------------------------------
+    //  direction
+    //----------------------------------
+
+    /**
+     *  The directionality of the text.
+     *
+     *  <p>The allowed values are <code>"ltr"</code> for left-to-right text,
+     *  as in Latin-style scripts,
+     *  and <code>"rtl"</code> for right-to-left text,
+     *  as in Arabic and Hebrew.</p>
+     *
+     *  <p>FTE and TLF use this value in their bidirectional text layout algorithm,
+     *  which maps Unicode character order to glyph order.</p>
+     * 
+     *  <p>Note: This style only applies when this UITextFormat
+     *  is used with a UIFTETextField rather than a UITextField.</p>
+     *
+     *  @default null
+     *
+     *  @langversion 3.0
+     *  @playerversion Flash 10
+     *  @playerversion AIR 1.5
+     *  @productversion Flex 4
+     */
+    public var direction:String;
     
     //----------------------------------
     //  gridFitType
@@ -284,8 +327,35 @@ public class UITextFormat extends TextFormat
      *  @default "pixel"
      *
      *  @see flash.text.GridFitType
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public var gridFitType:String;
+    
+    //----------------------------------
+    //  locale
+    //----------------------------------
+
+    /**
+     *  The locale of the text.
+     * 
+     *  <p>FTE and TLF use this locale to map Unicode characters
+     *  to font glyphs and to find fallback fonts.</p>
+     *
+     *  <p>Note: This style only applies when this UITextFormat
+     *  is used with a UIFTETextField rather than a UITextField.</p>
+     *
+     *  @default null
+     *
+     *  @langversion 3.0
+     *  @playerversion Flash 10
+     *  @playerversion AIR 1.5
+     *  @productversion Flex 4
+     */
+    public var locale:String;
     
     //----------------------------------
     //  moduleFactory
@@ -299,6 +369,11 @@ public class UITextFormat extends TextFormat
 
     /**
      *  The moduleFactory used to create TextFields for embedded fonts.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get moduleFactory():IFlexModuleFactory
     {
@@ -333,6 +408,11 @@ public class UITextFormat extends TextFormat
      *  
      *  @default 0
      *  @see flash.text.TextField
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public var sharpness:Number;
     
@@ -356,9 +436,36 @@ public class UITextFormat extends TextFormat
      *  
      *  @default 0
      *  @see flash.text.TextField
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public var thickness:Number;
     
+    //----------------------------------
+    //  useFTE
+    //----------------------------------
+    
+    /**
+     *  Determines how the <code>measureText()</code>
+     *  and <code>measureHTMLText()</code> methods do text measurement.
+     * 
+     *  <p>If <code>true</code>, they use an offscreen instance
+     *  of the FTETextField class in the Text Layout Framework.
+     *  If <code>false</code>, they use an offscreen instance
+     *  of the TextField class in the Flash Player.</p>
+     * 
+     *  @default false
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
+     */
+    public var useFTE:Boolean = false;
+
     //--------------------------------------------------------------------------
     //
     //  Methods
@@ -379,6 +486,11 @@ public class UITextFormat extends TextFormat
      *  @return A TextLineMetrics object containing the text measurements.
      *
      *  @see flash.text.TextLineMetrics
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function measureText(text:String, roundUp:Boolean = true):TextLineMetrics
     {
@@ -401,6 +513,11 @@ public class UITextFormat extends TextFormat
      *  @return A TextLineMetrics object containing the text measurements.
      *
      *  @see flash.text.TextLineMetrics
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function measureHTMLText(htmlText:String, roundUp:Boolean = true):TextLineMetrics
     {
@@ -420,9 +537,10 @@ public class UITextFormat extends TextFormat
         // to be used for text measurement. The text field factory keeps
         // the text fields to one per moduleFactory.
         var embeddedFont:Boolean = false;
-        var fontModuleFactory:IFlexModuleFactory =
+        var fontModuleFactory:IFlexModuleFactory = (noEmbeddedFonts || !embeddedFontRegistry) ? 
+            null : 
             embeddedFontRegistry.getAssociatedModuleFactory(
-                getEmbeddedFont(font, bold, italic), moduleFactory);
+                font, bold, italic, this, moduleFactory, systemManager, useFTE);
 
         embeddedFont = (fontModuleFactory != null);
         if (fontModuleFactory == null)
@@ -432,8 +550,10 @@ public class UITextFormat extends TextFormat
             fontModuleFactory = systemManager;
         }
         
-        var measurementTextField:TextField = null;
-        measurementTextField = TextField(textFieldFactory.createTextField(fontModuleFactory)); 
+        var measurementTextField:Object /* either TextField or FTETextField */ =
+            useFTE ?
+            textFieldFactory.createFTETextField(fontModuleFactory) :
+            textFieldFactory.createTextField(fontModuleFactory);
         
         // Clear any old text from the TextField.
         // Otherwise, new text will get the old TextFormat. 
@@ -444,22 +564,25 @@ public class UITextFormat extends TextFormat
 
         // Make the measurement TextField use this TextFormat.
         measurementTextField.defaultTextFormat = this;
-        if (font)
+        measurementTextField.embedFonts = embeddedFont;
+        
+        // Set other properties based on CSS styles.
+        if (!useFTE)
         {
-            measurementTextField.embedFonts = embeddedFont || 
-                                              (systemManager != null && 
-                                              systemManager.isFontFaceEmbedded(this));
+            // These properties do not have meaning in FTETextField,
+            // and have been implemented to return either null or NaN,
+            // so don't try to set them on a FTETextField.
+            measurementTextField.antiAliasType = antiAliasType;
+            measurementTextField.gridFitType = gridFitType;
+            measurementTextField.sharpness = sharpness;
+            measurementTextField.thickness = thickness;
         }
         else
         {
-            measurementTextField.embedFonts = false;
+            // The properties have meaning only on a FTETextField.
+            measurementTextField.direction = direction;
+            measurementTextField.locale = locale;
         }
-
-        // Set other TextField properties based on CSS styles.
-        measurementTextField.antiAliasType = antiAliasType;
-        measurementTextField.gridFitType = gridFitType;
-        measurementTextField.sharpness = sharpness;
-        measurementTextField.thickness = thickness;
         
         // Set the text to be measured into the TextField.
         if (html)
@@ -485,28 +608,6 @@ public class UITextFormat extends TextFormat
         }
         
         return lineMetrics;
-    }
-
-    /**
-     * @private
-     * 
-     * Get the embedded font for a set of font attributes.
-     */ 
-    private function getEmbeddedFont(fontName:String, bold:Boolean, italic:Boolean):EmbeddedFont
-    {
-        // Check if we can reuse a cached value.
-        if (cachedEmbeddedFont)
-        {
-            if (cachedEmbeddedFont.fontName == fontName &&
-                cachedEmbeddedFont.fontStyle == EmbeddedFontRegistry.getFontStyle(bold, italic))
-            {
-                return cachedEmbeddedFont;
-            }   
-        }
-        
-        cachedEmbeddedFont = new EmbeddedFont(fontName, bold, italic);      
-        
-        return cachedEmbeddedFont;
     }
 
     /**

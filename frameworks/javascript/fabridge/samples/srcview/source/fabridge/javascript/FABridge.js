@@ -43,19 +43,7 @@ FABridge.TYPE_ASFUNCTION =  2;
 FABridge.TYPE_JSFUNCTION =  3;
 FABridge.TYPE_ANONYMOUS =   4;
 
-FABridge.initCallbacks = {};
-FABridge.userTypes = {};
-
-FABridge.addToUserTypes = function()
-{
-	for (var i = 0; i < arguments.length; i++)
-	{
-		FABridge.userTypes[arguments[i]] = {
-			'typeName': arguments[i], 
-			'enriched': false
-		};
-	}
-}
+FABridge.initCallbacks = {}
 
 FABridge.argsToArray = function(args)
 {
@@ -101,7 +89,6 @@ FABridge.addInitializationCallback = function(bridgeName, callback)
     callbackList.push(callback);
 }
 
-// updated for changes to SWFObject2
 function FABridge__bridgeInitialized(bridgeName) {
     var objects = document.getElementsByTagName("object");
     var ol = objects.length;

@@ -12,15 +12,20 @@
 package mx.automation
 {
 
-import flash.events.Event;
 import flash.display.DisplayObject;
 import flash.display.DisplayObjectContainer;
+import flash.events.Event;
 import flash.events.MouseEvent;
 
 /**
  * The IAutomationObject interface defines the interface 
  * for a delegate object that implements automation
  * for a component.
+ *  
+ *  @langversion 3.0
+ *  @playerversion Flash 9
+ *  @playerversion AIR 1.1
+ *  @productversion Flex 3
  */
 public interface IAutomationObject 
 {
@@ -37,6 +42,11 @@ public interface IAutomationObject
     /**
      *  The delegate object that is handling the automation-related functionality.
      *  Automation sets this when it creates the delegate object.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     function get automationDelegate():Object;
 
@@ -51,6 +61,11 @@ public interface IAutomationObject
 
     /**
      *  Name that can be used as an identifier for this object.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     function get automationName():String;
 
@@ -67,48 +82,24 @@ public interface IAutomationObject
      *  This value generally corresponds to the rendered appearance of the 
      *  object and should be usable for correlating the identifier with
      *  the object as it appears visually within the application.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     function get automationValue():Array;
- 
-    /**
-     *  Returns a set of properties that identify the child within 
-     *  this container.  These values should not change during the
-     *  lifespan of the application.
-     *  
-     *  @param child Child for which to provide the id.
-     * 
-     *  @return Sets of properties describing the child which can
-     *          later be used to resolve the component.
-     */
-    function createAutomationIDPart(child:IAutomationObject):Object;
-
-    /**
-     *  Resolves a child by using the id provided. The id is a set 
-     *  of properties as provided by the <code>createAutomationIDPart()</code> method.
-     *
-     *  @param criteria Set of properties describing the child.
-     *         The criteria can contain regular expression values
-     *         resulting in multiple children being matched.
-     *  @return Array of children that matched the criteria
-     *          or <code>null</code> if no children could not be resolved.
-     */
-    function resolveAutomationIDPart(criteria:Object):Array;
-
-    /** 
-     *  Provides the automation object at the specified index.  This list
-     *  should not include any children that are composites.
-     *
-     *  @param index The index of the child to return
-     * 
-     *  @return The child at the specified index.
-     */
-    function getAutomationChildAt(index:int):IAutomationObject;
-
+    
     /**
      *  The number of automation children this container has.
      *  This sum should not include any composite children, though
      *  it does include those children not significant within the
      *  automation hierarchy.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     function get numAutomationChildren():int;
 
@@ -126,6 +117,11 @@ public interface IAutomationObject
      *  including boxes, to appear in the hierarchy.
      *  Implementers must support setting this property
      *  to <code>true</code>.</p>
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     function get showInAutomationHierarchy():Boolean;
 
@@ -135,12 +131,164 @@ public interface IAutomationObject
     function set showInAutomationHierarchy(value:Boolean):void;
    
     /**
-     * An implementation of the <code>IAutomationTabularData</code> interface, which 
-     * can be used to retrieve the data.
+     *  An implementation of the <code>IAutomationTabularData</code> interface, which 
+     *  can be used to retrieve the data.
      * 
-     * @return An implementation of the <code>IAutomationTabularData</code> interface.
+     *  @return An implementation of the <code>IAutomationTabularData</code> interface.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     function get automationTabularData():Object;
+    
+    /**
+     *  The owner of this component for automation purposes.
+     * 
+     *  @see mx.core.IVisualElement#owner
+     * 
+     *  @return The owner of this component
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 4
+     */
+    function get automationOwner():DisplayObjectContainer;
+    
+    /**
+     *  The parent of this component for automation purposes.
+     * 
+     *  @see mx.core.IVisualElement#parent
+     * 
+     *  @return The parent of this component
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 4
+     */
+    function get automationParent():DisplayObjectContainer;
+    
+    /**
+     *  True if this component is enabled for automation, false
+     *  otherwise.
+     * 
+     *  @see mx.core.IUIComponent#enabled
+     * 
+     *  @return <code>true</code> if this component is enabled for automation,
+     *          <code>false</code> otherwise.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 4
+     */
+    function get automationEnabled():Boolean;
+    
+    /**
+     *  True if this component is visible for automation, false
+     *  otherwise.
+     * 
+     *  @see flash.display.DisplayObject#visible
+     * 
+     *  @return <code>true</code> if this component is visible for automation,
+     *          <code>false</code> otherwise.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 4
+     */
+    function get automationVisible():Boolean;
+    
+    //--------------------------------------------------------------------------
+    //
+    //  Methods
+    //
+    //--------------------------------------------------------------------------
+ 
+    /**
+     *  Returns a set of properties that identify the child within 
+     *  this container.  These values should not change during the
+     *  lifespan of the application.
+     *  
+     *  @param child Child for which to provide the id.
+     * 
+     *  @return Sets of properties describing the child which can
+     *          later be used to resolve the component.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
+     */
+    function createAutomationIDPart(child:IAutomationObject):Object;
+    
+    /**
+     *  Returns a set of properties as automation IDs that identify the child within
+     *  this container.  These values should not change during the
+     *  lifespan of the application
+     * 
+     *  @param child Child for which to provide the id.
+     * 
+     *  @param properties which needs to be considered for forming the Id.
+     *
+     *  @return Sets of properties describing the child which can
+     *          later be used to resolve the component.
+     * 
+     *  @langversion 3.0
+     *  @playerversion Flash 10
+     *  @playerversion AIR 1.5
+     *  @productversion Flex 4
+     */
+    function createAutomationIDPartWithRequiredProperties(child:IAutomationObject, properties:Array):Object;
+
+    /**
+     *  Resolves a child by using the id provided. The id is a set 
+     *  of properties as provided by the <code>createAutomationIDPart()</code> method.
+     *
+     *  @param criteria Set of properties describing the child.
+     *         The criteria can contain regular expression values
+     *         resulting in multiple children being matched.
+     *  @return Array of children that matched the criteria
+     *          or <code>null</code> if no children could not be resolved.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
+     */
+    function resolveAutomationIDPart(criteria:Object):Array;
+
+    /** 
+     *  Provides the automation object at the specified index.  This list
+     *  should not include any children that are composites.
+     *
+     *  @param index The index of the child to return
+     * 
+     *  @return The child at the specified index.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
+     */
+    function getAutomationChildAt(index:int):IAutomationObject;
+    
+    /**
+     *  Provides the automation object list .  This list
+     *  does not include any children that are composites.
+     *
+     *  @return the automation children.
+     * 
+     *  @langversion 3.0
+     *  @playerversion Flash 10
+     *  @playerversion AIR 1.5
+     *  @productversion Flex 4
+     */
+    function getAutomationChildren():Array;
 
     /**
      *  Replays the specified event.  A component author should probably call 
@@ -150,6 +298,11 @@ public interface IAutomationObject
      *  @param event The event to replay.
      *
      *  @return <code>true</code> if a replay was successful.  
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     function replayAutomatableEvent(event:Event):Boolean;
     

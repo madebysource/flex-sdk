@@ -17,6 +17,7 @@ import flash.filesystem.File;
 import flash.text.TextLineMetrics;
 import mx.collections.CursorBookmark;
 import mx.controls.ComboBox;
+import mx.controls.fileSystemClasses.FileSystemComboBoxRenderer;
 import mx.controls.fileSystemClasses.FileSystemControlHelper;
 import mx.core.ClassFactory;
 import mx.core.mx_internal;
@@ -45,6 +46,10 @@ use namespace mx_internal;
  *  changes for any reason.
  *
  *  @eventType mx.events.FileEvent.DIRECTORY_CHANGE
+ *  
+ *  @langversion 3.0
+ *  @playerversion AIR 1.1
+ *  @productversion Flex 3
  */
 [Event(name="directoryChange", type="mx.events.FileEvent")]
 
@@ -60,6 +65,10 @@ use namespace mx_internal;
  *  <code>computerIcon="&#64;Embed(source='computerIcon.jpg');"</code>
  *
  *  @default null
+ *  
+ *  @langversion 3.0
+ *  @playerversion AIR 1.1
+ *  @productversion Flex 3
  */
 [Style(name="computerIcon", type="Class", format="EmbeddedFile", inherit="no")]
 
@@ -70,6 +79,10 @@ use namespace mx_internal;
  *  <code>directoryIcon="&#64;Embed(source='directoryIcon.jpg');"</code>
  *
  *  @default TreeNodeIcon
+ *  
+ *  @langversion 3.0
+ *  @playerversion AIR 1.1
+ *  @productversion Flex 3
  */
 [Style(name="directoryIcon", type="Class", format="EmbeddedFile", inherit="no")]
 
@@ -127,7 +140,10 @@ use namespace mx_internal;
  *  @see mx.controls.FileSystemList
  *  @see mx.controls.FileSystemTree
  * 
+ *  
+ *  @langversion 3.0
  *  @playerversion AIR 1.1
+ *  @productversion Flex 3
  */
 public class FileSystemComboBox extends ComboBox
 {
@@ -141,9 +157,13 @@ public class FileSystemComboBox extends ComboBox
 
     /**
      *  A constant that can be used as a value for the <code>directory</code> property,
-	 *  representing a pseudo-top level directory named "Computer". This pseudo-directory
+     *  representing a pseudo-top level directory named "Computer". This pseudo-directory
      *  contains the root directories
      *  (such as C:\ and D:\ on Windows or / on Macintosh).
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public static const COMPUTER:File = FileSystemControlHelper.COMPUTER;
 
@@ -155,6 +175,10 @@ public class FileSystemComboBox extends ComboBox
 
     /**
      *  Constructor.
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function FileSystemComboBox()
     {
@@ -214,6 +238,10 @@ public class FileSystemComboBox extends ComboBox
      *  as a separate entry in the dropdown list.
      *
      *  @default null
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get directory():File
     {
@@ -230,7 +258,7 @@ public class FileSystemComboBox extends ComboBox
 
         invalidateProperties();
 
-		dispatchEvent(new Event("directoryChanged"));
+        dispatchEvent(new Event("directoryChanged"));
     }
 
     //----------------------------------
@@ -247,6 +275,10 @@ public class FileSystemComboBox extends ComboBox
      *  The number of pixels to indent each entry in the dropdown list.
      *
      *  @default 8
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get indent():int
     {
@@ -276,6 +308,10 @@ public class FileSystemComboBox extends ComboBox
      *  before the directory names in the dropdown list.
      *
      *  @default true
+     *  
+     *  @langversion 3.0
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function get showIcons():Boolean
     {
@@ -308,9 +344,9 @@ public class FileSystemComboBox extends ComboBox
             dataProvider = getParentChain(_directory);
             selectedItem = _directory;
 
-			var event:FileEvent = new FileEvent(FileEvent.DIRECTORY_CHANGE);
-			event.file = _directory;
-			dispatchEvent(event);
+            var event:FileEvent = new FileEvent(FileEvent.DIRECTORY_CHANGE);
+            event.file = _directory;
+            dispatchEvent(event);
 
             directoryChanged = false;
         }
@@ -326,16 +362,16 @@ public class FileSystemComboBox extends ComboBox
         // The name of the COMPUTER pseudo-directory is localizable.
         // It appears at the top of the dropdown,
         // and may also be displayed as the selected item.
-		invalidateSize();
+        invalidateSize();
         invalidateDisplayList();
-		selectedIndex = selectedIndex;
+        selectedIndex = selectedIndex;
     }
 
     /**
      *  @private
      */
     override protected function calculatePreferredSizeFromData(count:int):Object
-	{
+    {
         var maxW:Number = 0;
         var maxH:Number = 0;
 
@@ -359,7 +395,7 @@ public class FileSystemComboBox extends ComboBox
 
             lineMetrics = measureText(txt);
 
-			lineMetrics.width += i * indent;
+            lineMetrics.width += i * indent;
 
             maxW = Math.max(maxW, lineMetrics.width);
             maxH = Math.max(maxH, lineMetrics.height);
@@ -382,7 +418,7 @@ public class FileSystemComboBox extends ComboBox
             iterator.seek(bookmark, 0);
 
         return { width: maxW, height: maxH };
-	}
+    }
 
     //--------------------------------------------------------------------------
     //
@@ -431,116 +467,4 @@ public class FileSystemComboBox extends ComboBox
     }
 }
 
-}
-
-////////////////////////////////////////////////////////////////////////////////
-//
-//  Helper class: FileSystemComboBoxRenderer
-//
-////////////////////////////////////////////////////////////////////////////////
-
-import flash.display.DisplayObject;
-import flash.filesystem.File;
-import mx.controls.FileSystemComboBox;
-import mx.controls.fileSystemClasses.FileSystemControlHelper;
-import mx.controls.listClasses.ListItemRenderer;
-import mx.core.mx_internal;
-
-use namespace mx_internal;
-
-/**
- *  @private
- */
-class FileSystemComboBoxRenderer extends ListItemRenderer
-{
-    //--------------------------------------------------------------------------
-    //
-    //  Constructor
-    //
-    //--------------------------------------------------------------------------
-
-    /**
-     *  Constructor.
-     */
-    public function FileSystemComboBoxRenderer()
-    {
-        super();
-    }
-
-    //--------------------------------------------------------------------------
-    //
-    //  Overridden methods
-    //
-    //--------------------------------------------------------------------------
-
-    /**
-     *  @private
-     */
-    override protected function commitProperties():void
-    {
-        super.commitProperties();
-
-        if (!listData || !data)
-            return;
-
-        var comboBox:FileSystemComboBox =
-            FileSystemComboBox(listData.owner.owner);
-        if (!comboBox.showIcons)
-            return;
-
-        var iconClass:Class = comboBox.getStyle(
-        	comboBox.helper.isComputer(File(data)) ?
-            "computerIcon" :
-            "directoryIcon");
-
-		if (iconClass)
-        {
-            icon = new iconClass();
-            addChild(DisplayObject(icon));
-        }
-    }
-
-    /**
-     *  @private
-     */
-    override protected function updateDisplayList(unscaledWidth:Number,
-                                                  unscaledHeight:Number):void
-    {
-        super.updateDisplayList(unscaledWidth, unscaledHeight);
-
-        if (!listData || !data)
-            return;
-
-        var comboBox:FileSystemComboBox =
-            FileSystemComboBox(listData.owner.owner);
-        if (comboBox.indent == 0)
-            return;
-
-        var delta:Number = comboBox.indent * getNestLevel(File(data));
-        if (icon)
-            icon.x += delta;
-        label.x += delta;
-    }
-
-    //--------------------------------------------------------------------------
-    //
-    //  Methods
-    //
-    //--------------------------------------------------------------------------
-
-    /**
-     *  @private
-     */
-    private function getNestLevel(item:File):int
-    {
-        if (!item || !item.exists)
-            return 0;
-
-        var nestLevel:int = 0;
-        for (var f:File = item; f != null; f = f.parent)
-        {
-            nestLevel++;
-        }
-        return nestLevel;
-    }
 }

@@ -139,6 +139,11 @@ public class RSLItem
      *  RSLs will be loaded into the application domain of the given module factory.
      *  If a module factory is not specified, then the RSLs will be loaded into the 
      *  application domain of where the CrossDomainRSLItem class was first loaded.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function RSLItem(url:String, rootURL:String = null, 
                             moduleFactory:IFlexModuleFactory = null)
@@ -175,6 +180,11 @@ public class RSLItem
      *
      *  @param rslErrorHandler Receives RSLEvent.RSL_ERROR events.
      *  May be null.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function load(progressHandler:Function,
                          completeHandler:Function,

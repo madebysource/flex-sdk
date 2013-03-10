@@ -27,7 +27,7 @@ import java.util.Iterator;
 
 
 /**
- *
+ * Implements the &lt;asc&gt; Ant task. 
  */
 public final class AscTask extends FlexTask implements DynamicAttribute
 {
@@ -69,7 +69,7 @@ public final class AscTask extends FlexTask implements DynamicAttribute
      *
      *=======================================================================*/
 
-    private final ArrayList nestedFileSets;
+    private final ArrayList<FlexFileSet> nestedFileSets;
 
     private FlexFileSet fileSpec;
     private Swf swf;
@@ -81,7 +81,7 @@ public final class AscTask extends FlexTask implements DynamicAttribute
     {
         super("asc", "macromedia.asc.embedding.Main", "asc.jar", ASC_VARIABLES);
 
-        nestedFileSets = new ArrayList();
+        nestedFileSets = new ArrayList<FlexFileSet>();
     }
 
     /*=======================================================================*
@@ -134,10 +134,10 @@ public final class AscTask extends FlexTask implements DynamicAttribute
         if (swf != null)
             swf.addToCommandline(cmdl);
 
-        Iterator it = nestedFileSets.iterator();
+        Iterator<FlexFileSet> it = nestedFileSets.iterator();
 
         while (it.hasNext()) {
-            ((OptionSource) it.next()).addToCommandline(cmdl);
+            it.next().addToCommandline(cmdl);
         }
 
         fileSpec.addToCommandline(cmdl);

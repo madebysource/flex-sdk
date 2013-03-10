@@ -15,9 +15,16 @@ package mx.effects.effectClasses
 import mx.core.mx_internal;
 import mx.effects.EffectInstance;
 
+use namespace mx_internal;
+
 /**
  *  The ActionEffectInstance class is the superclass for all 
  *  action effect instance classes.
+ *  
+ *  @langversion 3.0
+ *  @playerversion Flash 9
+ *  @playerversion AIR 1.1
+ *  @productversion Flex 3
  */  
  public class ActionEffectInstance extends EffectInstance
 {
@@ -33,6 +40,11 @@ import mx.effects.EffectInstance;
 	 *  Constructor.
 	 *
 	 *  @param target The Object to animate with this effect.
+	 *  
+	 *  @langversion 3.0
+	 *  @playerversion Flash 9
+	 *  @playerversion AIR 1.1
+	 *  @productversion Flex 3
 	 */
 	public function ActionEffectInstance(target:Object)
 	{
@@ -52,6 +64,11 @@ import mx.effects.EffectInstance;
 	 *  <p>The <code>play()</code> method sets this property to 
 	 *  <code>true</code> after the effect plays;
 	 *  you do not set it directly.</p> 
+	 *  
+	 *  @langversion 3.0
+	 *  @playerversion Flash 9
+	 *  @playerversion AIR 1.1
+	 *  @productversion Flex 3
 	 */
 	protected var playedAction:Boolean = false;
 	
@@ -71,6 +88,11 @@ import mx.effects.EffectInstance;
 	 *  before the effect plays.
 	 *
 	 *  @return Returns the starting state value.
+	 *  
+	 *  @langversion 3.0
+	 *  @playerversion Flash 9
+	 *  @playerversion AIR 1.1
+	 *  @productversion Flex 3
 	 */
 	protected function saveStartValue():*
 	{
@@ -81,6 +103,11 @@ import mx.effects.EffectInstance;
 	 *  <code>saveStartValue()</code> method.
 	 *
 	 *  @return Returns the starting state value.
+	 *  
+	 *  @langversion 3.0
+	 *  @playerversion Flash 9
+	 *  @playerversion AIR 1.1
+	 *  @productversion Flex 3
 	 */
 	protected function getStartValue():*
 	{
@@ -101,7 +128,7 @@ import mx.effects.EffectInstance;
 		super.play();	
 		
 		// Don't save the value if we are playing in reverse.
-		if (!mx_internal::playReversed)
+		if (!playReversed)
 			_startValue = saveStartValue();
 		
 		playedAction = true;

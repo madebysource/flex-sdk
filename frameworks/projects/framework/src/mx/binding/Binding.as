@@ -27,7 +27,19 @@ public class Binding
 {
     include "../core/Version.as";
 
-	//--------------------------------------------------------------------------
+    // Certain errors are normal during binding execution, so we swallow them.
+    // 1507 - invalid null argument 
+    // 2005 - argument error (null gets converted to 0) 
+    mx_internal static var allowedErrors:Object = generateAllowedErrors();
+    mx_internal static function generateAllowedErrors():Object
+    {
+        var o:Object = {};
+        o[1507] = 1;
+        o[2005] = 1;
+        return o;
+    }
+    
+    //--------------------------------------------------------------------------
 	//
 	//  Constructor
 	//
@@ -46,9 +58,15 @@ public class Binding
 	 *
      *  @param destString The destination represented as a String.
 	 *  We can then tell the ValidationManager to validate this field.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function Binding(document:Object, srcFunc:Function,
-						    destFunc:Function, destString:String)
+						    destFunc:Function, destString:String,
+							srcString:String = null)
     {
 		super();
 
@@ -56,6 +74,17 @@ public class Binding
         this.srcFunc = srcFunc;
         this.destFunc = destFunc;
         this.destString = destString;
+        this.srcString = srcString;
+
+        if (this.srcFunc == null)
+        {
+            this.srcFunc = defaultSrcFunc;
+        }
+
+        if (this.destFunc == null)
+        {
+            this.destFunc = defaultDestFunc;
+        }
 
         _isEnabled = true;
         isExecuting = false;
@@ -147,6 +176,14 @@ public class Binding
     public var twoWayCounterpart:Binding;
 
     /**
+     *  @private
+     *  If there is a twoWayCounterpart, hasHadValue is false, and
+     *  isTwoWayPrimary is true, then the twoWayCounterpart will be
+     *  executed first.
+     */
+    public var isTwoWayPrimary:Boolean;
+
+    /**
      *  @private 
      *  True if a wrapped function call does not throw an error.  This is used by
      *  innerExecute() to tell if the srcFunc completed successfully.
@@ -162,24 +199,54 @@ public class Binding
     /**
      *  All Bindings hang off of a document for now,
 	 *  but really it's just the root of where these functions live.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     mx_internal var document:Object;
 
 	/**
      *  The function that will return us the value.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     mx_internal var srcFunc:Function;
 
 	/**
      *  The function that takes the value and assigns it.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     mx_internal var destFunc:Function;
 
 	/**
      *  The destination represented as a String.
 	 *  This will be used so we can signal validation on a field.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     mx_internal var destString:String;
+
+	/**
+     *  The source represented as a String.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 4
+     */
+    mx_internal var srcString:String;
 
 	/**
 	 * 	@private
@@ -196,11 +263,40 @@ public class Binding
 	//
 	//--------------------------------------------------------------------------
 
+    private function defaultDestFunc(value:Object):void
+    {
+        var chain:Array = destString.split(".");
+        var element:Object = document;
+        var i:uint = 0;
+
+        if (chain[0] == "this")
+        {
+            i++;
+        }
+
+        while (i < (chain.length - 1))
+        {
+            element = element[chain[i++]];
+        }
+
+        element[chain[i]] = value;
+    }
+
+    private function defaultSrcFunc():Object
+    {
+        return document[srcString];
+    }
+
     /**
      *  Execute the binding.
 	 *  Call the source function and get the value we'll use.
 	 *  Then call the destination function passing the value as an argument.
 	 *  Finally try to validate the destination.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
      */
     public function execute(o:Object = null):void
     {
@@ -210,6 +306,13 @@ public class Binding
             {
                 registerDisabledExecute(o);
             }
+            return;
+        }
+
+        if (twoWayCounterpart && !twoWayCounterpart.hasHadValue && twoWayCounterpart.isTwoWayPrimary)
+        {
+            twoWayCounterpart.execute();
+            hasHadValue = true;
             return;
         }
 
@@ -224,14 +327,19 @@ public class Binding
             return;
         }
 
-		try
-		{
-			isExecuting = true;
-			wrapFunctionCall(this, innerExecute, o);
-		}
+        try
+        {
+            isExecuting = true;
+            wrapFunctionCall(this, innerExecute, o);
+        }
+        catch(error:Error)
+        {
+            if (allowedErrors[error.errorID] == null)
+                throw error;
+        }
         finally
         {
-        	isExecuting = false;
+            isExecuting = false;
         }
     }
 
@@ -342,7 +450,9 @@ public class Binding
 		var n:uint = x.length();
 		if (n == y.length())
 		{
-			for (var i:uint = 0; i < n && x[i] === y[i]; i++);
+			for (var i:uint = 0; i < n && x[i] === y[i]; i++)
+			{
+			}
 			return i == n;
 		}
 		else
@@ -384,6 +494,11 @@ public class Binding
     /**
 	 *  This function is called when one of this binding's watchers
 	 *  detects a property change.
+	 *  
+	 *  @langversion 3.0
+	 *  @playerversion Flash 9
+	 *  @playerversion AIR 1.1
+	 *  @productversion Flex 3
 	 */
     public function watcherFired(commitEvent:Boolean, cloneIndex:int):void
     {

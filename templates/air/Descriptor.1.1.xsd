@@ -66,16 +66,16 @@
         <xs:element name="installFolder" minOccurs="0">
           <xs:simpleType>
             <xs:restriction base="xs:string">
-              <!-- installFolder cannot begin with a / (forward-slash) or a ' ' (space), have any of these characters: *":<>?\|, and end with a . (dot) or ' ' (space) -->
-              <xs:pattern value='[^\*"/:&gt;&lt;\?\\\|\. ]|[^\*"/:&gt;&lt;\?\\\| ][^\*":&gt;&lt;\?\\\|]*[^\*":&gt;&lt;\?\\\|\. ]'/>
+              <!-- installFolder cannot begin with a / (forward-slash) or a ' ' (space), have any of these characters: *":<>?\|, and end with a . (dot), ' ' (space), or / (forward slash) -->
+              <xs:pattern value='[^\*"/:&gt;&lt;\?\\\|\. ]|[^\*"/:&gt;&lt;\?\\\| ][^\*":&gt;&lt;\?\\\|]*[^\*":&gt;&lt;\?\\\|\. /]'/>
             </xs:restriction>
           </xs:simpleType>
         </xs:element>
         <xs:element name="programMenuFolder" minOccurs="0">
           <xs:simpleType>
             <xs:restriction base="xs:string">
-              <!-- programMenuFolder cannot begin with a / (forward-slash) or a ' ' (space), have any of these characters: *":<>?\|, and end with a . (dot) or ' ' (space) -->
-              <xs:pattern value='[^\*"/:&gt;&lt;\?\\\|\. ]|[^\*"/:&gt;&lt;\?\\\| ][^\*":&gt;&lt;\?\\\|]*[^\*":&gt;&lt;\?\\\|\. ]'/>
+              <!-- programMenuFolder cannot begin with a / (forward-slash) or a ' ' (space), have any of these characters: *":<>?\|, and end with a . (dot), ' ' (space), or / (forward slash) -->
+              <xs:pattern value='[^\*"/:&gt;&lt;\?\\\|\. ]|[^\*"/:&gt;&lt;\?\\\| ][^\*":&gt;&lt;\?\\\|]*[^\*":&gt;&lt;\?\\\|\. /]'/>
             </xs:restriction>
           </xs:simpleType>
         </xs:element>

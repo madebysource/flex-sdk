@@ -12,9 +12,8 @@
 package mx.containers.utilityClasses
 {
 
-import mx.core.Container;
+import mx.core.IChildList;
 import mx.core.IUIComponent;
-import mx.core.FlexVersion;
 
 [ExcludeClass]
 
@@ -52,9 +51,14 @@ public class Flex
 	 *
 	 *  @result Any extra space that's left over
 	 *  after growing all children to their maxWidth.
+	 *  
+	 *  @langversion 3.0
+	 *  @playerversion Flash 9
+	 *  @playerversion AIR 1.1
+	 *  @productversion Flex 3
 	 */
 	public static function flexChildWidthsProportionally(
-								parent:Container,
+								parent:IChildList,
 								spaceForChildren:Number,
 								h:Number):Number
 	{
@@ -155,10 +159,7 @@ public class Flex
 				}
 			}
 			
-			if (FlexVersion.compatibilityVersion >= FlexVersion.VERSION_3_0)
-        	{
-            	distributeExtraWidth(parent, spaceForChildren);
-        	}
+			distributeExtraWidth(parent, spaceForChildren);
 		}
 
 		return spaceToDistribute;
@@ -181,9 +182,14 @@ public class Flex
 	 *  distributed across all children .
 	 *
 	 *  @param w width for all children.
+	 *  
+	 *  @langversion 3.0
+	 *  @playerversion Flash 9
+	 *  @playerversion AIR 1.1
+	 *  @productversion Flex 3
 	 */
 	public static function flexChildHeightsProportionally(
-								parent:Container,
+								parent:IChildList,
 								spaceForChildren:Number,
 								w:Number):Number
 	{
@@ -284,10 +290,7 @@ public class Flex
 				}
 			}
 			
-			if (FlexVersion.compatibilityVersion >= FlexVersion.VERSION_3_0)
-        	{
-            	distributeExtraHeight(parent, spaceForChildren);
-        	}
+			distributeExtraHeight(parent, spaceForChildren);
 		}
 		
 		return spaceToDistribute;
@@ -317,6 +320,11 @@ public class Flex
 	 *  If all the children hit their minWidth/maxWidth/minHeight/maxHeight
 	 *  before the space was distributed, then the remaining unused space
 	 *  is returned. Otherwise, the return value is zero.
+	 *  
+	 *  @langversion 3.0
+	 *  @playerversion Flash 9
+	 *  @playerversion AIR 1.1
+	 *  @productversion Flex 3
 	 */
 	public static function flexChildrenProportionally(
 								spaceForChildren:Number,
@@ -331,15 +339,7 @@ public class Flex
 		var numChildren:int = childInfoArray.length;
 		var flexConsumed:Number; // space consumed by flexible compontents
 		var done:Boolean;
-		
-		// We now do something a little tricky so that we can 
-		// support partial filling of the space. If our total
-		// percent < 100% then we can trim off some space.
-		var unused:Number = spaceToDistribute -
-							(spaceForChildren * totalPercent / 100);
-		if (unused > 0)
-			spaceToDistribute -= unused;
-
+        
 		// Continue as long as there are some remaining flexible children.
 		// The "done" flag isn't strictly necessary, except that it catches
 		// cases where round-off error causes totalPercent to not exactly
@@ -349,6 +349,17 @@ public class Flex
 			flexConsumed = 0; // space consumed by flexible compontents
 			done = true; // we are optimistic
 			
+            // We now do something a little tricky so that we can 
+            // support partial filling of the space. If our total
+            // percent < 100% then we can trim off some space.
+            // This unused space can be used to fulfill mins and maxes.
+            var unused:Number = spaceToDistribute -
+                                (spaceForChildren * totalPercent / 100);
+            if (unused > 0)
+                spaceToDistribute -= unused;
+            else
+                unused = 0;
+            
 			// Space for flexible children is the total amount of space
 			// available minus the amount of space consumed by non-flexible
 			// components.Divide that space in proportion to the percent
@@ -383,7 +394,16 @@ public class Flex
 					childInfoArray[numChildren] = childInfo;
 
 					totalPercent -= childInfo.percent;
-					spaceToDistribute -= min;
+                    // Use unused space first before reducing flexible space.
+                    if (unused >= min)
+                    {
+                        unused -= min;
+                    }
+                    else
+                    {
+                        spaceToDistribute -= min - unused;
+                        unused = 0;
+                    }
 					done = false;
 					break;
 				}
@@ -396,7 +416,16 @@ public class Flex
 					childInfoArray[numChildren] = childInfo;
 
 					totalPercent -= childInfo.percent;
-					spaceToDistribute -= max;
+                    // Use unused space first before reducing flexible space.
+                    if (unused >= max)
+                    {
+                        unused -= max;
+                    }
+                    else
+                    {
+                        spaceToDistribute -= max - unused;
+                        unused = 0;
+                    }
 					done = false;
 					break;
 				}
@@ -410,7 +439,7 @@ public class Flex
 		} 
 		while (!done);
 
-		return Math.max(0, Math.floor(spaceToDistribute - flexConsumed))
+		return Math.max(0, Math.floor((spaceToDistribute + unused) - flexConsumed))
 	}
 	
 	/**
@@ -423,9 +452,14 @@ public class Flex
 	 *  @param parent The parent container of the children.
 	 * 
 	 *  @param spaceForChildren The total space for all children
+	 *  
+	 *  @langversion 3.0
+	 *  @playerversion Flash 9
+	 *  @playerversion AIR 1.1
+	 *  @productversion Flex 3
 	 */
 	public static function distributeExtraHeight(
-								parent:Container,
+								parent:IChildList,
 								spaceForChildren:Number):void
 	{
 		// We should only get here after distributing the majority of the 
@@ -487,7 +521,7 @@ public class Flex
 		// distribute to them
 		var stillFlexibleComponents:Boolean = true;	
 		
-		while (stillFlexibleComponents && spaceToDistribute > 0)
+		while (stillFlexibleComponents && spaceToDistribute >= 1.0)
 		{
 			// Start optimistically
 			stillFlexibleComponents = false;
@@ -531,9 +565,14 @@ public class Flex
 	 *  @param parent The parent container of the children.
 	 * 
 	 *  @param spaceForChildren The total space for all children
+	 *  
+	 *  @langversion 3.0
+	 *  @playerversion Flash 9
+	 *  @playerversion AIR 1.1
+	 *  @productversion Flex 3
 	 */
 	public static function distributeExtraWidth(
-								parent:Container,
+								parent:IChildList,
 								spaceForChildren:Number):void
 	{
 		// We should only get here after distributing the majority of the 
@@ -595,7 +634,7 @@ public class Flex
 		// distribute to them
 		var stillFlexibleComponents:Boolean = true;	
 		
-		while (stillFlexibleComponents && spaceToDistribute > 0)
+		while (stillFlexibleComponents && spaceToDistribute >= 1.0)
 		{
 			// Start optimistically
 			stillFlexibleComponents = false;
