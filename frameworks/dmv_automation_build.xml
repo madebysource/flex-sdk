@@ -1,0 +1,139 @@
+<?xml version="1.0"?>
+<project name="Dmv_And_Automation" default="main" basedir=".">
+
+        <!-- this file is used for compiling the  DMV and Automation source under the Flex Builder -->
+        <!-- This file is expected to be under sdks/3.0.0/fbpro.
+             When using this file, sdks/3.0.0/frameworks/libs  and sdks/3.0.0/frameworks/locale is expected to have the swcs referred in this file
+             and sdks/3.0.0/frameworks/projects is expected to have the required projects referred in this file
+             For flexbuilder these projects will be present under the correct locations completely,
+             only if the user provides the  fbpro key to extract the source (Help - Manage Flex Licesnes in FB ) 
+             resource bundle compilation is not supported in this build at this point of time.
+             -->
+             
+        <!-- for using this file use the ant command as 'ant -file dmv_automation_build.xml'  or for 
+             running specific target (e.g  datavisualization) give the command as 
+             'ant datavisualization -file dmv_automation_build.xml' -->   
+             
+         <!-- for using this file for rb swc creation use the ant command as 
+         	'ant automation-rb -Dlocale=en_US -file dmv_automation_build.xml' -->   
+             
+	<echo message="Please set the environment variable ANT_OPTS to -Xmx256m"/>
+
+	<property name="FLEX_HOME" value="${basedir}/.."/>
+	<property name ="player.version" value="9"/>
+	<property name="datavisualization.dir" value="${basedir}/projects/datavisualization"/>
+	<property name="automation.dir" value="${FLEX_HOME}/frameworks/projects/automation"/>
+	<property name="automation_dmv.dir" value="${basedir}/projects/automation_dmv"/>
+	<property name="automation_flashflexkit.dir" value="${basedir}/projects/automation_flashflexkit"/>
+	<property name="framework.dir" value="${FLEX_HOME}/frameworks/projects/framework"/>
+	
+	<echo message="flex_home ${FLEX_HOME}" />
+	
+	
+	<taskdef resource="flexTasks.tasks" classpath="${FLEX_HOME}/ant/lib/flexTasks.jar" />
+
+	<target name="main" depends="clean,datavisualization,automation,automation_dmv,automation_flashflexkit"/>
+	
+	<target name="datavisualization" description="Builds datavisualization.swc">
+		<compc accessible="true"
+			   output="${FLEX_HOME}/frameworks/libs/datavisualization.swc"
+			   include-classes="AdvancedDataGridClasses ChartsClasses" locale="">
+			<include-namespaces uri="http://www.adobe.com/2006/mxml"/>
+			<namespace uri="http://www.adobe.com/2006/mxml" manifest="${datavisualization.dir}/manifest.xml"/>
+			<source-path path-element="${datavisualization.dir}/src"/>
+			<library-path/>
+			<external-library-path dir="${FLEX_HOME}/frameworks/libs" includes="framework.swc"/>
+			<external-library-path dir="${FLEX_HOME}/frameworks/libs" includes="rpc.swc"/>
+			<external-library-path dir="${FLEX_HOME}/frameworks/libs/player/${player.version}" includes="playerglobal.swc"/>
+			<include-file name="defaults.css" path="${datavisualization.dir}/data_management.css"/>
+		</compc>
+	</target>
+	
+	
+	<target name="datavisualization-rb" description="Builds datavisualization resource bundles">
+			<compc output="${FLEX_HOME}/frameworks/locale/${locale}/datavisualization_rb.swc" locale="${locale}">
+			 <include-resource-bundles bundle="charts"/>
+			 <include-resource-bundles bundle="datamanagement"/>
+			 <include-resource-bundles bundle="olap"/>
+			 <source-path path-element="${datavisualization.dir}/bundles/${locale}/"/>
+			 <source-path path-element="${framework.dir}/src"/>
+			 <library-path/>
+			 <external-library-path dir="${FLEX_HOME}/frameworks/libs/player/${player.version}" includes="playerglobal.swc"/>
+			</compc>
+	</target>
+	
+	
+	
+	
+	
+	<target name="automation" description="Builds automation.swc ">
+		<compc accessible="true"
+			   output="${FLEX_HOME}/frameworks/libs/automation.swc"
+			   include-classes="AutomationClasses "
+			   locale="">
+			<source-path path-element="${automation.dir}/src"/>
+			<library-path/>
+			<external-library-path dir="${FLEX_HOME}/frameworks/libs" includes="framework.swc"/>
+			<external-library-path dir="${FLEX_HOME}/frameworks/libs" includes="automation_agent.swc"/>
+			<external-library-path dir="${FLEX_HOME}/frameworks/locale/en_US" includes="automation_agent_rb.swc"/>
+			<external-library-path dir="${FLEX_HOME}/frameworks/libs/player/${player.version}" includes="playerglobal.swc"/>
+		</compc>
+	</target>
+	
+	
+	<target name="automation-rb" description="Builds automation resource bundles">
+			<compc output="${FLEX_HOME}/frameworks/locale/${locale}/automation_rb.swc" locale="${locale}">
+			 <include-resource-bundles bundle="automation"/>
+			 <source-path path-element="${automation.dir}/bundles/${locale}/src"/>
+			 <source-path path-element="${framework.dir}/src"/>
+			 <library-path/>
+			 <external-library-path dir="${FLEX_HOME}/frameworks/libs/player/${player.version}" includes="playerglobal.swc"/>
+			</compc>
+	</target>
+	
+	<target name="automation_dmv" description="Builds automation_dmv.swc">
+		<compc accessible="true"
+			   output="${FLEX_HOME}/frameworks/libs/automation_dmv.swc"
+			   include-classes="AutomationDMVClasses "
+			   locale="en_US">
+			<source-path path-element="${automation_dmv.dir}/src"/>
+			<source-path path-element="${automation.dir}/src"/>
+			<library-path/>
+			<external-library-path dir="${FLEX_HOME}/frameworks/libs" includes="framework.swc"/>
+			<external-library-path dir="${FLEX_HOME}/frameworks/libs" includes="rpc.swc"/>
+			<external-library-path dir="${FLEX_HOME}/frameworks/libs" includes="datavisualization.swc"/>
+			<external-library-path dir="${FLEX_HOME}/frameworks/libs" includes="automation.swc"/>
+			<external-library-path dir="${FLEX_HOME}/frameworks/locale/en_US" includes="automation_rb.swc"/>
+			<external-library-path dir="${FLEX_HOME}/frameworks/libs" includes="automation_agent.swc"/>
+			<external-library-path dir="${FLEX_HOME}/frameworks/locale/en_US" includes="automation_agent_rb.swc"/>
+			<external-library-path dir="${FLEX_HOME}/frameworks/libs/player/${player.version}" includes="playerglobal.swc"/>
+		</compc>
+	</target>
+	
+	
+	<target name="automation_flashflexkit" description="Builds automation_flashflexkit.swc">
+		<compc accessible="true"
+				   output="${FLEX_HOME}/frameworks/libs/automation_flashflexkit.swc"
+				   include-classes="AutomationFlashFlexKitClasses "
+				   locale="en_US">
+				<source-path path-element="${automation_flashflexkit.dir}/src"/>
+				<source-path path-element="${automation.dir}/src"/>
+				<library-path/>
+				<include-libraries     dir="${FLEX_HOME}/frameworks/projects/flash-integration/libs" includes="FlexComponentBase.swc" />
+				<external-library-path dir="${FLEX_HOME}/frameworks/libs" includes="framework.swc"/>
+				<external-library-path dir="${FLEX_HOME}/frameworks/libs" includes="rpc.swc"/>
+				<external-library-path dir="${FLEX_HOME}/frameworks/libs" includes="automation.swc"/>
+				<external-library-path dir="${FLEX_HOME}/frameworks/locale/en_US" includes="automation_rb.swc"/>
+				<external-library-path dir="${FLEX_HOME}/frameworks/libs" includes="automation_agent.swc"/>
+				<external-library-path dir="${FLEX_HOME}/frameworks/locale/en_US" includes="automation_agent_rb.swc"/>
+				<external-library-path dir="${FLEX_HOME}/frameworks/libs/player/${player.version}" includes="playerglobal.swc"/>
+			</compc>
+	</target>
+	
+	
+	<target name="clean" description="Cleans all SWCs ">
+		<delete failonerror="false">
+			<fileset dir="${FLEX_HOME}/frameworks/libs" includes="datavisualization.swc,automation.swc,automation_dmv.swc,automation_flashflexkit.swc"/>
+		</delete>
+	</target>
+</project>

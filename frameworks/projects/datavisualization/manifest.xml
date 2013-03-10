@@ -1,0 +1,121 @@
+<?xml version="1.0"?>
+<componentPackage>
+
+
+   <component id="AdvancedDataGrid"
+                 class="mx.controls.AdvancedDataGrid"/>
+      <component id="AdvancedDataGridBaseSelectionData"
+                 class="mx.controls.advancedDataGridClasses.AdvancedDataGridBaseSelectionData"/>
+      <component id="AdvancedDataGridBaseSelectionPending"
+                 class="mx.controls.advancedDataGridClasses.AdvancedDataGridBaseSelectionPending"/>
+      <component id="AdvancedDataGridColumn"
+                 class="mx.controls.advancedDataGridClasses.AdvancedDataGridColumn"/>
+      <component id="AdvancedDataGridColumnGroup"
+                 class="mx.controls.advancedDataGridClasses.AdvancedDataGridColumnGroup"/>
+      <component id="AdvancedDataGridGroupItemRenderer"
+                 class="mx.controls.advancedDataGridClasses.AdvancedDataGridGroupItemRenderer"/>
+      <component id="AdvancedDataGridHeaderRenderer"
+                 class="mx.controls.advancedDataGridClasses.AdvancedDataGridHeaderRenderer"/>
+      <component id="AdvancedDataGridHeaderHorizontalSeparator"
+                 class="mx.skins.halo.AdvancedDataGridHeaderHorizontalSeparator"/>
+      <component id="AdvancedDataGridItemRenderer"
+                 class="mx.controls.advancedDataGridClasses.AdvancedDataGridItemRenderer"/>
+  	<component id="AdvancedDataGridRendererProvider"
+                 class="mx.controls.advancedDataGridClasses.AdvancedDataGridRendererProvider"/>
+      <component id="AdvancedDataGridSortItemRenderer"
+                 class="mx.controls.advancedDataGridClasses.AdvancedDataGridSortItemRenderer"/>
+      <component id="SortInfo"
+                 class="mx.controls.advancedDataGridClasses.SortInfo"/>
+  	<component id="PrintAdvancedDataGrid"
+                 class="mx.printing.PrintAdvancedDataGrid"/>
+  	<component id="PrintOLAPDataGrid"
+                 class="mx.printing.PrintOLAPDataGrid"/>
+  	<component id="GroupingCollection"
+  	           class="mx.collections.GroupingCollection"/>
+  	<component id="Grouping"
+  	           class="mx.collections.Grouping"/>
+  	<component id="GroupingField"
+  	           class="mx.collections.GroupingField"/>
+  	<component id="HierarchicalCollectionView"
+  	           class="mx.collections.HierarchicalCollectionView"/>
+  	<component id="HierarchicalData"
+  	           class="mx.collections.HierarchicalData"/>
+  	<component id="SummaryRow"
+  	           class="mx.collections.SummaryRow"/>
+  	<component id="SummaryField"
+	           class="mx.collections.SummaryField"/>
+	           
+	           
+  <!-- charts -->
+    <component id="AxisRenderer" class="mx.charts.AxisRenderer"/>
+    <component id="BarChart" class="mx.charts.BarChart"/>
+    <component id="BubbleChart" class="mx.charts.BubbleChart"/>
+    <component id="CategoryAxis" class="mx.charts.CategoryAxis"/>
+    <component id="ColumnChart" class="mx.charts.ColumnChart"/>
+    <component id="CandlestickChart" class="mx.charts.CandlestickChart"/>
+    <component id="HLOCChart" class="mx.charts.HLOCChart"/>
+    <component id="AreaChart" class="mx.charts.AreaChart"/>
+    <component id="GridLines" class="mx.charts.GridLines"/>
+    <component id="Legend" class="mx.charts.Legend"/>
+    <component id="LegendItem" class="mx.charts.LegendItem"/>
+    <component id="LineChart" class="mx.charts.LineChart"/>
+    <component id="LinearAxis" class="mx.charts.LinearAxis"/>
+    <component id="LogAxis" class="mx.charts.LogAxis"/>
+    <component id="DateTimeAxis" class="mx.charts.DateTimeAxis"/>
+    <component id="PieChart" class="mx.charts.PieChart"/>
+    <component id="PlotChart" class="mx.charts.PlotChart"/>
+    <component id="PolarChart" class="mx.charts.chartClasses.PolarChart"/>
+    <component id="CartesianChart" class="mx.charts.chartClasses.CartesianChart"/>
+    <component id="ChartBase" class="mx.charts.chartClasses.ChartBase"/>
+    <component id="AreaSeries" class="mx.charts.series.AreaSeries"/>
+    <component id="AreaSet" class="mx.charts.series.AreaSet"/>
+    <component id="BarSeries" class="mx.charts.series.BarSeries"/>
+    <component id="BarSet" class="mx.charts.series.BarSet"/>
+    <component id="BubbleSeries" class="mx.charts.series.BubbleSeries"/>
+    <component id="ColumnSeries" class="mx.charts.series.ColumnSeries"/>
+    <component id="ColumnSet" class="mx.charts.series.ColumnSet"/>
+    <component id="CandlestickSeries" class="mx.charts.series.CandlestickSeries"/>
+    <component id="HLOCSeries" class="mx.charts.series.HLOCSeries"/>
+    <component id="LineSeries" class="mx.charts.series.LineSeries"/>
+    <component id="PieSeries" class="mx.charts.series.PieSeries"/>
+    <component id="PlotSeries" class="mx.charts.series.PlotSeries"/>
+    <component id="SeriesEffect" class="mx.charts.effects.SeriesEffect"/>
+    <component id="SeriesInterpolate" class="mx.charts.effects.SeriesInterpolate"/>
+    <component id="SeriesSlide" class="mx.charts.effects.SeriesSlide"/>
+    <component id="SeriesZoom" class="mx.charts.effects.SeriesZoom"/>
+
+    <component id="AreaRenderer" class="mx.charts.renderers.AreaRenderer"/>
+    <component id="BoxItemRenderer" class="mx.charts.renderers.BoxItemRenderer"/>
+    <component id="CandlestickItemRenderer" class="mx.charts.renderers.CandlestickItemRenderer"/>
+    <component id="CircleItemRenderer" class="mx.charts.renderers.CircleItemRenderer"/>
+    <component id="CrossItemRenderer" class="mx.charts.renderers.CrossItemRenderer"/>
+    <component id="DiamondItemRenderer" class="mx.charts.renderers.DiamondItemRenderer"/>
+    <component id="HLOCItemRenderer" class="mx.charts.renderers.HLOCItemRenderer"/>
+    <component id="LineRenderer" class="mx.charts.renderers.LineRenderer"/>
+    <component id="ShadowBoxItemRenderer" class="mx.charts.renderers.ShadowBoxItemRenderer"/>
+    <component id="ShadowLineRenderer" class="mx.charts.renderers.ShadowLineRenderer"/>
+    <component id="TriangleItemRenderer" class="mx.charts.renderers.TriangleItemRenderer"/>
+    <component id="WedgeItemRenderer" class="mx.charts.renderers.WedgeItemRenderer"/>
+
+    <component id="CartesianDataCanvas" class="mx.charts.chartClasses.CartesianDataCanvas"/>
+    <component id="PolarDataCanvas" class="mx.charts.chartClasses.PolarDataCanvas"/>
+    
+
+  <!-- olap -->    
+
+    <component id="OLAPSchema"  class="mx.olap.OLAPSchema"/>
+    <component id="OLAPCube"  class="mx.olap.OLAPCube"/>
+    <component id="OLAPDimension"  class="mx.olap.OLAPDimension"/>
+    <component id="OLAPHierarchy"  class="mx.olap.OLAPHierarchy"/>
+    <component id="OLAPLevel"  class="mx.olap.OLAPLevel"/>
+    <component id="OLAPMember"  class="mx.olap.OLAPMember"/>
+    <component id="OLAPMeasure"  class="mx.olap.OLAPMeasure"/>
+    <component id="OLAPAttribute"  class="mx.olap.OLAPAttribute"/>
+    
+    
+  <!-- olapgrid--> 
+   <component id="OLAPDataGrid" class="mx.controls.OLAPDataGrid"/>
+   <component id="OLAPDataGridItemRendererProvider"  class="mx.controls.olapDataGridClasses.OLAPDataGridItemRendererProvider"/>
+   <component id="OLAPDataGridHeaderRendererProvider"  class="mx.controls.olapDataGridClasses.OLAPDataGridHeaderRendererProvider"/>
+
+</componentPackage>

@@ -1,0 +1,24 @@
+include "../src/mx/automation/delegates/charts/AreaSeriesAutomationImpl.as";
+include "../src/mx/automation/delegates/charts/AxisRendererAutomationImpl.as";
+include "../src/mx/automation/delegates/charts/BarSeriesAutomationImpl.as";
+include "../src/mx/automation/delegates/charts/BubbleSeriesAutomationImpl.as";
+include "../src/mx/automation/delegates/charts/CartesianChartAutomationImpl.as";
+include "../src/mx/automation/delegates/charts/ChartBaseAutomationImpl.as";
+include "../src/mx/automation/delegates/charts/ColumnSeriesAutomationImpl.as";
+include "../src/mx/automation/delegates/charts/HLOCSeriesBaseAutomationImpl.as";
+include "../src/mx/automation/delegates/charts/LegendAutomationImpl.as";
+include "../src/mx/automation/delegates/charts/LegendItemAutomationImpl.as";
+include "../src/mx/automation/delegates/charts/LineSeriesAutomationImpl.as";
+include "../src/mx/automation/delegates/charts/PieSeriesAutomationImpl.as";
+include "../src/mx/automation/delegates/charts/PlotSeriesAutomationImpl.as";
+include "../src/mx/automation/delegates/charts/SeriesAutomationImpl.as";
+
+include "../src/mx/automation/delegates/advancedDataGrid/AdvancedDataGridAutomationImpl.as";
+include "../src/mx/automation/delegates/advancedDataGrid/AdvancedDataGridBaseExAutomationImpl.as";
+include "../src/mx/automation/delegates/advancedDataGrid/AdvancedDataGridGroupItemRendererAutomationImpl.as";
+include "../src/mx/automation/delegates/advancedDataGrid/AdvancedDataGridItemRendererAutomationImpl.as";
+include "../src/mx/automation/delegates/advancedDataGrid/AdvancedListBaseAutomationImpl.as";
+include "../src/mx/automation/delegates/advancedDataGrid/OLAPDataGridAutomationImpl.as";
+include "../src/mx/automation/delegates/advancedDataGrid/OLAPDataGridGroupRendererAutomationImpl.as";
+
+

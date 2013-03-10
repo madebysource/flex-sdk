@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<!-- dpcontrols/adg/myComponents/ChartRenderer.mxml -->
+<mx:VBox height="200" width="100%" xmlns:mx="http://www.adobe.com/2006/mxml">
+    <mx:PieChart dataProvider="{data.detail}"
+        width="100%"
+        height="100%"
+        showDataTips="true">
+        <mx:series>
+            <mx:PieSeries labelPosition="callout" field="amount"  />
+        </mx:series>
+    </mx:PieChart>    
+</mx:VBox>
